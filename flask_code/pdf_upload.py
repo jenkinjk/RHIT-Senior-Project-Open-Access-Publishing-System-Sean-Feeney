@@ -27,4 +27,5 @@ def uploaded_file(filename):
 	return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], "pdfs"), filename)
 			
 if __name__=="__main__":
-	app.run(debug=True)
+	app.debug = true
+	app.run(host='0.0.0.0')
