@@ -1,35 +1,17 @@
-<!doctype html>
-
-	<div class="row">
-		<div class="col-lg-3">
-			<ul>
-				<li class="list-group-item">
-					<a href="/home" method="get">Home</a>
-				</li>
-				<li class="list-group-item">
-					<a href="/profile" method="get">My Profile</a>
-				</li>
-				<li class="list-group-item">
-					<!--<a href="/search" method="get">Search Articles</a>-->
-					Search Articles
-				</li>
-				<li class="list-group-item">
-					<a href="/upload" method="get">Upload Articles</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-
-<title>Search</title>
-<h1>Search by Keyword</h1>
-<form action="" method=post enctype=multipart/form-data>
+{% extends "base.html" %}
+{% block title %}Search Articles{% endblock %}
+{% block pageTitle %}Search Articles{% endblock %}
+{% block content %}
+<h2>Search by Keyword</h2>
+<form action="search" method=post enctype=multipart/form-data>
 	<p><input type=string name=search>
 	   <input type=submit value=search></p>
 </form>
-<h1>Results:</h1>
+<h2>Results:</h2>
 <ul>
 {% for pdfName in results %}
 	<li>
 		<a href={{"/uploads/" + pdfName}}>{{ pdfName }}</a>
 	</li>
 {% endfor %}
+{% endblock %}

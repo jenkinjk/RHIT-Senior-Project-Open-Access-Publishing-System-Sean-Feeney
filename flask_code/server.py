@@ -2,6 +2,8 @@ from flask import Flask, request, redirect, render_template, url_for, send_from_
 import os
 from werkzeug import secure_filename
 
+import pprint
+
 UPLOAD_FOLDER = './pdfs'
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
@@ -65,7 +67,8 @@ def profile_page():
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
     if(request.method == 'POST'):
-        pass
+        print request.form['search']
+        return render_template('search.html', results=os.listdir(app.config['UPLOAD_FOLDER']))
     else:
         return render_template('search.html')
 

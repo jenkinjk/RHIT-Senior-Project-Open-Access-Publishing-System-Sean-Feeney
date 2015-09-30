@@ -1,29 +1,10 @@
-<!doctype html>
-<html lang="en-US">
-<body>
-	<div class="row">
-		<div class="col-lg-3">
-			<ul>
-				<li class="list-group-item">
-					<!--<a href="/home" method="get">Home</a>-->
-					Home
-				</li>
-				<li class="list-group-item">
-					<a href="/profile" method="get">My Profile</a>
-				</li>
-				<li class="list-group-item">
-					<a href="/search" method="get">Search Articles</a>
-				</li>
-				<li class="list-group-item">
-					<a href="/upload" method="get">Upload Articles</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-
-	
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block pageTitle %}Home{% endblock %}
+{% block content %}
  	<div>
- 	<h1>Welcome to Open Access Publishing!</h1>
- 	<p>This is a placeholder for the home page.  Eventually, you will be able to info about the project here, as well as top articles from across the site</p>
+ 	<h2>Welcome to Open Access Publishing!</h2>
+ 	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab est ullam neque? Aut aliquam placeat voluptate, possimus id ex ad suscipit fugit ut nobis alias illo, excepturi, non minima, incidunt!</p>
 </div>
 </body>
+{% endblock %}

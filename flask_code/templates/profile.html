@@ -1,36 +1,8 @@
-<!doctype html>
-<head>
-	<title>Profile</title>
-
-	<!-- Bootstrap -->
-	<link rel="stylesheet" href="../css/bootstrap.min.css">
-	<!-- Bootstrap -->
-
-	<link href="../css/style.css" type="text/css" rel="stylesheet">
-</head>
-<body>
-	<div class="row">
-		<div class="col-lg-3">
-			<ul>
-				<li class="list-group-item">
-					<a href="/home" method="get">Home</a>
-				</li>
-				<li class="list-group-item">
-					<!--<a href="/profile" method="get">My Profile</a>-->
-					My Profile
-				</li>
-				<li class="list-group-item">
-					<a href="/search" method="get">Search Articles</a>
-				</li>
-				<li class="list-group-item">
-					<a href="/upload" method="get">Upload Articles</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-
-	
-	<div class="row">
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block pageTitle %}Profile{% endblock %}
+{% block content %}
+  <div class="row">
 		<div class="col-lg-4">
 			<ul>
 				<li class="list-group-item">
@@ -68,4 +40,4 @@
 			</ul>
 		</div>
 	</div>
-</body>	
+{% endblock %}
