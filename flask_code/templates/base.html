@@ -2,53 +2,52 @@
 <html>
   <head>
     {% block head %}
-    <link rel="stylesheet" href="../static/css/lib/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/footer.css') }}">
     <title>{% block title %}{% endblock %} - Open Scholar</title>
     {% endblock %}
   </head>
   <body>
+    <div id="wrapper">
 
-    {% block navbar %}
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div>
-          <ul class="nav navbar-nav">
-            <li>
-              <a href="/home" method="get">Home</a>
-            </li>
-            <li>
-              <a href="/profile" method="get">My Profile</a>
-            </li>
-            <li>
-              <a href="/search" method="get">Search Articles</a>
-            </li>
-            <li>
-              <a href="/upload" method="get">Upload Articles</a>
-            </li>
-          </ul>
+      <!-- nav bar -->
+      {% block navbar %}
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div>
+            <ul class="nav navbar-nav">
+              <li>
+                <a href="/home" method="get">Home</a>
+              </li>
+              <li>
+                <a href="/profile" method="get">My Profile</a>
+              </li>
+              <li>
+                <a href="/search" method="get">Search Articles</a>
+              </li>
+              <li>
+                <a href="/upload" method="get">Upload Articles</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      {% endblock %}
+      <!-- end of nav bar -->
+
+      <!-- content to be filled in by child pages -->
+      <h1>{% block pageTitle %}{% endblock %}</h1>
+      <div id="content">{% block content %}{% endblock %}</div>
+      <!-- end of content -->
+
+      <!-- footer --> 
+      <div class="row">
+        <div id="footer">
+          Open Access Footer
         </div>
       </div>
-    </nav>
-    {% endblock %}
+      <!-- end of footer -->
 
-
-    <h1>{% block pageTitle %}{% endblock %}</h1>
-    <div id="content">{% block content %}{% endblock %}</div>
-
-    <div id="footer">
-      {% block footer %}
-      &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.
-      {% endblock %}
-    </div>
-
-    <!-- footer -->
-    <div class="row">
-      <footer>
-        This footer was created by Tyler Duffy
-      </footer>
-    </div>
-
+    </div> <!-- end of wrapper -->
   </body>
 </html>
