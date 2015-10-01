@@ -1,15 +1,15 @@
 from flask import Flask, request, redirect, render_template, url_for, send_from_directory
-import os
-from werkzeug import secure_filename
+import documentHandler
 
 import pprint
 
-UPLOAD_FOLDER = './pdfs'
+
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+docStore = documentHandler.SimpleDocHandler() # our wrapper for whatever system stores the pdfs 
+db = []
 
 
 @app.route('/', methods=['GET'])
@@ -33,15 +33,21 @@ def upload_page():
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # TODO: we might should check our database to see if the file already exists somehow
+            uniqueID = docStore.storeDocument(file)
+            # TODO: now we record the uniqueID in the database along with metadata as a dictionary
+            data = {'filename':file.filename, 'uniqueID':uniqueID}
+            db.append(data)
+
             #return redirect(url_for('uploaded_file', filename=filename))
     # else it is a GET request
-    return render_template('upload.html', pdfNames=os.listdir(app.config['UPLOAD_FOLDER']))
+    results = db
+    return render_template('upload.html', results=results)
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route('/uploads/<uniqueID>')
+def uploaded_file(uniqueID):
+    file = docStore.retrieveDocument(uniqueID)
+    return send_file(file)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -67,8 +73,10 @@ def profile_page():
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
     if(request.method == 'POST'):
-        print request.form['search']
-        return render_template('search.html', results=os.listdir(app.config['UPLOAD_FOLDER']))
+        # query DB for certain entries.  for now we return everything
+        results = db
+
+        return render_template('search.html', results=results)
     else:
         return render_template('search.html')
 

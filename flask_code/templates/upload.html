@@ -8,9 +8,9 @@
 </form>
 <h1>Uploaded Files:</h1>
 <ul>
-{% for pdfName in pdfNames %}
+{% for result in results %}
 	<li>
-		<a href={{"/uploads/" + pdfName}}>{{ pdfName }}</a>
+		<a href={{"/uploads/" + result['uniqueID']}}>{{ result['filename'] }}</a>
 	</li>
 {% endfor %}
 </ul>
