@@ -1,0 +1,33 @@
+"Author:<AuthorID>:Papers"- <PaperID>,<PaperID>,<PaperID>
+"Author:<AuthorID>:Name"-<AuthorName>
+"Author:<AuthorID>:ViewCount"-<ViewCount> //I am leaning towards not keeping this //Make it followers instead. Also, make it a hash with Name as well.
+
+"Paper:<PaperID>:Publisher:"-<PublisherID> or <PublisherName> //Name. There should not be duplicate publishers
+"Paper:<PaperID>:Title"-<PaperTitle>
+"Paper:<PaperID>:DatePublished"-<DatePublished> //Hash all the stuff about papers. Perhaps not the Authors and tags
+"Paper:<PaperID>:ViewCount"-<ViewCount>
+"Paper:<PaperID>:Abstract"-<Abstract>
+"Paper:<PaperID>:Authors"- <AuthorID>,<AuthorID>,<AuthorID>
+"Paper:<PaperID>:Tags"- <TagID>,<TagID>,<TagID>
+
+"Tags"- <TagID>:<ViewCount>,<TagID>:<ViewCount>,<TagID>:<ViewCount> //number of papers with this tag instead of views?
+
+"Tag:<TagID>"-<PaperID>:<ViewCount>,<PaperID>:<ViewCount>,<PaperID>:<ViewCount>
+
+"Authors"- <AuthorID>:<ViewCount>,<AuthorID>:<ViewCount>,<AuthorID>:<ViewCount> //Followers?
+"AuthorWord:<AuthorWord>"- <AuthorID>:<ViewCount>,<AuthorID>:<ViewCount>,<AuthorID>:<ViewCount> //Put on hold?
+
+"YearPublished:<YearPublished>"-<PaperID>:<ViewCount>,<PaperID>:<ViewCount>,<PaperID>:<ViewCount> //Are people gonna wanna search for this? Not a bad idea inherently. Put it on the back burner?
+
+"Papers"-<PaperID>:<ViewCount>,<PaperID>:<ViewCount>,<PaperID>:<ViewCount> //A list of all the papers? This seems superfolous.
+"PaperWord:<PaperWord>"-<PaperID>:<ViewCount>,<PaperID>:<ViewCount>,<PaperID>:<ViewCount> 
+
+"Publishers"-<PublisherID>:<ViewCount>,<PublisherID>:<ViewCount>,<PublisherID>:<ViewCount> //Make name = ID
+
+"Publisher:<PublisherID>:Name"-<PublisherName> //Superfolous if name = ID
+"Publisher:<PublisherID>:ViewCount"-<ViewCount> //I am leaning towards not keeping this	//Agreed
+
+"Paper:<PaperID>:References"-<Reference>,<Reference>,<Reference>  // Don't know if we want all of the fields below, or if we do, how we want to store them //Reference = PaperIDs?
+"Paper:<PaperID>:CitedBys"-<CitedBy>,<CitedBy>,<CitedBy> //CitedBy = PaperIDs?
+"Paper:<PaperID>:DatePosted"-<DatePosted> //Add to paper hash
+"Paper:<PaperID>:PostedBy"-<PostedBy> //Add to paper hash
