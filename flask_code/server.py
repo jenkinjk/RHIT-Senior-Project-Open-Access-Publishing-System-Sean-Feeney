@@ -1,7 +1,8 @@
-from flask import Flask, request, redirect, render_template, url_for, send_from_directory
+from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory
 import documentHandler
-
+import os
 import pprint
+import cPickle
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -9,7 +10,16 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 app = Flask(__name__)
 docStore = documentHandler.SimpleDocHandler() # our wrapper for whatever system stores the pdfs 
-db = []
+
+# this initializes the fake database
+if(os.path.isfile(os.path.join('./pdfs', 'fakeDatabase.p'))):
+    # if the pickled fake database is present, load it
+    data_file = open(os.path.join('./pdfs', 'fakeDatabase.p'), 'rb')
+    db = cPickle.load(data_file)
+    data_file.close()
+else:
+    # else create a new one
+    db = []
 
 
 @app.route('/', methods=['GET'])
@@ -38,16 +48,23 @@ def upload_page():
             # TODO: now we record the uniqueID in the database along with metadata as a dictionary
             data = {'filename':file.filename, 'uniqueID':uniqueID}
             db.append(data)
-
+            # fake saving the data to our fake database
+            data_file = open(os.path.join('./pdfs', 'fakeDatabase.p'), 'wb')
+            cPickle.dump(db, data_file, -1)
+            data_file.close()
+        return redirect('/upload')
             #return redirect(url_for('uploaded_file', filename=filename))
     # else it is a GET request
-    results = db
-    return render_template('upload.html', results=results)
+    else:
+        results = db
+        return render_template('upload.html', results=results)
 
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
     file = docStore.retrieveDocument(uniqueID)
-    return send_file(file)
+    return send_from_directory('./pdfs', uniqueID)
+    #return send_file(file, mimetype='application/pdf')
+    
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
