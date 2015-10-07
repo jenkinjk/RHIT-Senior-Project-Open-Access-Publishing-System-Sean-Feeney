@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 
 app = Flask(__name__)
-docStore = s3DocumentHandler.s3DocumentHandler() # our wrapper for whatever system stores the pdfs 
+docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
 # this initializes the fake database
 if(os.path.isfile(os.path.join('./pdfs', 'fakeDatabase.p'))):
