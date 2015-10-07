@@ -63,7 +63,9 @@ def upload_page():
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
     file = docStore.retrieveDocument(uniqueID)
-    return send_from_directory('./pdfs', uniqueID)
+    tempfile = open('tempfile.pdf', 'wb')
+    tempfile.write(file['Body'].read())
+    return send_from_directory('.', 'tempFile')
     #return send_file(file, mimetype='application/pdf')
     
 
