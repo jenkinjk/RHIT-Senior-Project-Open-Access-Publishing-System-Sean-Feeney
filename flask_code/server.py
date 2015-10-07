@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory
 import documentHandler
+import s3DocumentHandler
 import os
 import pprint
 import cPickle
@@ -9,7 +10,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 
 app = Flask(__name__)
-docStore = documentHandler.SimpleDocHandler() # our wrapper for whatever system stores the pdfs 
+docStore = s3DocumentHandler.s3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
 # this initializes the fake database
 if(os.path.isfile(os.path.join('./pdfs', 'fakeDatabase.p'))):
