@@ -37,19 +37,19 @@ class RedisDatabase():
     self.redisDB.set("Paper:"+id+":Publisher:", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract:", abstract)
     self.redisDB.set("Paper:"+id+":Title:", title)
-    self.redisDB.set("Paper:"+id+":Authors:", authors)
-    self.redisDB.set("Paper:"+id+":Tags:", tags)
     self.redisDB.set("Paper:"+id+":DatePublished:", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted:", str(datePosted))
-    self.redisDB.set("Papers",id,0)
+    self.redisDB.zadd("Papers",id,0)
     for author in authors:
       self.redisDB.addpaper("Author:"+author+":Papers", id)
+	  self.redisDB.sadd("Paper:"+id+":Authors:", author)
     for tag in tags:
-      self.redisDB.addpaper("Tag:"+tag+":Papers", id, 0)
-    self.redisDB.addpaper("YearPublished:"+id, id, 0)
+      self.redisDB.zadd("Tag:"+tag+":Papers", id, 0)
+	  self.redisDB.sadd("Paper:"+id+":Tags:", tag)
+    self.redisDB.zadd("YearPublished:"+id, id, 0)
     words = getTitleWords(title)
     for word in words:
-      self.redisDB.addpaper("PaperWord:"+word,id,0)
+      self.redisDB.zadd("PaperWord:"+word,id,0)
     self.redisDB.incr("Papers:IDCounter")
     return id
     
@@ -59,10 +59,10 @@ class RedisDatabase():
     id = self.redisDB.get("Authors:IDCounter")
     self.redisDB.set("Author:"+id+":Name:", name)
     self.redisDB.set("Author:"+id+":ViewCount:", 0)
-    self.redisDB.set("Authors",id,0)
+    self.redisDB.zadd("Authors",id,0)
     words = getAuthorWords(title)
     for word in words:
-      self.redisDB.addpaper("AuthorWord:"+word,id,0)
+      self.redisDB.zadd("AuthorWord:"+word,id,0)
     self.redisDB.incr("Authors:IDCounter")
     return id
     
@@ -72,7 +72,7 @@ class RedisDatabase():
     id = self.redisDB.get("Tags:IDCounter")
     self.redisDB.set("Tag:"+id+":Name:", name)
     self.redisDB.set("Tag:"+id+":ViewCount:", 0)
-    self.redisDB.set("Tags",id,0)
+    self.redisDB.zadd("Tags",id,0)
     self.redisDB.incr("Authors:IDCounter")
     return id
   
@@ -82,15 +82,15 @@ class RedisDatabase():
     id = self.redisDB.get("Publishers:IDCounter")
     self.redisDB.set("Publisher:"+id+":Name:", name)
     self.redisDB.set("Publisher:"+id+":ViewCount:", 0)
-    self.redisDB.set("Publishers",id,0)
+    self.redisDB.zadd("Publishers",id,0)
     self.redisDB.incr("Publishers:IDCounter")
     return id  
   
     #updates the view count of a paper in every location that it is stored
   def incrementPaperViews(self, paperID):
-    "update paper itself, year list, each tags list, publisher list, each author, authorword, title word, publisher, authors list,"
+    #'''"update paper itself, year list, each tags list, publisher list, each author, authorword, title word, publisher, authors list,"'''
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
-    "Screw this, let's worry about implementing this later!"
+    #'''"Screw this, let's worry about implementing this later!"'''
     #self.redisDB.incr("YearPublished:")
     return
     
@@ -108,25 +108,25 @@ class RedisDatabase():
     authors = []
     for authorID in authorIDs:
       author = getAuthor(authorID)
-      authors.push(author)
+      authors.append(author)
     return authors
     
     # Returns a list of all tag objects
   def getAllTags(self):
-    rawTags = self.redisDB.get("Tags")
+    rawTags = self.redisDB.zrange("Tags",0,-1)
     tags = []
     for rawTag in rawTags:
-      tag = getTag(rawTag.tagID)
-      tags.push(tag)
+      tag = getTag(rawTag)
+      tags.append(tag)
     return tags
   
     # Returns a list of all publisher objects
   def getAllPublishers(self):
-    rawPublishers = self.redisDB.get("Publishers")
+    rawPublishers = self.redisDB.zrange("Publishers",0,-1)
     publishers = []
     for rawPublisher in rawPublishers:
-      publisher = getPublisher(rawPublisher.publisherID)
-      publishers.push(publisher)
+      publisher = getPublisher(rawPublisher)
+      publishers.append(publisher)
     return publishers  
     
     # Takes in a list of integer tagIDs
@@ -134,12 +134,12 @@ class RedisDatabase():
   def getPapersMatchingTags(self, tagIDs):
     tagKeys = []
     for tagID in tagIDs:
-      tagKeys.push("Tag:"+tagID+":Papers")
+      tagKeys.append("Tag:"+tagID+":Papers")
     paperIDs = getMergedSearchResults(tagKeys)
     papers = []
     for paperID in paperIDs:
       paper = getPaper(paperID)
-      papers.push(paper)
+      papers.append(paper)
     return papers
     
     # Takes in a string of the title of the paper
@@ -148,39 +148,39 @@ class RedisDatabase():
     titleWords = getSearchWords(title)
     titleKeys = []
     for titleWord in titleWords:
-      tagKeys.push("TitleWord:"+titleWord)
+      tagKeys.append("TitleWord:"+titleWord)
     paperIDs = getMergedSearchResults(titleKeys)
     papers = []
     for paperID in paperIDs:
       paper = getPaper(paperID)
-      papers.push(paper)
+      papers.append(paper)
     return papers
     
     # Takes in an integer authorID
     # Returns a list of paper objects
   def getPapersForAuthor(self, authorID):
-    rawPapers = self.redisDB.get("Author:"+authorID+":Papers")
+    rawPapers = self.redisDB.smembers("Author:"+authorID+":Papers")
     papers=[]
     for rawPaper in rawPapers:
       paper = getPaper(rawPaper.paperID)
-      papers.push(paper) 
+      papers.append(paper) 
     return papers
     
     # Takes in an integer year before the current year
     # returns a list of paper objects
   def getPapersPublishedInYear(self, year):
-    rawPapers = self.redisDB.get("YearPublished:"+year)
+    rawPapers = self.redisDB.zrange("YearPublished:"+year,0,-1)
     papers=[]
     for rawPaper in rawPapers:
-      paper = getPaper(rawPaper.paperID)
-      papers.push(paper) 
+      paper = getPaper(rawPaper)
+      papers.append(paper) 
     return papers
     
     # Takes in an integer paperID
     # Returns a paper object
   def getPaper(self, paperID):
-    authors = self.redisDB.get("Paper:"+paperID+":Authors")
-    tags = self.redisDB.get("Paper:"+paperID+":Authors")
+    authors = self.redisDB.smembers("Paper:"+paperID+":Authors")
+    tags = self.redisDB.smembers("Paper:"+paperID+":Tags")
     title = self.redisDB.get("Paper:"+paperID+":Title")
     abstract = self.redisDB.get("Paper:"+paperID+":Abstract")
     publisher = self.redisDB.get("Paper:"+paperID+":PublisherID")
@@ -194,26 +194,26 @@ class RedisDatabase():
     
     # Returns a list of paper objects
   def getTopAuthors(self):
-    rawAuthors = self.redisDB.lrange(0,100)
+    rawAuthors = self.redisDB.zrange("Authors",0,100)
     authors = []
     for a in rawAuthors:
-      author = getAuthor(a.authorID);
-      authors.push(author)
+      author = getAuthor(a);
+      authors.append(author)
     return authors
     
     # Returns a list of author objects
   def getTopPapers(self):
-    rawPapers = self.redisDB.lrange(0,100)
+    rawPapers = self.redisDB.zrange("Papers", 0, 100)
     papers = []
     for p in rawPapers:
-      paper = getPaper(p.paperID);
-      papers.push(paper)
+      paper = getPaper(p);
+      papers.append(paper)
     return papers
     
     # Takes in an integer authorID
     # Returns an author object
   def getAuthor(self, authorID):
-    papers = self.redisDB.get("Author:"+authorID+":Papers")
+    papers = self.redisDB.smembers("Author:"+authorID+":Papers")
     name = self.redisDB.get("Author:"+authorID+":Name")
     viewCount = self.redisDB.get("Author:"+authorID+":ViewCount")
     return Author(authorID, name, viewCount, papers)
@@ -221,7 +221,7 @@ class RedisDatabase():
     # Takes in an integer tagID
     # Returns a tag object
   def getTag(self, tagID):
-    papers = self.redisDB.get("Tag:"+tagID+":Papers")
+    papers = self.redisDB.smembers("Tag:"+tagID+":Papers")
     name = self.redisDB.get("Tag:"+tagID+":Name")
     viewCount = self.redisDB.get("Tag:"+tagID+":ViewCount")
     return Tag(tagID, name, viewCount, papers)  
@@ -272,7 +272,7 @@ class RedisDatabase():
     #Takes in integers paperID and tagID corresponding to the tag and paper to link together
   def tagPaper(self, paperID, tagID):
     paper = getPaper(paperID)
-    self.redisDB.addpaper("Tag:"+tagID+":Papers", paperID, paper.viewCount)
+    self.redisDB.zadd("Tag:"+tagID+":Papers", paperID, paper.viewCount)
     self.redisDB.incr("Tag:"+tagID+":ViewCount",paper.viewCount)
     self.redisDB.zincr("Tags", tagID,paper.viewCount)
     self.redisDB.sadd("Paper:"+paperID+":Tags", tagID)
