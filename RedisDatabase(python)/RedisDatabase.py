@@ -59,8 +59,8 @@ class RedisDatabase():
     id = self.redisDB.get("Authors:IDCounter")
     self.redisDB.set("Author:"+id+":Name:", name)
     self.redisDB.set("Author:"+id+":ViewCount:", 0)
-    self.redisDB.set("Authors",id,0)
-    words = getAuthorWords(title)
+    self.redisDB.set("Authors",id,0) #Note that authors are ranked by view count, hence the 0.
+    words = getAuthorWords(title) #title?
     for word in words:
       self.redisDB.addpaper("AuthorWord:"+word,id,0)
     self.redisDB.incr("Authors:IDCounter")
