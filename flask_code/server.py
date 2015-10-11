@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory
 import documentHandler
+import s3DocumentHandler
 import os
 import pprint
 import cPickle
@@ -9,7 +10,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 
 app = Flask(__name__)
-docStore = documentHandler.SimpleDocHandler() # our wrapper for whatever system stores the pdfs 
+docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
 # this initializes the fake database
 if(os.path.isfile(os.path.join('./pdfs', 'fakeDatabase.p'))):
@@ -62,7 +63,9 @@ def upload_page():
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
     file = docStore.retrieveDocument(uniqueID)
-    return send_from_directory('./pdfs', uniqueID)
+    tempfile = open('tempfile.pdf', 'wb')
+    tempfile.write(file['Body'].read())
+    return send_from_directory('.', 'tempFile')
     #return send_file(file, mimetype='application/pdf')
     
 
