@@ -42,6 +42,7 @@ class RedisDatabaseImpl():
     for tag in tags:
       self.redisDB.zadd("Tag:"+tag+":Papers", id, 0)
       self.redisDB.sadd("Paper:"+id+":Tags:", tag)
+      self.putTag(tag)
     self.redisDB.incr("Papers:IDCounter")
     return id
 
@@ -63,6 +64,7 @@ class RedisDatabaseImpl():
     print id
     tagPapers = "Tag:"+name+":Papers"
     print tagPapers
-    return Tag(id,name,resultTag[0],self.redisDB.lrange(tagPapers,0,-1))
+    print self.redisDB.zrange(tagPapers,0,-1)
+    return Tag(id,name,resultTag[0],self.redisDB.zrange(tagPapers,0,-1))
 
   

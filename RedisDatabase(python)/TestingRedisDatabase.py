@@ -79,7 +79,7 @@ class MyTests(unittest.TestCase):
     self.assertEqual("TagOne", tag.name)
     self.assertEqual('0', tag.viewCount)
     self.assertEqual('0', tag.id)
-    self.assertEqual([0],tag.papers)
+    self.assertEqual(['0'],tag.papers)
 
 if __name__ == '__main__': 
   unittest.main()
