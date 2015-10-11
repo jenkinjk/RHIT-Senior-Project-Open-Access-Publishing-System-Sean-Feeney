@@ -52,5 +52,34 @@ class MyTests(unittest.TestCase):
     self.assertEqual('1', db.putTag("Tag two"))
     self.assertEqual('2', db.putTag("Tag three"))
 
+  def test_GetTag(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putTag("TagOne"))
+    tag = db.getTag('0')
+    self.assertEqual("TagOne", tag.name)
+    self.assertEqual('0', tag.viewCount)
+    self.assertEqual('0', tag.id)
+    self.assertEqual([],tag.papers)
+
+  def test_GetTags(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putTag("Tag one"))
+    self.assertEqual('1', db.putTag("Tag two"))
+    self.assertEqual('2', db.putTag("TagThree"))
+    tag = db.getTag('2')
+    self.assertEqual("TagThree", tag.name)
+    self.assertEqual('0', tag.viewCount)
+    self.assertEqual('2', tag.id)
+    self.assertEqual([],tag.papers)
+
+  def test_GetTagsPapers(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
+    tag = db.getTag('0')
+    self.assertEqual("TagOne", tag.name)
+    self.assertEqual('0', tag.viewCount)
+    self.assertEqual('0', tag.id)
+    self.assertEqual([0],tag.papers)
+
 if __name__ == '__main__': 
   unittest.main()
