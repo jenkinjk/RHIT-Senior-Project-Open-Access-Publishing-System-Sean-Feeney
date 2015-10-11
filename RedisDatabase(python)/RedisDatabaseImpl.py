@@ -28,6 +28,30 @@ class RedisDatabaseImpl():
     self.redisDB.incr("Authors:IDCounter")
     return id
 
+    #Takes a string title and two string lists authors and tags
+    #Returns a string, PaperID
+  def putPaper(self, title, authors, tags):
+    id = self.redisDB.get("Papers:IDCounter")
+    self.redisDB.set("Paper:"+id+":Title:", title)
+    self.redisDB.zadd("Papers",id,0)
+    for author in authors:
+      self.redisDB.zadd("Author:"+author+":Papers", id,0)
+      self.redisDB.sadd("Paper:"+id+":Authors:", author)
+    for tag in tags:
+      self.redisDB.zadd("Tag:"+tag+":Papers", id, 0)
+      self.redisDB.sadd("Paper:"+id+":Tags:", tag)
+    self.redisDB.incr("Papers:IDCounter")
+    return id
+
+   #Takes in a string of the tag's name
+    #Returns a string tagID 
+  def putTag(self, name):
+    id = self.redisDB.get("Tags:IDCounter")
+    self.redisDB.set("Tag:"+id+":Name:", name)
+    self.redisDB.set("Tag:"+id+":ViewCount:", 0)
+    self.redisDB.zadd("Tags",id,0)
+    self.redisDB.incr("Tags:IDCounter")
+    return id
 
 
   

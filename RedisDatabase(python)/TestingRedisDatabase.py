@@ -20,5 +20,37 @@ class MyTests(unittest.TestCase):
     self.assertEqual('1', db.putAuthor("Author two"))
     self.assertEqual('2', db.putAuthor("Author three"))
 
+  def test_PutPaper(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one"],["Tag one"]))
+
+  def test_PutPaperAuthors(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one"]))
+
+  def test_PutPaperTags(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one"],["Tag one", "Tag two"]))
+
+  def test_PutPaperTagsAuthors(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one", "Author two"],["Tag one", "Tag two"]))
+
+  def test_PutAuthors(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one"],["Tag one"]))
+    self.assertEqual('1', db.putPaper("Paper Two's Title", ["Author two"],["Tag one"]))
+    self.assertEqual('2', db.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one","Tag two"]))
+
+  def test_PutTag(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putTag("Tag one"))
+
+  def test_PutTags(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putTag("Tag one"))
+    self.assertEqual('1', db.putTag("Tag two"))
+    self.assertEqual('2', db.putTag("Tag three"))
+
 if __name__ == '__main__': 
   unittest.main()
