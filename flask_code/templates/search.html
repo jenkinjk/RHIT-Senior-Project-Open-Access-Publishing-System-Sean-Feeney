@@ -18,7 +18,7 @@
 		<ul>
 		{% for result in results %}
 			<li>
-				<a href={{"/uploads/" + result['uniqueID']}}>{{ result['filename'] }}</a>
+				<a href={{"/uploads/" + result.id}}>{{ result.title }}</a>
 			</li>
 		{% endfor %}
 		{% endblock %}
