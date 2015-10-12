@@ -2,16 +2,25 @@
 {% block title %}Search Articles{% endblock %}
 {% block pageTitle %}Search Articles{% endblock %}
 {% block content %}
-<h2>Search by Keyword</h2>
-<form action="search" method=post enctype=multipart/form-data>
-	<p><input type=string name=search>
-	   <input type=submit value=search></p>
-</form>
-<h2>Results:</h2>
-<ul>
-{% for result in results %}
-	<li>
-		<a href={{"/uploads/" + result['uniqueID']}}>{{ result['filename'] }}</a>
-	</li>
-{% endfor %}
-{% endblock %}
+<div class="row">
+	<div class="col-lg-4 col-lg-offset-4 form-container">
+		<h2>Search by Keyword</h2>
+		<form action="search" method=post enctype=multipart/form-data>
+			<p><input type=string name=search>
+			   <input type=submit value=search></p>
+		</form>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-4 col-lg-offset-4">
+		<h2>Results:</h2>
+		<ul>
+		{% for result in results %}
+			<li>
+				<a href={{"/uploads/" + result['uniqueID']}}>{{ result['filename'] }}</a>
+			</li>
+		{% endfor %}
+		{% endblock %}
+	</div>
+</div>
