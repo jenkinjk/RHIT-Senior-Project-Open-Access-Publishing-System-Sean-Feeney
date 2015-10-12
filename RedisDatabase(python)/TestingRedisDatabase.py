@@ -42,6 +42,35 @@ class MyTests(unittest.TestCase):
     self.assertEqual('1', db.putPaper("Paper Two's Title", ["Author two"],["Tag one"]))
     self.assertEqual('2', db.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one","Tag two"]))
 
+  def test_GetAuthor(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putAuthor("Author One"))
+    author = db.getAuthor('0')
+    self.assertEqual("Author One", author.name)
+    self.assertEqual('0', author.viewCount)
+    self.assertEqual('0', author.id)
+    self.assertEqual([],author.papers)
+
+  def test_GetAuthors(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putAuthor("Author One"))
+    self.assertEqual('1', db.putAuthor("Author Two"))
+    self.assertEqual('2', db.putAuthor("Author Three"))
+    author = db.getAuthor('2')
+    self.assertEqual("Author Three", author.name)
+    self.assertEqual('0', author.viewCount)
+    self.assertEqual('2', author.id)
+    self.assertEqual([],author.papers)
+
+  def test_GetAuthorsPapers(self):
+    db = RedisDatabaseImpl()
+    self.assertEqual('0', db.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
+    author = db.getAuthor('0')
+    self.assertEqual("Author one", author.name)
+    self.assertEqual('0', author.viewCount)
+    self.assertEqual('0', author.id)
+    self.assertEqual(['0'],author.papers)
+
   def test_PutTag(self):
     db = RedisDatabaseImpl()
     self.assertEqual('0', db.putTag("Tag one"))

@@ -24,11 +24,18 @@ class RedisDatabaseImpl():
     #Returns a string authorID
   def putAuthor(self, name):
     id = '%s' % self.redisDB.get("Authors:IDCounter")
-    self.redisDB.set("Author:"+id+":Name:", name)
-    self.redisDB.set("Author:"+id+":ViewCount:", 0)
+    self.redisDB.hmset("Author:"+id, {"Name":name,"ViewCount":0})
     self.redisDB.zadd("Authors",id,0) #Note that authors are ranked by view count, hence the 0
     self.redisDB.incr("Authors:IDCounter")
     return id
+
+    #Takes in a string of the author's ID
+    #Returns an author object
+  def getAuthor(self, id):
+    resultAuthor = self.redisDB.hvals("Author:"+id) #It returns [viewCount, name]
+    name = resultAuthor[1]
+    authorPapers = "Author:"+name+":Papers"
+    return Author(id,name,resultAuthor[0],self.redisDB.zrange(authorPapers,0,-1))
 
     #Takes a string title and two string lists authors and tags
     #Returns a string, PaperID
@@ -39,6 +46,7 @@ class RedisDatabaseImpl():
     for author in authors:
       self.redisDB.zadd("Author:"+author+":Papers", id,0)
       self.redisDB.sadd("Paper:"+id+":Authors:", author)
+      self.putAuthor(author)
     for tag in tags:
       self.redisDB.zadd("Tag:"+tag+":Papers", id, 0)
       self.redisDB.sadd("Paper:"+id+":Tags:", tag)
@@ -55,16 +63,12 @@ class RedisDatabaseImpl():
     self.redisDB.incr("Tags:IDCounter")
     return id
 
+    #Takes a string id to a tag
+     #Returns a tag object
   def getTag(self, id):
-    print self.redisDB.keys("*")
     resultTag = self.redisDB.hvals("Tag:"+id) #It returns [viewCount, name]
-    print resultTag
     name = resultTag[1]
-    print name
-    print id
     tagPapers = "Tag:"+name+":Papers"
-    print tagPapers
-    print self.redisDB.zrange(tagPapers,0,-1)
     return Tag(id,name,resultTag[0],self.redisDB.zrange(tagPapers,0,-1))
 
   
