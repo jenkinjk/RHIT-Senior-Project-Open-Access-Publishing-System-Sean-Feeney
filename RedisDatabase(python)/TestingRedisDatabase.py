@@ -3,10 +3,8 @@ Created on Oct 7, 2015
 
 @author: jenkinjk
 '''
-
 from RedisDatabaseImpl import RedisDatabaseImpl
 from Paper import Paper
-import datetime
 import unittest
 
 class MyTests(unittest.TestCase):
