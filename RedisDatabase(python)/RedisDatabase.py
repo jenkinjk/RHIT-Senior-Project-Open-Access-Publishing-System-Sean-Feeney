@@ -18,7 +18,8 @@ class RedisDatabase():
     self.redisDB.set("Tags:IDCounter",0)
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
-    self.redisDB.set("Publishers:IDCounter",0) 
+    self.redisDB.set("Publishers:IDCounter",0)
+    self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
     
     #Takes in:
     #  - a string of the paper's title
@@ -88,10 +89,27 @@ class RedisDatabase():
   
     #updates the view count of a paper in every location that it is stored
   def incrementPaperViews(self, paperID):
-    #'''"update paper itself, year list, each tags list, publisher list, each author, authorword, title word, publisher, authors list,"'''
+    #update paper itself, year list, each tags list, publisher list, each author, authorword, title word, publisher, authors list
+	paper = getPaper(paperID)
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
-    #'''"Screw this, let's worry about implementing this later!"'''
-    #self.redisDB.incr("YearPublished:")
+	self.redisDB.zincrby("Papers", paperID, 1)
+    self.redisDB.zincrby("YearPublished:"+paper.datePublished.year, paperID, 1)
+	self.redisDB.zincrby("Publishers", paper.publisherID, 1)
+	self.redisDB.incr("Publisher:"+paper.publisherID+":ViewCount")
+	titleWords = getSearchWords(paper.title)
+	for titleWord in titleWords:
+	  self.redisDB.zincrby("PaperWord:"+titleWord, paperID, 1)
+	for authorID in paper.authors:
+	  self.redisDB.incr("Author:"+authorID+":ViewCount")
+	  self.redisDB.zincrby("Authors",authorID, 1)
+	  author = getAuthor(authorID)
+	  words = getSearchWords(author.name)
+	  for word in words:
+	    self.redisDB.zincrby("AuthorWord:"+word, authorID, 1)
+	for tagID in paper.tagIDs:
+	  self.redisDB.incr("Tag:"+tagID+":ViewCount")
+	  self.redisDB.zincrby("Tag:"+tagID+":Papers", paperID, 1)
+	  self.redisDB.zincrby("Tags", tagID, 1)
     return
     
     # Takes in a list of strings with names of authors to search for
@@ -242,49 +260,55 @@ class RedisDatabase():
   def getMergedSearchResults(self, keys):
     occurences = {}
     for key in keys:
-      rslts = self.redisDB.get(key)
+      rslts = self.redisDB.zrange(key, 0, -1)
       for rslt in rslts:
         if rslt in occurences:
-          occurences[rslt] = (occurences[rslt][0]+1,occurences[rslt][1)
+          occurences[rslt] = (occurences[rslt][0]+1,occurences[rslt][1])
         else:
           occurences[rslt] = (1, zscore)
     groupedOccurences = {}
     for item in occurences.items():
-      if !item[1][0] in groupedOccurences:
-        groupedOccurences[item[1][0]] = [(item[0],item[1][1])]
+	  occurenceCount = item[1][0]
+	  viewCount = item[1][1]
+	  itemID = item[0]
+      if !occurenceCount in groupedOccurences:
+        groupedOccurences[occurenceCount] = [(itemID,viewCount)]
       else:
-        viewCount = item[1][1]
         insertIndex = -1
-        for i in range(0, len(groupedOccurences[item[1][0]]) ):
-          if groupedOccurences[item[1][0]][i][1]<viewCount:
+        for i in range(0, len(groupedOccurences[occurenceCount]) ):
+          if groupedOccurences[occurenceCount][i][1]<viewCount:
             insertIndex = i
             break
         if insertIndex >= 0:
-          groupedOccurences[item[1][0]].insert(insertIndex,(item[0],item[1][1]))
+          groupedOccurences[occurenceCount].insert(insertIndex,(itemID,viewCount))
         else:
-          groupedOccurences[item[1][0]].append((item[0],item[1][1]))
+          groupedOccurences[occurenceCount].append((itemID,viewCount))
     ids = []
     for ls in groupedOccurences.values():
       for tup in ls:
-        ids.append(tup[0])        
+        ids.append(tup[0])      
     return ids
   
     #Takes in integers paperID and tagID corresponding to the tag and paper to link together
   def tagPaper(self, paperID, tagID):
     paper = getPaper(paperID)
     self.redisDB.zadd("Tag:"+tagID+":Papers", paperID, paper.viewCount)
-    self.redisDB.incr("Tag:"+tagID+":ViewCount",paper.viewCount)
-    self.redisDB.zincr("Tags", tagID,paper.viewCount)
+    self.redisDB.incrby("Tag:"+tagID+":ViewCount",paper.viewCount)
+    self.redisDB.zincrby("Tags", tagID,paper.viewCount)
     self.redisDB.sadd("Paper:"+paperID+":Tags", tagID)
     
   def getSearchWords(self, authorName):
     rawWords = re.sub('[^0-9a-z]+', ' ', authorName.lower()).split()
     words = []
+	wordSet = set([])
     for rawWord in rawWords:
-      if len(rawWord)>1:
-        words.append(rawWord)
+      if len(rawWord)>1 and rawWord not in self.wordsToFilter:
+        wordSet.add(rawWord)
+	for word in wordSet:
+	  words.append(word)
     return words
- 
-  
-      
-        
+
+
+
+
+	
