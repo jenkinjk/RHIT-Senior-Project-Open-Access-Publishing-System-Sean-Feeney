@@ -5,6 +5,7 @@ Created on Oct 11, 2015
 Note, this is a class that is designed to be a working, tested database. It takes code from RedisDatabase, written by davidsac, as well as implementing its own functions.
 '''
 
+import re
 import redis
 from Author import Author
 from Tag import Tag
@@ -19,6 +20,16 @@ class RedisDatabaseImpl():
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
     
+    #Takes in a string 
+    #returns a list of paper objects where the title contains that string
+  def search(self, searchTerm):
+    result = []
+    for paperID in self.redisDB.zrange("Papers",0,-1):
+      paperStuff = self.redisDB.hvals("Paper:"+paperID)
+      title = paperStuff[1]
+      if(bool(re.match(searchTerm, title))):
+        result.append(self.getPaper(paperID))
+    return result
 
     #Takes in a string of the author's name
     #Returns a string authorID
