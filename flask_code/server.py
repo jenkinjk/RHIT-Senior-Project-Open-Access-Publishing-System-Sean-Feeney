@@ -3,7 +3,9 @@ import documentHandler
 import s3DocumentHandler
 import os
 import pprint
-import cPickle
+#import cPickle
+from RedisDatabaseImpl import RedisDatabaseImpl
+import Paper
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -12,15 +14,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-# this initializes the fake database
-if(os.path.isfile(os.path.join('./pdfs', 'fakeDatabase.p'))):
-    # if the pickled fake database is present, load it
-    data_file = open(os.path.join('./pdfs', 'fakeDatabase.p'), 'rb')
-    db = cPickle.load(data_file)
-    data_file.close()
-else:
-    # else create a new one
-    db = []
+db = RedisDatabaseImpl()
 
 
 @app.route('/', methods=['GET'])
@@ -44,20 +38,26 @@ def upload_page():
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            # TODO: we might should check our database to see if the file already exists somehow
-            uniqueID = docStore.storeDocument(file)
-            # TODO: now we record the uniqueID in the database along with metadata as a dictionary
-            data = {'filename':file.filename, 'uniqueID':uniqueID}
-            db.append(data)
-            # fake saving the data to our fake database
-            data_file = open(os.path.join('./pdfs', 'fakeDatabase.p'), 'wb')
-            cPickle.dump(db, data_file, -1)
-            data_file.close()
+            # TODO: we might should check our database to see if the file already exists 
+            
+            title = request.form['title']
+            authorNames = request.form['authorName'].split(',')
+            for authorName in authorNames:
+                authorName.strip()
+            tags = request.form['tags'].split(',')
+            for tag in tags:
+                tag.strip()
+
+            print title, authorNames, tags
+
+            uniqueID = db.putPaper(title, authorNames, tags) # (string title, list of strings authors, list of strings tags)
+
+            docStore.storeDocument(file, uniqueID)
+
         return redirect('/upload')
-            #return redirect(url_for('uploaded_file', filename=filename))
     # else it is a GET request
     else:
-        results = db
+        results = []
         return render_template('upload.html', results=results)
 
 @app.route('/uploads/<uniqueID>')
@@ -94,7 +94,8 @@ def profile_page():
 def search_page():
     if(request.method == 'POST'):
         # query DB for certain entries.  for now we return everything
-        results = db
+        results = db.search('')
+        print results
 
         return render_template('search.html', results=results)
     else:

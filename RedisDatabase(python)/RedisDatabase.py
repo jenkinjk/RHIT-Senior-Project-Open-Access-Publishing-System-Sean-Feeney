@@ -307,8 +307,3 @@ class RedisDatabase():
 	for word in wordSet:
 	  words.append(word)
     return words
-
-
-
-
-	
