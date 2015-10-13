@@ -29,7 +29,15 @@ class RedisIntegrationTestCase(unittest.TestCase):
     '''for paper in self.redisDB.getTopPapers():
       print paper
     self.assertEqual('foo'.upper(), 'FOO')'''
-    print self.redisDB.getPaper(paperIDs[0])
+    #print self.redisDB.getAuthor(authorIDs[0])
+    #print self.redisDB.getAuthor(authorIDs[2])
+    #print self.redisDB.getPublisher(publishers[0])
+    #print self.redisDB.getTag(tagIDs[0])
+    #print self.redisDB.getTag(tagIDs[3])
+    tags = self.redisDB.getAllTags()
+    for tag in tags:
+      print tag
+    #print self.redisDB.getPaper(paperIDs[0])
 
   def tearDown(self):
     pass
