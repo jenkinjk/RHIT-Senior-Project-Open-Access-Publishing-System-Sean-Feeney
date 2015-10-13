@@ -1,0 +1,23 @@
+instructions on starting server:
+mostly for myself so i don't forget
+
+
+*****
+cd to the flask_code folder and run 
+sudo python server.py
+
+the sudo is necessary only because of our tempfile way of passing files from S3 to the user
+that is also why you need to be in the flask_code folder when you run it
+
+
+*****
+on my arch linux box i have to run the redis server locally as well, and start it seperately with
+sudo redis-server
+
+from inside the virtual-environment if you use one
+the sudo is apparently required for the database to be able to write to disk and save itself
+
+
+*****
+note that you can check up on redis by running redis-cli
+tell it to shutdown, etc
