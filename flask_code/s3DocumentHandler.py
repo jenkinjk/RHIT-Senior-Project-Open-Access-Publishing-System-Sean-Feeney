@@ -3,9 +3,15 @@ import boto3
 import botocore
 
 BUCKET_NAME = 'openaccesstemp'
-USER_NAME = 'openAccessServer'
-AWS_ACCESS_KEY_ID = 'AKIAIINGYMLIHZOKZU3A'
-AWS_SECRET_ACCESS_KEY = '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'
+
+# get credentials from file
+credential_file = open('credentials.txt', 'r')
+credential_file.readline()
+credentials = credential_file.readline().split(',')
+
+USER_NAME = credentials[0][1:-1]
+AWS_ACCESS_KEY_ID = credentials[1]
+AWS_SECRET_ACCESS_KEY = credentials[2]
 AWS_DEFAULT_REGION = 'us-east-1'
 FOLDER = 'docs/'
 
@@ -27,7 +33,9 @@ class S3DocumentHandler(documentHandler.DocumentHandler):
             error_code = int(e.response['Error']['Code'])
             if error_code == 404:
                 exists = False
-                print 'ERROR: bucket', BUCKET_NAME, 'does not exist'
+                print 'ERROR: amazon S3 bucket', BUCKET_NAME, 'does not exist'
+            elif error_code == 403:
+                print 'ERROR: amazon S3 access is forbidden, check account credentials'
 
     def storeDocument(self, file, uniqueID):
         #self.s3.Object(BUCKET_NAME, uniqueID).put(Body=file)
