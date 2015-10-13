@@ -68,12 +68,13 @@ def uploaded_file(uniqueID):
     print 'content length:', file['Body']._content_length
     
     def generate():
-        #yield file['Body'].read()
-        amt_read = 0
+        yield file['Body'].read()
+        # TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
+        #amt_read = 0
         
-        while(amt_read < file['Body']._content_length):
-            yield file['Body'].read(10)
-            amt_read = amt_read + 10
+        #while(amt_read < file['Body']._content_length):
+        #    yield file['Body'].read(10)
+        #    amt_read = amt_read + 10
             
     return Response(generate(), mimetype='application/pdf')
     
