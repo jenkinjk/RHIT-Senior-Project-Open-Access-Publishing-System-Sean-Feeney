@@ -30,8 +30,6 @@ class S3DocumentHandler(documentHandler.DocumentHandler):
                 print 'ERROR: bucket', BUCKET_NAME, 'does not exist'
 
     def storeDocument(self, file, uniqueID):
-        # stores the file and returns its uniqueID key that can be used to access
-        # it later
         #self.s3.Object(BUCKET_NAME, uniqueID).put(Body=file)
         return self.s3.Object(BUCKET_NAME, FOLDER + uniqueID).put(Body=file)
 
