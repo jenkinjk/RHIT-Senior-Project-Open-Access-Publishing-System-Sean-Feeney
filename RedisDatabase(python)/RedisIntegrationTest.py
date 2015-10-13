@@ -9,12 +9,12 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def test_1(self):
     authorIDs = []
-	authorIds.append(self.redisDB.putAuthor("Jimmy Fallon"))
-	authorIds.append(self.redisDB.putAuthor("Jimmy Dean"))
-	authorIds.append(self.redisDB.putAuthor("James Dean"))
-	authorIds.append(self.redisDB.putAuthor("Dean Thomas"))
-	authorIds.append(self.redisDB.putAuthor("Thomas Jefferson"))
-	authorIds.append(self.redisDB.putAuthor("Jefferson Davis"))
+	authorIDs.append(self.redisDB.putAuthor("Jimmy Fallon"))
+	authorIDs.append(self.redisDB.putAuthor("Jimmy Dean"))
+	authorIDs.append(self.redisDB.putAuthor("James Dean"))
+	authorIDs.append(self.redisDB.putAuthor("Dean Thomas"))
+	authorIDs.append(self.redisDB.putAuthor("Thomas Jefferson"))
+	authorIDs.append(self.redisDB.putAuthor("Jefferson Davis"))
 	
 	publishers = []
 	publishers.append(self.redisDB.putPublisher("RHIT"))
