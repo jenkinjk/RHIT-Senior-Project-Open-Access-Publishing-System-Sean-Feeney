@@ -45,10 +45,10 @@ class RedisDatabase():
     self.redisDB.zadd("Papers",id,0)
     for author in authors:
       self.redisDB.sadd("Author:"+author+":Papers", id)
-      self.redisDB.sadd("Paper:"+id+":Authors:", author)
+      self.redisDB.sadd("Paper:"+id+":Authors", author)
     for tag in tags:
       self.redisDB.zadd("Tag:"+tag+":Papers", id, 0)
-      self.redisDB.sadd("Paper:"+id+":Tags:", tag)
+      self.redisDB.sadd("Paper:"+id+":Tags", tag)
     self.redisDB.zadd("YearPublished:"+id, id, 0)
     words = self.getSearchWords(title)
     for word in words:
