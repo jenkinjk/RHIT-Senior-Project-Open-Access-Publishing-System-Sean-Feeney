@@ -15,7 +15,7 @@ from Publisher import Publisher
 class RedisDatabase():
 
   def __init__(self):
-    self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=0)
+    self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
     '''self.redisDB.set("Tags:IDCounter",0)
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
@@ -201,9 +201,9 @@ class RedisDatabase():
     paper = self.getPaper(paperID)
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
     self.redisDB.zincrby("Papers", paperID, 1)
-    self.redisDB.zincrby("YearPublished:"+paper.datePublished.year, paperID, 1)
-    self.redisDB.zincrby("Publishers", paper.publisherID, 1)
-    self.redisDB.incr("Publisher:"+paper.publisherID+":ViewCount")
+    self.redisDB.zincrby("YearPublished:"+str(paper.datePublished.year), paperID, 1)
+    self.redisDB.zincrby("Publishers", paper.publisher, 1)
+    self.redisDB.incr("Publisher:"+paper.publisher+":ViewCount")
     titleWords = self.getSearchWords(paper.title)
     for titleWord in titleWords:
       self.redisDB.zincrby("PaperWord:"+titleWord, paperID, 1)
@@ -214,7 +214,7 @@ class RedisDatabase():
       words = self.getSearchWords(author.name)
       for word in words:
         self.redisDB.zincrby("AuthorWord:"+word, authorID, 1)
-    for tagID in paper.tagIDs:
+    for tagID in paper.tags:
       self.redisDB.incr("Tag:"+tagID+":ViewCount")
       self.redisDB.zincrby("Tag:"+tagID+":Papers", paperID, 1)
       self.redisDB.zincrby("Tags", tagID, 1)
@@ -222,7 +222,7 @@ class RedisDatabase():
 
     #Takes in integers paperID and tagID corresponding to the tag and paper to link together
   def tagPaper(self, paperID, tagID):
-    paper = getPaper(paperID)
+    paper = self.getPaper(paperID)
     self.redisDB.zadd("Tag:"+tagID+":Papers", paper.viewCount, paperID)
     self.redisDB.incrby("Tag:"+tagID+":ViewCount",paper.viewCount)
     self.redisDB.zincrby("Tags", tagID,paper.viewCount)
@@ -234,7 +234,7 @@ class RedisDatabase():
   def getAuthorsMatchingAuthors(self, namesToSearch):
     words = []
     for name in namesToSearch:
-      words.append(getSearchWords(name))
+      words += self.getSearchWords(name)
     authorWordKeys = []
     for word in words:
       authorWordKeys.append("AuthorWord:"+word)  
@@ -283,7 +283,7 @@ class RedisDatabase():
         if rslt in occurences:
           occurences[rslt] = (occurences[rslt][0]+1,occurences[rslt][1])
         else:
-          occurences[rslt] = (1, zscore)
+          occurences[rslt] = (1, self.redisDB.zscore(key, rslt))
     groupedOccurences = {}
     for item in occurences.items():
       occurenceCount = item[1][0]
