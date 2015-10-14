@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response
+from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response, make_response
 import documentHandler
 import s3DocumentHandler
 import os
@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-db = RedisDatabaseImpl()
+db = RedisDatabaseImpl("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
 
 
 @app.route('/', methods=['GET'])
@@ -36,10 +36,11 @@ def home_page():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
     if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
+        upload_file = request.files['file']
+        if upload_file and allowed_file(upload_file.filename):
             # TODO: we might should check our database to see if the file already exists 
             
+            # Parse out the entered information
             title = request.form['title']
             authorNames = request.form['authorName'].split(',')
             for authorName in authorNames:
@@ -48,11 +49,10 @@ def upload_page():
             for tag in tags:
                 tag.strip()
 
-            print title, authorNames, tags
 
             uniqueID = db.putPaper(title, authorNames, tags) # (string title, list of strings authors, list of strings tags)
 
-            docStore.storeDocument(file, uniqueID)
+            docStore.storeDocument(upload_file, uniqueID)
 
         return redirect('/upload')
     # else it is a GET request
@@ -63,30 +63,28 @@ def upload_page():
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
     print 'viewing file', uniqueID 
-    file = docStore.retrieveDocument(uniqueID)
-    print 'recieved file contents:', file['Body']
-    print 'content length:', file['Body']._content_length
-    
-    def generate():
-        yield file['Body'].read()
-        # TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
+    viewing_file = docStore.retrieveDocument(uniqueID)
+    print 'content length:', viewing_file['Body']._content_length
+
+
+    response = make_response(viewing_file['Body'].read())
+    response.headers['Content-Type'] = 'application/pdf'
+    # uncomment this line to download as attachment instead of view
+    #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
+    return response
+
+
+    # this part worked fine, but it is simpler to use the make_reponse function.  We may need to do things this way for streaming large files, however, so let's keep it around
+    #def generate_file():
+        #yield viewing_file['Body'].read()
+        ######### TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
         #amt_read = 0
         
-        #while(amt_read < file['Body']._content_length):
-        #    yield file['Body'].read(10)
+        #while(amt_read < viewing_file['Body']._content_length):
+        #    yield viewing_file['Body'].read(10)
         #    amt_read = amt_read + 10
-            
-    return Response(generate(), mimetype='application/pdf')
-    
-    
-    
-    tempfile = open('tempfile.pdf', 'wb')
-    print tempfile 
-    tempfile.write(file['Body'].read())
-    tempfile.close()
-    tempfile = open('tempfile.pdf', 'rb')
-    #return send_from_directory('.', 'tempfile.pdf')
-    return send_file(tempfile) #, mimetype='application/pdf')
+        #########
+    #return Response(generate_file(), mimetype='application/pdf')
     
 
 def allowed_file(filename):
@@ -113,9 +111,11 @@ def profile_page():
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
     if(request.method == 'POST'):
-        # query DB for certain entries.  for now we return everything
-        results = db.search('')
-        print results
+        results = []
+        # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
+        if(request.form['search'] not in ['', ' ']):
+            results = db.search(request.form['search'])
+            print results
 
         return render_template('search.html', results=results)
     else:

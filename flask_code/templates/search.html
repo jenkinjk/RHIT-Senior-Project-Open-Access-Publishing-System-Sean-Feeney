@@ -1,10 +1,17 @@
 {% extends "base.html" %}
+{% block head}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="dist/bootstrap-tagsinput.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
+<link rel="stylesheet" href="assets/app.css">
+{% endblock %}
 {% block title %}Search Articles{% endblock %}
 {% block pageTitle %}Search Articles{% endblock %}
 {% block content %}
 <div class="row">
 	<div class="col-lg-4 col-lg-offset-4 form-container">
-		<h2>Search by Keyword</h2>
+		<h2>Search by Title</h2>
 		<form action="search" method=post enctype=multipart/form-data>
 			<p><input type=string name=search>
 			   <input type=submit value=search></p>
@@ -19,8 +26,9 @@
 		{% for result in results %}
 			<li>
 				<a href={{"/uploads/" + result.id}}>{{ result.title }}</a>
+				<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
 			</li>
 		{% endfor %}
-		{% endblock %}
 	</div>
 </div>
+{% endblock %}
