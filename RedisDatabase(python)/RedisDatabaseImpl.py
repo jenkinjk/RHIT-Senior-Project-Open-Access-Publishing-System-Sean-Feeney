@@ -12,13 +12,17 @@ from Tag import Tag
 from Paper import Paper
 
 class RedisDatabaseImpl():
-
-  def __init__(self):
-    self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
-    self.redisDB.flushdb()
+  
+  def __init__(self, Test):
+    if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
+      self.redisDB = redis.Redis(host='localhost', port=6379, db=1)
+      self.redisDB.flushdb()
+    else:
+      self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
     self.redisDB.set("Tags:IDCounter",0)
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
+    self.redisDB.set("User:IDCounter",0)
     
     #Takes in a string 
     #returns a list of paper objects where the title contains that string
@@ -27,7 +31,7 @@ class RedisDatabaseImpl():
     for paperID in self.redisDB.zrange("Papers",0,-1):
       paperStuff = self.redisDB.hvals("Paper:"+paperID)
       title = paperStuff[1]
-      if(bool(re.match(searchTerm, title))):
+      if(bool(searchTerm in title)):
         result.append(self.getPaper(paperID))
     return result
 
@@ -74,7 +78,7 @@ class RedisDatabaseImpl():
     return Paper(id, title, authors, tags, '','','','','','',viewCount,'')
 
    #Takes in a string of the tag's name
-    #Returns a string tagID 
+   #Returns a string tagID 
   def putTag(self, name):
     id = self.redisDB.get("Tags:IDCounter")
     self.redisDB.hmset("Tag:"+id, {"Name":name,"ViewCount":0})
@@ -83,7 +87,7 @@ class RedisDatabaseImpl():
     return id
 
     #Takes a string id to a tag
-     #Returns a tag object
+    #Returns a tag object
   def getTag(self, id):
     resultTag = self.redisDB.hvals("Tag:"+id) #It returns [viewCount, name]
     name = resultTag[1]
