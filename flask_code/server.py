@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory
+from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response
 import documentHandler
 import s3DocumentHandler
 import os
@@ -38,8 +38,8 @@ def upload_page():
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            # TODO: we might should check our database to see if the file already exists somehow
-
+            # TODO: we might should check our database to see if the file already exists 
+            
             title = request.form['title']
             authorNames = request.form['authorName'].split(',')
             for authorName in authorNames:
@@ -62,11 +62,31 @@ def upload_page():
 
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
+    print 'viewing file', uniqueID 
     file = docStore.retrieveDocument(uniqueID)
+    print 'recieved file contents:', file['Body']
+    print 'content length:', file['Body']._content_length
+    
+    def generate():
+        yield file['Body'].read()
+        # TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
+        #amt_read = 0
+        
+        #while(amt_read < file['Body']._content_length):
+        #    yield file['Body'].read(10)
+        #    amt_read = amt_read + 10
+            
+    return Response(generate(), mimetype='application/pdf')
+    
+    
+    
     tempfile = open('tempfile.pdf', 'wb')
+    print tempfile 
     tempfile.write(file['Body'].read())
-    return send_from_directory('.', 'tempFile')
-    #return send_file(file, mimetype='application/pdf')
+    tempfile.close()
+    tempfile = open('tempfile.pdf', 'rb')
+    #return send_from_directory('.', 'tempfile.pdf')
+    return send_file(tempfile) #, mimetype='application/pdf')
     
 
 def allowed_file(filename):
@@ -100,8 +120,21 @@ def search_page():
         return render_template('search.html', results=results)
     else:
         return render_template('search.html')
+        
+        
+# Obviously, REMOVE FOR PRODUCTION        
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
+        
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
 
 if __name__ == '__main__':
-	# REMOVE FOR PRODUCTION:
+	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
     app.debug = True
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', threaded=True)
