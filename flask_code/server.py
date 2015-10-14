@@ -4,7 +4,7 @@ import s3DocumentHandler
 import os
 import pprint
 #import cPickle
-import redisDatabaseImpl
+from RedisDatabaseImpl import RedisDatabaseImpl
 import Paper
 
 
@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-db = redisDatabaseImpl()
+db = RedisDatabaseImpl()
 
 
 @app.route('/', methods=['GET'])
