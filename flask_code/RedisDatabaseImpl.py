@@ -17,12 +17,13 @@ class RedisDatabaseImpl():
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
       self.redisDB = redis.Redis(host='localhost', port=6379, db=1)
       self.redisDB.flushdb()
+      self.redisDB.set("Tags:IDCounter",0)
+      self.redisDB.set("Authors:IDCounter",0)
+      self.redisDB.set("Papers:IDCounter",0)
+      self.redisDB.set("User:IDCounter",0)
     else:
       self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
-    self.redisDB.set("Tags:IDCounter",0)
-    self.redisDB.set("Authors:IDCounter",0)
-    self.redisDB.set("Papers:IDCounter",0)
-    self.redisDB.set("User:IDCounter",0)
+
     
     #Takes in a string 
     #returns a list of paper objects where the title contains that string
@@ -93,5 +94,7 @@ class RedisDatabaseImpl():
     name = resultTag[1]
     tagPapers = "Tag:"+name+":Papers"
     return Tag(id,name,resultTag[0],self.redisDB.zrange(tagPapers,0,-1))
+
+#Users, username, List of favorite articles, list of favorite authors, list of interesting tags
 
   
