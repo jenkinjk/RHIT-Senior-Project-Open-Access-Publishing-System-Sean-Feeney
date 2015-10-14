@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-db = RedisDatabaseImpl() # our wrapper for the database
+db = RedisDatabaseImpl("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
 
 
 @app.route('/', methods=['GET'])
@@ -111,9 +111,11 @@ def profile_page():
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
     if(request.method == 'POST'):
-        # query DB for certain entries.  for now we return everything
-        results = db.search(request.form['search'])
-        print results
+        results = []
+        # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
+        if(request.form['search'] not in ['', ' ']):
+            results = db.search(request.form['search'])
+            print results
 
         return render_template('search.html', results=results)
     else:
