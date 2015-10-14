@@ -246,7 +246,7 @@ class MyTests(unittest.TestCase):
     self.assertEqual(set([]),result.authors)
     self.assertEqual(set([]),result.tags)
 
-  #24
+  #Stress testing for performance
   def test_stress(self):
     db = RedisDatabaseImpl("Test")
     start = datetime.datetime.now()
