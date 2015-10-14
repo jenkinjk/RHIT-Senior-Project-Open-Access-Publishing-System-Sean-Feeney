@@ -15,7 +15,7 @@ from Publisher import Publisher
 class RedisDatabase():
 
   def __init__(self):
-    self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=0)
+    self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
     '''self.redisDB.set("Tags:IDCounter",0)
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
