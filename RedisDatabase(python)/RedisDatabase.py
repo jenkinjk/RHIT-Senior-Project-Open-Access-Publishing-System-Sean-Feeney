@@ -15,7 +15,7 @@ from Publisher import Publisher
 class RedisDatabase():
 
   def __init__(self):
-    self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
+    self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=0)
     '''self.redisDB.set("Tags:IDCounter",0)
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
@@ -196,7 +196,19 @@ class RedisDatabase():
       papers.append(paper)
     return papers
   
-    #updates the view count of a paper in every location that it is stored
+    #updates the view count of a paper in every location that it is stored:
+    # - the paper's own view count
+    # - the paper's zscore in the list of all papers
+    # - the paper's zscore in the list of papers in its published year
+    # - the paper's publisher's zscore in the list of all publishers
+    # - the paper's publisher's view count
+    # - the paper's zscore in each of the paper's titleWords' lists
+    # - the paper's authors' view counts
+    # - the paper's authors' zscores in the list of all authors
+    # - the paper's zscore in each of the paper's authors' authorwords' lists
+    # - the paper's tags' view counts
+    # - the paper's zscore in each of the paper's tags' lists
+    # - the paper's tags' zscores in the list of all tags
   def incrementPaperViews(self, paperID):
     paper = self.getPaper(paperID)
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
@@ -264,7 +276,7 @@ class RedisDatabase():
     titleWords = self.getSearchWords(title)
     titleKeys = []
     for titleWord in titleWords:
-      tagKeys.append("TitleWord:"+titleWord)
+      titleKeys.append("PaperWord:"+titleWord)
     paperIDs = self.getMergedSearchResults(titleKeys)
     papers = []
     for paperID in paperIDs:
@@ -294,7 +306,7 @@ class RedisDatabase():
       else:
         insertIndex = -1
         for i in range(0, len(groupedOccurences[occurenceCount]) ):
-          if groupedOccurences[occurenceCount][i][1]<viewCount:
+          if groupedOccurences[occurenceCount][i][1]>viewCount:
             insertIndex = i
             break
         if insertIndex >= 0:
@@ -302,9 +314,12 @@ class RedisDatabase():
         else:
           groupedOccurences[occurenceCount].append((itemID,viewCount))
     ids = []
-    for ls in groupedOccurences.values():
-      for tup in ls:
-        ids.append(tup[0])      
+    
+    for key in sorted(groupedOccurences.iterkeys()):
+      for tup in groupedOccurences[key]:
+        ids.append(tup[0])
+    ids.reverse()
+    print ids
     return ids
   
   def getSearchWords(self, string):

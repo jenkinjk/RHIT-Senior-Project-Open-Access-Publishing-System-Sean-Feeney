@@ -12,8 +12,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
   
     #use test database here instead
   def setUp(self):
-    self.redisself.db = RedisDatabase()
-    self.redisself.db.clearDatabase()
+    self.db = RedisDatabase()
+    self.db.clearDatabase()
 
   #1
   def test_PutAuthor(self):
@@ -49,7 +49,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('0', paper.viewCount)
     self.assertEqual('0', paper.id)
     self.assertEqual("Paper One's Title", paper.title)
-    self.assertEqual(["Tag one","Tag two"],paper.tags)
+    self.assertTrue("Tag two" in paper.tags)
+    self.assertTrue("Tag one" in paper.tags)
 
   #8
   def test_PutPapersAuthors(self):
