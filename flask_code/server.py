@@ -46,6 +46,7 @@ def upload_page():
             for authorName in authorNames:
                 authorName.strip()
             tags = request.form['tags'].split(',')
+            print 'tags:', tags
             for tag in tags:
                 tag.strip()
 
@@ -112,10 +113,14 @@ def profile_page():
 def search_page():
     if(request.method == 'POST'):
         results = []
+        print request.form
         # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
-        if(request.form['search'] not in ['', ' ']):
+        if(request.form['search'] == '*'):
+            results = db.search('')
+        elif(request.form['search'] not in ['', ' ']):
             results = db.search(request.form['search'])
             print results
+        
 
         return render_template('search.html', results=results)
     else:
