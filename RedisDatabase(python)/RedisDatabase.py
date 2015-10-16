@@ -196,14 +196,26 @@ class RedisDatabase():
       papers.append(paper)
     return papers
   
-    #updates the view count of a paper in every location that it is stored
+    #updates the view count of a paper in every location that it is stored:
+    # - the paper's own view count
+    # - the paper's zscore in the list of all papers
+    # - the paper's zscore in the list of papers in its published year
+    # - the paper's publisher's zscore in the list of all publishers
+    # - the paper's publisher's view count
+    # - the paper's zscore in each of the paper's titleWords' lists
+    # - the paper's authors' view counts
+    # - the paper's authors' zscores in the list of all authors
+    # - the paper's zscore in each of the paper's authors' authorwords' lists
+    # - the paper's tags' view counts
+    # - the paper's zscore in each of the paper's tags' lists
+    # - the paper's tags' zscores in the list of all tags
   def incrementPaperViews(self, paperID):
     paper = self.getPaper(paperID)
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
     self.redisDB.zincrby("Papers", paperID, 1)
-    self.redisDB.zincrby("YearPublished:"+paper.datePublished.year, paperID, 1)
-    self.redisDB.zincrby("Publishers", paper.publisherID, 1)
-    self.redisDB.incr("Publisher:"+paper.publisherID+":ViewCount")
+    self.redisDB.zincrby("YearPublished:"+str(paper.datePublished.year), paperID, 1)
+    self.redisDB.zincrby("Publishers", paper.publisher, 1)
+    self.redisDB.incr("Publisher:"+paper.publisher+":ViewCount")
     titleWords = self.getSearchWords(paper.title)
     for titleWord in titleWords:
       self.redisDB.zincrby("PaperWord:"+titleWord, paperID, 1)
@@ -214,7 +226,7 @@ class RedisDatabase():
       words = self.getSearchWords(author.name)
       for word in words:
         self.redisDB.zincrby("AuthorWord:"+word, authorID, 1)
-    for tagID in paper.tagIDs:
+    for tagID in paper.tags:
       self.redisDB.incr("Tag:"+tagID+":ViewCount")
       self.redisDB.zincrby("Tag:"+tagID+":Papers", paperID, 1)
       self.redisDB.zincrby("Tags", tagID, 1)
@@ -222,7 +234,7 @@ class RedisDatabase():
 
     #Takes in integers paperID and tagID corresponding to the tag and paper to link together
   def tagPaper(self, paperID, tagID):
-    paper = getPaper(paperID)
+    paper = self.getPaper(paperID)
     self.redisDB.zadd("Tag:"+tagID+":Papers", paper.viewCount, paperID)
     self.redisDB.incrby("Tag:"+tagID+":ViewCount",paper.viewCount)
     self.redisDB.zincrby("Tags", tagID,paper.viewCount)
@@ -234,7 +246,7 @@ class RedisDatabase():
   def getAuthorsMatchingAuthors(self, namesToSearch):
     words = []
     for name in namesToSearch:
-      words.append(getSearchWords(name))
+      words += self.getSearchWords(name)
     authorWordKeys = []
     for word in words:
       authorWordKeys.append("AuthorWord:"+word)  
@@ -264,7 +276,7 @@ class RedisDatabase():
     titleWords = self.getSearchWords(title)
     titleKeys = []
     for titleWord in titleWords:
-      tagKeys.append("TitleWord:"+titleWord)
+      titleKeys.append("PaperWord:"+titleWord)
     paperIDs = self.getMergedSearchResults(titleKeys)
     papers = []
     for paperID in paperIDs:
@@ -283,7 +295,7 @@ class RedisDatabase():
         if rslt in occurences:
           occurences[rslt] = (occurences[rslt][0]+1,occurences[rslt][1])
         else:
-          occurences[rslt] = (1, zscore)
+          occurences[rslt] = (1, self.redisDB.zscore(key, rslt))
     groupedOccurences = {}
     for item in occurences.items():
       occurenceCount = item[1][0]
@@ -294,7 +306,7 @@ class RedisDatabase():
       else:
         insertIndex = -1
         for i in range(0, len(groupedOccurences[occurenceCount]) ):
-          if groupedOccurences[occurenceCount][i][1]<viewCount:
+          if groupedOccurences[occurenceCount][i][1]>viewCount:
             insertIndex = i
             break
         if insertIndex >= 0:
@@ -302,9 +314,12 @@ class RedisDatabase():
         else:
           groupedOccurences[occurenceCount].append((itemID,viewCount))
     ids = []
-    for ls in groupedOccurences.values():
-      for tup in ls:
-        ids.append(tup[0])      
+    
+    for key in sorted(groupedOccurences.iterkeys()):
+      for tup in groupedOccurences[key]:
+        ids.append(tup[0])
+    ids.reverse()
+    print ids
     return ids
   
   def getSearchWords(self, string):

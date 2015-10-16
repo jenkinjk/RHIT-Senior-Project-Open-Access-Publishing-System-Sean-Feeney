@@ -6,6 +6,7 @@ Created on Oct 7, 2015
 from RedisDatabaseImpl import RedisDatabaseImpl
 from Paper import Paper
 import unittest
+import datetime
 
 class MyTests(unittest.TestCase):
 
@@ -218,6 +219,45 @@ class MyTests(unittest.TestCase):
     self.assertEqual(result[0].viewCount, paper.viewCount)
     self.assertEqual(result[0].title, paper.title)
     self.assertEqual(result[0].tags,paper.tags)
+
+  #22
+  def test_putUser(self):
+    db = RedisDatabaseImpl("Test")
+    self.assertEqual('0', db.putUser("User One"))
+    self.assertEqual('1', db.putUser("User Two"))
+
+  #23
+  def test_getUser(self):
+    db = RedisDatabaseImpl("Test")
+    self.assertEqual('0', db.putUser("User One"))
+    result = db.getUser('0')
+    self.assertEqual("User One", result.username)
+    self.assertEqual(set([]), result.papers)
+    self.assertEqual(set([]),result.authors)
+    self.assertEqual(set([]),result.tags)
+
+  #23
+  def test_favoritePaper(self):
+    db = RedisDatabaseImpl("Test")
+    self.assertEqual('0', db.putUser("User One"))
+    result = db.getUser('0')
+    self.assertEqual("User One", result.username)
+    self.assertEqual(set([]), result.papers)
+    self.assertEqual(set([]),result.authors)
+    self.assertEqual(set([]),result.tags)
+
+  #Stress testing for performance
+  def test_stress(self):
+    db = RedisDatabaseImpl("Test")
+    start = datetime.datetime.now()
+    for i in range(0,1000000):
+      db.putPaper("%s" % i, ["Author one"],["TagOne"])
+    finish = datetime.datetime.now()
+    print finish - start
+    start = datetime.datetime.now()
+    result = db.search("100")
+    finish = datetime.datetime.now()
+    print finish - start
 
 if __name__ == '__main__': 
   unittest.main()

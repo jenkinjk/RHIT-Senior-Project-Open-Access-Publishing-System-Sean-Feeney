@@ -20,7 +20,7 @@ class RedisDatabaseImpl():
       self.redisDB.set("Tags:IDCounter",0)
       self.redisDB.set("Authors:IDCounter",0)
       self.redisDB.set("Papers:IDCounter",0)
-      self.redisDB.set("User:IDCounter",0)
+      self.redisDB.set("Users:IDCounter",0)
     else:
       self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
 
@@ -96,5 +96,11 @@ class RedisDatabaseImpl():
     return Tag(id,name,resultTag[0],self.redisDB.zrange(tagPapers,0,-1))
 
 #Users, username, List of favorite articles, list of favorite authors, list of interesting tags
+  def createUser(self, username):
+    id = self.redisDB.get("Users:IDCounter")
+    self.redisDB.hmset("User:"+id, {"Username":username,"Followers":0})
+    self.redisDB.zadd("Users",id,0) #To be ranked by followers
+    self.redisDB.incr("Users:IDCounter")
+    return id
 
   
