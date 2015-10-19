@@ -1,42 +1,50 @@
 <!doctype html>
 <html>
   <head>
-    {% block head %}
+    {% block head %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/style.css') }}">
     <title>{% block title %}{% endblock %} - Open Scholar</title>
-    {% endblock %}
   </head>
   <body>
     <div id="wrapper">
 
       <!-- nav bar -->
       {% block navbar %}
-      <nav class="navbar navbar-default">
-        <div class="container-fluid">
-          <div>
-            <ul class="nav navbar-nav">
-              <li>
-                <a href="/home" method="get">Home</a>
-              </li>
-              <li>
-                <a href="/profile" method="get">My Profile</a>
-              </li>
-              <li>
-                <a href="/search" method="get">Search Articles</a>
-              </li>
-              <li>
-                <a href="/upload" method="get">Upload Articles</a>
-              </li>
-            </ul>
-          </div>
+      <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+          <nav class="navbar navbar-default">
+            <div class="container-fluid">
+              <div>
+                <ul class="nav navbar-nav">
+                  <li>
+                    <a href="/home" method="get">Home</a>
+                  </li>
+                  <li>
+                    <a href="/profile" method="get">My Profile</a>
+                  </li>
+                  <li>
+                    <a href="/search" method="get">Search Articles</a>
+                  </li>
+                  <li>
+                    <a href="/upload" method="get">Upload Articles</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
         </div>
-      </nav>
+      </div>
       {% endblock %}
       <!-- end of nav bar -->
 
       <!-- content to be filled in by child pages -->
-      <h1>{% block pageTitle %}{% endblock %}</h1>
+      <div class="row">
+        <div class="col-lg-4 col-lg-offset-5">
+          <h1>{% block pageTitle %}{% endblock %}</h1>
+        </div>
+      </div>
       <div id="content">{% block content %}{% endblock %}</div>
       <!-- end of content -->
 

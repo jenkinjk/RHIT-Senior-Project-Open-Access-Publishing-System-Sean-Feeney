@@ -1,9 +1,11 @@
-from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory
+from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response, make_response
 import documentHandler
 import s3DocumentHandler
 import os
 import pprint
-import cPickle
+#import cPickle
+from RedisDatabaseImpl import RedisDatabaseImpl
+import Paper
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -12,15 +14,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-# this initializes the fake database
-if(os.path.isfile(os.path.join('./pdfs', 'fakeDatabase.p'))):
-    # if the pickled fake database is present, load it
-    data_file = open(os.path.join('./pdfs', 'fakeDatabase.p'), 'rb')
-    db = cPickle.load(data_file)
-    data_file.close()
-else:
-    # else create a new one
-    db = []
+db = RedisDatabaseImpl("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
 
 
 @app.route('/', methods=['GET'])
@@ -42,31 +36,56 @@ def home_page():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
     if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            # TODO: we might should check our database to see if the file already exists somehow
-            uniqueID = docStore.storeDocument(file)
-            # TODO: now we record the uniqueID in the database along with metadata as a dictionary
-            data = {'filename':file.filename, 'uniqueID':uniqueID}
-            db.append(data)
-            # fake saving the data to our fake database
-            data_file = open(os.path.join('./pdfs', 'fakeDatabase.p'), 'wb')
-            cPickle.dump(db, data_file, -1)
-            data_file.close()
+        upload_file = request.files['file']
+        if upload_file and allowed_file(upload_file.filename):
+            # TODO: we might should check our database to see if the file already exists 
+            
+            # Parse out the entered information
+            title = request.form['title']
+            authorNames = request.form['authorName'].split(',')
+            for authorName in authorNames:
+                authorName.strip()
+            tags = request.form['tags'].split(',')
+            print 'tags:', tags
+            for tag in tags:
+                tag.strip()
+
+
+            uniqueID = db.putPaper(title, authorNames, tags) # (string title, list of strings authors, list of strings tags)
+
+            docStore.storeDocument(upload_file, uniqueID)
+
         return redirect('/upload')
-            #return redirect(url_for('uploaded_file', filename=filename))
     # else it is a GET request
     else:
-        results = db
+        results = []
         return render_template('upload.html', results=results)
 
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
-    file = docStore.retrieveDocument(uniqueID)
-    tempfile = open('tempfile.pdf', 'wb')
-    tempfile.write(file['Body'].read())
-    return send_from_directory('.', 'tempFile')
-    #return send_file(file, mimetype='application/pdf')
+    print 'viewing file', uniqueID 
+    viewing_file = docStore.retrieveDocument(uniqueID)
+    print 'content length:', viewing_file['Body']._content_length
+
+
+    response = make_response(viewing_file['Body'].read())
+    response.headers['Content-Type'] = 'application/pdf'
+    # uncomment this line to download as attachment instead of view
+    #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
+    return response
+
+
+    # this part worked fine, but it is simpler to use the make_reponse function.  We may need to do things this way for streaming large files, however, so let's keep it around
+    #def generate_file():
+        #yield viewing_file['Body'].read()
+        ######### TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
+        #amt_read = 0
+        
+        #while(amt_read < viewing_file['Body']._content_length):
+        #    yield viewing_file['Body'].read(10)
+        #    amt_read = amt_read + 10
+        #########
+    #return Response(generate_file(), mimetype='application/pdf')
     
 
 def allowed_file(filename):
@@ -93,14 +112,34 @@ def profile_page():
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
     if(request.method == 'POST'):
-        # query DB for certain entries.  for now we return everything
-        results = db
+        results = []
+        print request.form
+        # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
+        if(request.form['search'] == '*'):
+            results = db.search('')
+        elif(request.form['search'] not in ['', ' ']):
+            results = db.search(request.form['search'])
+            print results
+        
 
         return render_template('search.html', results=results)
     else:
         return render_template('search.html')
+        
+        
+# Obviously, REMOVE FOR PRODUCTION        
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
+        
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
 
 if __name__ == '__main__':
-	# REMOVE FOR PRODUCTION:
+	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
     app.debug = True
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', threaded=True)
