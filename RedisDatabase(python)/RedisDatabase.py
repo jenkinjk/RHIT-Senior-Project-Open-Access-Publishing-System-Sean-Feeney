@@ -89,11 +89,13 @@ class RedisDatabase():
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
     self.redisDB.zadd("Papers",0,id)
     for author in authors:
-      self.redisDB.sadd("Author:"+author+":Papers", id)
       self.redisDB.sadd("Paper:"+id+":Authors", author)
+      authorID = self.putAuthor(author)
+      self.redisDB.sadd("Author:"+authorID+":Papers", id)
     for tag in tags:
-      self.redisDB.zadd("Tag:"+tag+":Papers", 0, id)
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
+      tagID = self.putTag(tag)
+      self.redisDB.zadd("Tag:"+tagID+":Papers",id,0)
     self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
     words = self.getSearchWords(title)
     for word in words:
@@ -180,8 +182,7 @@ class RedisDatabase():
       paper = self.getPaper(rawPaper)
       papers.append(paper) 
     return papers
-    
-   
+      
     
     # Returns a list of paper objects
   def getTopAuthors(self):
