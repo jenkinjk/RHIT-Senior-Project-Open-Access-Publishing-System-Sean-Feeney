@@ -15,14 +15,14 @@ class RedisDatabaseImpl():
   
   def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
-      self.redisDB = redis.Redis(host='localhost', port=6379, db=1)
+      self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=1)
       self.redisDB.flushdb()
       self.redisDB.set("Tags:IDCounter",0)
       self.redisDB.set("Authors:IDCounter",0)
       self.redisDB.set("Papers:IDCounter",0)
       self.redisDB.set("Users:IDCounter",0)
     else:
-      self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
+      self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
 
     
     #Takes in a string 
