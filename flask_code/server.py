@@ -4,8 +4,9 @@ import s3DocumentHandler
 import os
 import pprint
 #import cPickle
-from RedisDatabaseImpl import RedisDatabaseImpl
+from RedisDatabaseImpl import RedisDatabase
 import Paper
+from datetime import datetime
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -14,7 +15,7 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-db = RedisDatabaseImpl("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
+db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
 
 
 @app.route('/', methods=['GET'])
@@ -50,8 +51,8 @@ def upload_page():
             for tag in tags:
                 tag.strip()
 
-
-            uniqueID = db.putPaper(title, authorNames, tags) # (string title, list of strings authors, list of strings tags)
+            # putPaper(title, authors, tags, abstract, userID, datePublished, publisherID, citedBys, references)
+            uniqueID = db.putPaper(title, authorNames, tags, None, None, datetime.now(), None, [], []) 
 
             docStore.storeDocument(upload_file, uniqueID)
 
@@ -116,9 +117,9 @@ def search_page():
         print request.form
         # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
         if(request.form['search'] == '*'):
-            results = db.search('')
+            results = db.getPapersMatchingTitle('')
         elif(request.form['search'] not in ['', ' ']):
-            results = db.search(request.form['search'])
+            results = db.getPapersMatchingTitle(request.form['search'])
             print results
         
 

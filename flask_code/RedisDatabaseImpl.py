@@ -24,7 +24,6 @@ class RedisDatabase():
       self.redisDB.set("Papers:IDCounter",0)
       self.redisDB.set("Users:IDCounter",0)
     else:
-
       self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
     
@@ -39,12 +38,13 @@ class RedisDatabase():
     #Returns a string authorID
   def putAuthor(self, name):
     id = self.redisDB.get("Authors:IDCounter")
+    id = str(id)
     self.redisDB.set("Author:"+id+":Name", name)
     self.redisDB.set("Author:"+id+":ViewCount", 0)
-    self.redisDB.zadd("Authors",0,id)
+    self.redisDB.zadd("Authors",id,0)
     words = self.getSearchWords(name)
     for word in words:
-      self.redisDB.zadd("AuthorWord:"+word,0,id)
+      self.redisDB.zadd("AuthorWord:"+word,id,0)
     self.redisDB.incr("Authors:IDCounter")
     return id
     
@@ -52,9 +52,10 @@ class RedisDatabase():
     #Returns a string tagID 
   def putTag(self, name):
     id = self.redisDB.get("Tags:IDCounter")
+    id = str(id)
     self.redisDB.set("Tag:"+id+":Name", name)
     self.redisDB.set("Tag:"+id+":ViewCount", 0)
-    self.redisDB.zadd("Tags",0,id)
+    self.redisDB.zadd("Tags",id,0)
     self.redisDB.incr("Tags:IDCounter")
     return id
   
@@ -62,9 +63,10 @@ class RedisDatabase():
     #Returns a string publisherID
   def putPublisher(self, name):
     id = self.redisDB.get("Publishers:IDCounter")
+    id = str(id)
     self.redisDB.set("Publisher:"+id+":Name", name)
     self.redisDB.set("Publisher:"+id+":ViewCount", 0)
-    self.redisDB.zadd("Publishers",0,id)
+    self.redisDB.zadd("Publishers",id,0)
     self.redisDB.incr("Publishers:IDCounter")
     return id
 
@@ -82,13 +84,15 @@ class RedisDatabase():
   def putPaper(self, title, authors, tags, abstract, userID, datePublished, publisherID, citedBys, references):
     datePosted = datetime.now()
     id = self.redisDB.get("Papers:IDCounter")
+    id = str(id)
+    #id = "%s" % id
     self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract", abstract)
     self.redisDB.set("Paper:"+id+":Title", title)
     self.redisDB.set("Paper:"+id+":ViewCount", 0)
     self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
-    self.redisDB.zadd("Papers",0,id)
+    self.redisDB.zadd("Papers",id,0)
     for author in authors:
       self.redisDB.sadd("Paper:"+id+":Authors", author)
       authorID = self.putAuthor(author)
@@ -97,10 +101,10 @@ class RedisDatabase():
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
       tagID = self.putTag(tag)
       self.redisDB.zadd("Tag:"+tagID+":Papers",id,0)
-    self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
+    self.redisDB.zadd("YearPublished:"+str(datePublished.year),id,0)
     words = self.getSearchWords(title)
     for word in words:
-      self.redisDB.zadd("PaperWord:"+word,0,id)
+      self.redisDB.zadd("PaperWord:"+word,id,0)
     self.redisDB.incr("Papers:IDCounter")
     return id
 
@@ -139,7 +143,7 @@ class RedisDatabase():
     publisherID = self.redisDB.get("Paper:"+paperID+":PublisherID")
     viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
-    datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
+    datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S.%f") # NOTE: this format needs to be updated once we stop using a datetime object 
     postedBy = ""
     references = []
     citedBys = []
@@ -242,7 +246,7 @@ class RedisDatabase():
     #Takes in integers paperID and tagID corresponding to the tag and paper to link together
   def tagPaper(self, paperID, tagID):
     paper = self.getPaper(paperID)
-    self.redisDB.zadd("Tag:"+tagID+":Papers", paper.viewCount, paperID)
+    self.redisDB.zadd("Tag:"+tagID+":Papers", paperID, paper.viewCount)
     self.redisDB.incrby("Tag:"+tagID+":ViewCount",paper.viewCount)
     self.redisDB.zincrby("Tags", tagID,paper.viewCount)
     self.redisDB.sadd("Paper:"+paperID+":Tags", tagID)
@@ -343,6 +347,7 @@ class RedisDatabase():
   #Users, username, List of favorite articles, list of favorite authors, list of interesting tags
   def putUser(self, username):
     id = self.redisDB.get("Users:IDCounter")
+    id = str(id)
     self.redisDB.hmset("User:"+id, {"Username":username,"Followers":0})
     self.redisDB.zadd("Users",id,0) #To be ranked by followers
     self.redisDB.incr("Users:IDCounter")
