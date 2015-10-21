@@ -78,17 +78,19 @@ class RedisDatabase():
     #  - a list of strings of other papers that cite it:  FORMAT UNDECIDED SO FAR
     #  - a list of references to other papers :  FORMAT UNDECIDED SO FAR 
     #Returns a string paperID
-  def putPaper(self, title, authors, tags, abstract, userID, datePublished, publisherID, citedBys, references):
+  def putPaper(self, title, authorIDs, authorNames, tags, abstract, userID, datePublished, publisherID, citedBys, references):
     datePosted = datetime.now()
     id = self.redisDB.get("Papers:IDCounter")
     id = str(id)
     self.redisDB.hmset("Paper:"+id,{"PublisherID":publisherID,"Abstract":abstract, "Title":title, "DatePublished":str(datePublished), "DatePosted":str(datePosted), "ViewCount":0})
     self.redisDB.zadd("Papers",id,0)
-    for author in authors:
+    for authorID in authorIDs:
       self.redisDB.sadd("Paper:"+id+":Authors", author)
       authorID = self.putAuthor(author)
       self.redisDB.sadd("Author:"+authorID+":Papers", id)
     for tag in tags:
+      if self.getTag(tag) == None:
+        self.putTag(tag)
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
       tagID = self.putTag(tag)
       self.redisDB.zadd("Tag:"+tagID+":Papers",id,0)
