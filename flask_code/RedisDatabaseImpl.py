@@ -103,14 +103,18 @@ class RedisDatabase():
     # Returns an author object
   def getAuthor(self, authorID):
     author = self.redisDB.hvals("Author:"+authorID) #[viewCount, name]
+    if(len(author)==0):
+      return None;
     papers = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
     return Author(authorID, author[1], author[0], papers)
   
     # Takes in an integer tagID
     # Returns a tag object
   def getTag(self, tagID):
-    papers = self.redisDB.zrange("Tag:"+tagID+":Papers",0,-1)
     tag = self.redisDB.hvals("Tag:"+tagID) #[viewCount, name]
+    if(len(tag)==0):
+      return None;
+    papers = self.redisDB.zrange("Tag:"+tagID+":Papers",0,-1)
     return Tag(tagID, tag[1], tag[0], papers)  
   
     # Takes in an integer publisherID
