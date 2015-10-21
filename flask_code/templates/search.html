@@ -1,14 +1,42 @@
 {% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}">
+{% endblock %}
 {% block title %}Search Articles{% endblock %}
 {% block pageTitle %}Search Articles{% endblock %}
 {% block content %}
 <div class="row">
 	<div class="col-lg-4 col-lg-offset-4 form-container">
 		<h2>Search by Title</h2>
-		<form action="search" method=post enctype=multipart/form-data>
-			<p><input type=string name=search>
+		<form action="search-byTitle" method=post enctype=multipart/form-data>
+			<p><input type=string name=title class=mimic-tagsinput>
 			   <input type=submit value=search></p>
 		</form>
+	</div>
+	<div class="col-lg-4 col-lg-offset-4 form-container">
+		<h2>Search by Authors</h2>
+		<form action="search-byAuthors" method=post enctype=multipart/form-data>
+			<p><input type=string name=authors class=mimic-tagsinput>
+			   <input type=submit value=search></p>
+		</form>
+	</div>
+	<div class="col-lg-4 col-lg-offset-4 form-container">
+		<h2>Search by Tags</h2>
+		<form action="search-byTags" method=post enctype=multipart/form-data>
+			<p><input type=string name=tags data-role="tagsinput">
+			   <input type=submit value=search></p>
+		</form>
+		<!--
+		<div class="form-group">
+        	<label for="exampleTags">Tags</label>
+        	<input type="text" class="form-control" id="exampleTags" data-role="tagsinput" name="tags">
+      	</div>
+      -->
 	</div>
 </div>
 
@@ -24,4 +52,16 @@
 		{% endfor %}
 	</div>
 </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
+  <script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='dist/bootstrap-tagsinput/bootstrap-tagsinput-angular.min.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/html.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
+  <script src="{{ url_for('static', filename='assets/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/app_bs3.js') }}"></script>
 {% endblock %}

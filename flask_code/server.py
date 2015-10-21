@@ -15,8 +15,8 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 app = Flask(__name__)
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
-
+#db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
+db = RedisDatabase('Test')
 
 @app.route('/', methods=['GET'])
 def welcome_page():
@@ -43,16 +43,22 @@ def upload_page():
             
             # Parse out the entered information
             title = request.form['title']
+            authorIDs = []
             authorNames = request.form['authorName'].split(',')
             for authorName in authorNames:
                 authorName.strip()
+                # TODO: workaround
+                authorIDs.append(db.putAuthor(authorName))
             tags = request.form['tags'].split(',')
-            print 'tags:', tags
             for tag in tags:
                 tag.strip()
 
-            # putPaper(title, authors, tags, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorNames, tags, None, None, datetime.now(), None, [], []) 
+
+            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
+            uniqueID = db.putPaper(title, authorIDs, authorNames, tags, None, None, datetime(2015,10,21), None, [], []) 
+            print 'title:',title
+            print 'authornames:',authorNames
+            print 'tags:',tags
 
             docStore.storeDocument(upload_file, uniqueID)
 
@@ -110,23 +116,26 @@ def login_page():
 def profile_page():
     return render_template('profile.html')
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/search', methods=['GET'])
 def search_page():
-    if(request.method == 'POST'):
-        results = []
-        print request.form
-        # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
-        if(request.form['search'] == '*'):
-            results = db.getPapersMatchingTitle('')
-        elif(request.form['search'] not in ['', ' ']):
-            results = db.getPapersMatchingTitle(request.form['search'])
-            print results
-        
+    return render_template('search.html')
 
-        return render_template('search.html', results=results)
-    else:
-        return render_template('search.html')
-        
+@app.route('/search-<byWhat>', methods=['GET', 'POST'])
+def search_endpoint(byWhat):
+    results = []
+    
+    print 'request form:', request.form
+
+    if(byWhat == 'byTitle'):
+        results = db.getPapersMatchingTitle(request.form['title'])
+    elif(byWhat == 'byAuthors'):
+        results = db.getPapersMatchingAuthors([request.form['authors']])
+    elif(byWhat == 'byTags'):
+        results = db.getPapersMatchingTagNames([request.form['tags']])
+
+
+
+    return render_template('search.html', results=results)
         
 # Obviously, REMOVE FOR PRODUCTION        
 @app.route('/shutdown', methods=['POST'])
