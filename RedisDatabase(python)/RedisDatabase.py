@@ -1,6 +1,5 @@
 '''
 Created on Oct 6, 2015
-
 @author: davidsac
 '''
 
@@ -11,18 +10,12 @@ from Author import Author
 from Tag import Tag
 from Paper import Paper
 from Publisher import Publisher
-from User import User
 
 class RedisDatabase():
 
-  def __init__(self, Test):
+  def __init__(self):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
       self.redisDB = redis.Redis(host='localhost', port=6379, db=1)
-      self.redisDB.flushdb()
-      self.redisDB.set("Tags:IDCounter",0)
-      self.redisDB.set("Authors:IDCounter",0)
-      self.redisDB.set("Papers:IDCounter",0)
-      self.redisDB.set("Users:IDCounter",0)
     else:
       self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
@@ -89,13 +82,11 @@ class RedisDatabase():
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
     self.redisDB.zadd("Papers",0,id)
     for author in authors:
+      self.redisDB.sadd("Author:"+author+":Papers", id)
       self.redisDB.sadd("Paper:"+id+":Authors", author)
-      authorID = self.putAuthor(author)
-      self.redisDB.sadd("Author:"+authorID+":Papers", id)
     for tag in tags:
+      self.redisDB.zadd("Tag:"+tag+":Papers", 0, id)
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
-      tagID = self.putTag(tag)
-      self.redisDB.zadd("Tag:"+tagID+":Papers",id,0)
     self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
     words = self.getSearchWords(title)
     for word in words:
@@ -182,7 +173,8 @@ class RedisDatabase():
       paper = self.getPaper(rawPaper)
       papers.append(paper) 
     return papers
-      
+    
+   
     
     # Returns a list of paper objects
   def getTopAuthors(self):
@@ -262,32 +254,10 @@ class RedisDatabase():
       author = self.getAuthor(authorID)
       authors.append(author)
     return authors
-
-  def getPapersMatchingAuthors(self, namesToSearch):
-    papers = []
-    paperIDs = set([])
-    authors = self.getAuthorsMatchingAuthors(namesToSearch)
-    for author in authors:
-      for paper in author.papers:
-        paperIDs.add(paper)
-    for paperID in paperIDs:
-      papers.append(self.getPaper(paperID))
-    return papers
-
-    # Takes in a list of integer tagNames
-    # Returns a list of paper objects that match
-  def getPapersMatchingTagNames(self, tagNames):
-    allTags = self.getAllTags()
-    tagIDs = []
-    for tagName in tagNames:
-      for tag in allTags:
-        if tag.name == tagName:
-          tagIDs.append(tagID)
-    return self.getPapersMatchingTagIDs(tagIDs)
- 
+    
     # Takes in a list of integer tagIDs
     # Returns a list of paper objects that match
-  def getPapersMatchingTagIDs(self, tagIDs):
+  def getPapersMatchingTags(self, tagIDs):
     tagKeys = []
     for tagID in tagIDs:
       tagKeys.append("Tag:"+tagID+":Papers")
@@ -361,44 +331,5 @@ class RedisDatabase():
       words.append(word)
     return words
 
-  #Users, username, List of favorite articles, list of favorite authors, list of interesting tags
-  def putUser(self, username):
-    id = self.redisDB.get("Users:IDCounter")
-    self.redisDB.hmset("User:"+id, {"Username":username,"Followers":0})
-    self.redisDB.zadd("Users",id,0) #To be ranked by followers
-    self.redisDB.incr("Users:IDCounter")
-    return id
 
-  #Should return a new user object
-  def getUser(self, id):
-    resultUser = self.redisDB.hvals("User:"+id)
-    username = resultUser[0]
-    followers = resultUser[1]
-    papers = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
-    authors = self.redisDB.zrange("User:"+id+":FavoriteAuthors",0,-1)
-    tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
-    return User(username, followers,papers,authors,tags)
-
-  #takes a user id and a paper id to add to this users list of favorites
-  #returns the current length of the favorites
-  def putFavoritePaper(self, userID, paperID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoritePapers",paperID,favoriteLevel)
-    length = self.redisDB.zrange("User:"+userID+":FavoritePapers",0,-1)
-    return len(length)
-
-
-  #takes a user id and an author id to add to this users list of favorites
-  #returns the current length of the favorites
-  def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoriteAuthors",authorID,favoriteLevel)
-    length = self.redisDB.zrange("User:"+userID+":FavoriteAuthors",0,-1)
-    return len(length)
-
-
-  #takes a user id and a Tag id to add to this users list of favorites
-  #returns the current length of the favorites
-  def putFavoriteTag(self, userID, tagID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoriteTags",tagID,favoriteLevel)
-    length = self.redisDB.zrange("User:"+userID+":FavoriteTags",0,-1)
-    return len(length)
 
