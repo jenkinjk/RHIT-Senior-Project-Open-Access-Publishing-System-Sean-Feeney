@@ -251,9 +251,32 @@ class RedisDatabase():
       authors.append(author)
     return authors
     
+
+  def getPapersMatchingAuthors(self, namesToSearch):
+    papers = []
+    paperIDs = set([])
+    authors = self.getAuthorsMatchingAuthors(namesToSearch)
+    for author in authors:
+      for paper in author.papers:
+        paperIDs.add(paper)
+    for paperID in paperIDs:
+      papers.append(self.getPaper(paperID))
+    return papers
+
+  # Takes in a list of integer tagNames
+  # Returns a list of paper objects that match
+  def getPapersMatchingTagNames(self, tagNames):
+    allTags = self.getAllTags()
+    tagIDs = []
+    for tagName in tagNames:
+      for tag in allTags:
+        if tag.name == tagName:
+          tagIDs.append(tagID)
+    return self.getPapersMatchingTagIDs(tagIDs)
+
     # Takes in a list of integer tagIDs
     # Returns a list of paper objects that match
-  def getPapersMatchingTags(self, tagIDs):
+  def getPapersMatchingTagIDs(self, tagIDs):
     tagKeys = []
     for tagID in tagIDs:
       tagKeys.append("Tag:"+tagID+":Papers")
