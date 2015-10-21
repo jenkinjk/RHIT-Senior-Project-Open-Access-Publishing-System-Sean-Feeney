@@ -39,8 +39,7 @@ class RedisDatabase():
   def putAuthor(self, name):
     id = self.redisDB.get("Authors:IDCounter")
     id = str(id)
-    self.redisDB.set("Author:"+id+":Name", name)
-    self.redisDB.set("Author:"+id+":ViewCount", 0)
+    self.redisDB.hmset("Author:"+id, {"Name":name, "ViewCount":0})
     self.redisDB.zadd("Authors",id,0)
     words = self.getSearchWords(name)
     for word in words:
@@ -53,8 +52,7 @@ class RedisDatabase():
   def putTag(self, name):
     id = self.redisDB.get("Tags:IDCounter")
     id = str(id)
-    self.redisDB.set("Tag:"+id+":Name", name)
-    self.redisDB.set("Tag:"+id+":ViewCount", 0)
+    self.redisDB.hmset("Tag:"+id,{"Name":name, "ViewCount":0})
     self.redisDB.zadd("Tags",id,0)
     self.redisDB.incr("Tags:IDCounter")
     return id
@@ -64,8 +62,7 @@ class RedisDatabase():
   def putPublisher(self, name):
     id = self.redisDB.get("Publishers:IDCounter")
     id = str(id)
-    self.redisDB.set("Publisher:"+id+":Name", name)
-    self.redisDB.set("Publisher:"+id+":ViewCount", 0)
+    self.redisDB.hmset("Publisher:"+id,{"Name":name,"ViewCount":0})
     self.redisDB.zadd("Publishers",id,0)
     self.redisDB.incr("Publishers:IDCounter")
     return id
@@ -85,13 +82,7 @@ class RedisDatabase():
     datePosted = datetime.now()
     id = self.redisDB.get("Papers:IDCounter")
     id = str(id)
-    #id = "%s" % id
-    self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
-    self.redisDB.set("Paper:"+id+":Abstract", abstract)
-    self.redisDB.set("Paper:"+id+":Title", title)
-    self.redisDB.set("Paper:"+id+":ViewCount", 0)
-    self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
-    self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
+    self.redisDB.hmset("Paper:"+id,{"PublisherID":publisherID,"Abstract":abstract, "Title":title, "DatePublished":str(datePublished), "DatePosted":str(datePosted), "ViewCount":0})
     self.redisDB.zadd("Papers",id,0)
     for author in authors:
       self.redisDB.sadd("Paper:"+id+":Authors", author)
@@ -111,43 +102,35 @@ class RedisDatabase():
     # Takes in an integer authorID
     # Returns an author object
   def getAuthor(self, authorID):
-    name = self.redisDB.get("Author:"+authorID+":Name")
-    if name == None:
-      return None
+    author = self.redisDB.hvals("Author:"+authorID) #[viewCount, name]
     papers = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
-    viewCount = self.redisDB.get("Author:"+authorID+":ViewCount")
-    return Author(authorID, name, viewCount, papers)
+    return Author(authorID, author[1], author[0], papers)
   
     # Takes in an integer tagID
     # Returns a tag object
   def getTag(self, tagID):
     papers = self.redisDB.zrange("Tag:"+tagID+":Papers",0,-1)
-    name = self.redisDB.get("Tag:"+tagID+":Name")
-    viewCount = self.redisDB.get("Tag:"+tagID+":ViewCount")
-    return Tag(tagID, name, viewCount, papers)  
+    tag = self.redisDB.hvals("Tag:"+tagID) #[viewCount, name]
+    return Tag(tagID, tag[1], tag[0], papers)  
   
     # Takes in an integer publisherID
     # Returns a publisher object
   def getPublisher(self, publisherID):
-    name = self.redisDB.get("Publisher:"+publisherID+":Name")
-    viewCount = self.redisDB.get("Publisher:"+publisherID+":ViewCount")
-    return Publisher(publisherID, name, viewCount)
+    publisher = self.redisDB.hvals("Publisher:"+publisherID) #[viewCount, name]
+    return Publisher(publisherID, publisher[1], publisher[0])
 
     # Takes in an integer paperID
     # Returns a paper object
   def getPaper(self, paperID):
     authors = list(self.redisDB.smembers("Paper:"+paperID+":Authors"))
     tags = list(self.redisDB.smembers("Paper:"+paperID+":Tags"))
-    title = self.redisDB.get("Paper:"+paperID+":Title")
-    abstract = self.redisDB.get("Paper:"+paperID+":Abstract")
-    publisherID = self.redisDB.get("Paper:"+paperID+":PublisherID")
-    viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
-    datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
-    datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S.%f") # NOTE: this format needs to be updated once we stop using a datetime object 
+    paper = self.redisDB.hvals("Paper:"+paperID) #[viewCount, title, abstract, posted, published, publisher]
+    datePosted = datetime.strptime(paper[3], "%Y-%m-%d %H:%M:%S.%f")
+    datePublished = datetime.strptime(paper[4], "%Y-%m-%d %H:%M:%S") # NOTE: this format needs to be updated once we stop using a datetime object 
     postedBy = ""
     references = []
     citedBys = []
-    return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedBy, references, viewCount, citedBys)
+    return Paper(paperID, paper[1], authors, tags, paper[2], datePublished, datePosted, paper[3], postedBy, references, paper[0], citedBys)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
