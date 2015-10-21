@@ -99,7 +99,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     expecteds = ["id:0    name:RHIT      viewCount:0", "id:1    name:McGraw-Hill      viewCount:0"]
     rawActuals = self.redisDB.getAllPublishers()
-	print expecteds
+    print expecteds
     self.assertEqual(len(expecteds),len(rawActuals)) 
     actuals = set([])
     for rawActual in rawActuals:
