@@ -5,7 +5,7 @@ from difflib import Differ
 
 class RedisIntegrationTestCase(unittest.TestCase):
   def setUp(self):
-    self.redisDB = RedisDatabase()
+    self.redisDB = RedisDatabase("Test")
     self.redisDB.clearDatabase()
     self.tagIDs = []
     self.authorIDs = []

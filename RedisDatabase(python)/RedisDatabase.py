@@ -13,7 +13,7 @@ from Publisher import Publisher
 
 class RedisDatabase():
 
-  def __init__(self):
+  def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
       self.redisDB = redis.Redis(host='localhost', port=6379, db=1)
     else:
