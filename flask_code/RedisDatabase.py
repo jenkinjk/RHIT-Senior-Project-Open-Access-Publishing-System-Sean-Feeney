@@ -134,10 +134,10 @@ class RedisDatabase():
     viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
-    postedBy = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
+    postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = []
     citedBys = []
-    return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedBy, references, viewCount, citedBys)
+    return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
