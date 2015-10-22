@@ -100,7 +100,6 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     expecteds = ["id:0    name:RHIT      viewCount:0", "id:1    name:McGraw-Hill      viewCount:0"]
     rawActuals = self.redisDB.getAllPublishers()
-    print expecteds
     self.assertEqual(len(expecteds),len(rawActuals)) 
     actuals = set([])
     for rawActual in rawActuals:
@@ -252,10 +251,23 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
-    print s
     expecteds = ["id:3    title:The Angry Pirates of the Carribean   authors:['0', '6']   tags:['3', '5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:15", "id:8    title:The Happy Planet of the Apes   authors:['0', '6']   tags:['5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:18", "id:4    title:The Friendly Pirates of the Mediterranean   authors:['0', '6']   tags:['3', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:7", "id:6    title:The Angry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:8", "id:7    title:The Hungry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:5", "id:5    title:The Friendly Pirates of the Carribean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:1"]
     for i in range(0,len(expecteds)):
       self.assertEqual(expecteds[i],s[i])
+	  
+	  
+  def testGetPapersMatchingAuthors(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+    papers = self.redisDB.getPapersMatchingAuthors(["Jimmy Dean","Thomas Jefferson", "Poop"])
+    s = []
+    for p in papers:
+      s.append(self.getPaperStringCheckedPostedDate(p))
+    #expecteds = ["id:3    title:The Angry Pirates of the Carribean   authors:['0', '6']   tags:['3', '5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:15", "id:8    title:The Happy Planet of the Apes   authors:['0', '6']   tags:['5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:18", "id:4    title:The Friendly Pirates of the Mediterranean   authors:['0', '6']   tags:['3', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:7", "id:6    title:The Angry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:8", "id:7    title:The Hungry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:5", "id:5    title:The Friendly Pirates of the Carribean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:1"]
+    print s
+	#for i in range(0,len(expecteds)):
+    #  self.assertEqual(expecteds[i],s[i])	  
 
 
   def getPaperStringCheckedPostedDate(self, paper):
