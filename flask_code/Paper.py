@@ -6,11 +6,10 @@ Created on Oct 1, 2015
 
 class Paper:
 
-  def __init__(self, id, title, authorIDs, authorNames, tags, abstract, publisher, datePublished, datePosted, postedBy, references, viewCount, citedBys):
+  def __init__(self, id, title, authors, tags, abstract, publisher, datePublished, datePosted, postedBy, references, viewCount, citedBys):
     self.id = id
     self.title = title
-    self.authorIDs = authorIDs
-    self.authorNames = authorNames
+    self.authors = authors
     self.tags = tags
     self.abstract = abstract
     self.publisher = publisher
@@ -22,13 +21,8 @@ class Paper:
     self.viewCount = viewCount
     
   def __str__(self):
-    return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
+    return 'id:'+self.id+'    title:'+self.title+'   authors:'+str(self.authors)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
   
   def __repr__(self):
-<<<<<<< HEAD
-    return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
-        
-=======
     return 'id:'+self.id+'    title:'+self.title+'   authors:'+str(self.authors)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
         
->>>>>>> 564e3e568fa2055824143c68e5c77897c5668069
