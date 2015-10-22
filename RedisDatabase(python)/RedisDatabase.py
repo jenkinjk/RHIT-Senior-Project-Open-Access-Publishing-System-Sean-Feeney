@@ -85,7 +85,7 @@ class RedisDatabase():
       self.redisDB.sadd("Author:"+author+":Papers", id)
       self.redisDB.sadd("Paper:"+id+":Authors", author)
     for tag in tags:
-      if self.getTag(tag)==null:
+      if self.getTag(tag)==None:
         self.putTag(tag)
       self.redisDB.zadd("Tag:"+tag+":Papers", 0, id)
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
