@@ -265,7 +265,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
     #expecteds = ["id:3    title:The Angry Pirates of the Carribean   authors:['0', '6']   tags:['3', '5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:15", "id:8    title:The Happy Planet of the Apes   authors:['0', '6']   tags:['5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:18", "id:4    title:The Friendly Pirates of the Mediterranean   authors:['0', '6']   tags:['3', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:7", "id:6    title:The Angry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:8", "id:7    title:The Hungry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:5", "id:5    title:The Friendly Pirates of the Carribean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:   references:[]   citedBys:[]      viewCount:1"]
-    print s
+    print "!!!!!!!!!"+s+"!!!!!!!!!!!"
 	#for i in range(0,len(expecteds)):
     #  self.assertEqual(expecteds[i],s[i])	  
 
@@ -303,34 +303,34 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   #1
   def test_PutAuthor(self):
-    self.assertEqual('0', self.db.putAuthor("Author one"))
+    self.assertEqual('0', self.redisDB.putAuthor("Author one"))
 
   #2
   def test_PutAuthors(self):
-    self.assertEqual('0', self.db.putAuthor("Author one"))
-    self.assertEqual('1', self.db.putAuthor("Author two"))
-    self.assertEqual('2', self.db.putAuthor("Author three"))
+    self.assertEqual('0', self.redisDB.putAuthor("Author one"))
+    self.assertEqual('1', self.redisDB.putAuthor("Author two"))
+    self.assertEqual('2', self.redisDB.putAuthor("Author three"))
 
   #3
   def test_PutPaper(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
 
   #4
   def test_PutPaperAuthors(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
 
   #5
   def test_PutPaperTags(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["Tag one", "Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["Tag one", "Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
 
   #6
   def test_PutPaperTagsAuthors(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one", "Author two"],["Tag one", "Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one", "Author two"],["Tag one", "Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
 
   #7
   def test_GetPaper(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one", "Author two"],["Tag one", "Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    paper = self.db.getPaper('0')
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one", "Author two"],["Tag one", "Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    paper = self.redisDB.getPaper('0')
     self.assertEqual(["Author one", "Author two"], paper.authors)
     self.assertEqual('0', paper.viewCount)
     self.assertEqual('0', paper.id)
@@ -340,14 +340,14 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   #8
   def test_PutPapersAuthors(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('1', self.db.putPaper("Paper Two's Title", ["Author two"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('2', self.db.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one","Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author two"],["Tag one"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('2', self.redisDB.putPaper("Paper One's Title", ["Author one","Author two"],["Tag one","Tag two"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
 
   #9
   def test_GetAuthor(self):
-    self.assertEqual('0', self.db.putAuthor("Author One"))
-    author = self.db.getAuthor('0')
+    self.assertEqual('0', self.redisDB.putAuthor("Author One"))
+    author = self.redisDB.getAuthor('0')
     self.assertEqual("Author One", author.name)
     self.assertEqual('0', author.viewCount)
     self.assertEqual('0', author.id)
@@ -355,10 +355,10 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   #10
   def test_GetAuthors(self):
-    self.assertEqual('0', self.db.putAuthor("Author One"))
-    self.assertEqual('1', self.db.putAuthor("Author Two"))
-    self.assertEqual('2', self.db.putAuthor("Author Three"))
-    author = self.db.getAuthor('2')
+    self.assertEqual('0', self.redisDB.putAuthor("Author One"))
+    self.assertEqual('1', self.redisDB.putAuthor("Author Two"))
+    self.assertEqual('2', self.redisDB.putAuthor("Author Three"))
+    author = self.redisDB.getAuthor('2')
     self.assertEqual("Author Three", author.name)
     self.assertEqual('0', author.viewCount)
     self.assertEqual('2', author.id)
@@ -367,8 +367,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #11
   def test_GetAuthorsPapers(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    author = self.db.getAuthor('0')
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    author = self.redisDB.getAuthor('0')
     self.assertEqual("Author one", author.name)
     self.assertEqual('0', author.viewCount)
     self.assertEqual('0', author.id)
@@ -376,18 +376,18 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   #12
   def test_PutTag(self):
-    self.assertEqual('0', self.db.putTag("Tag one"))
+    self.assertEqual('0', self.redisDB.putTag("Tag one"))
 
   #13
   def test_PutTags(self):
-    self.assertEqual('0', self.db.putTag("Tag one"))
-    self.assertEqual('1', self.db.putTag("Tag two"))
-    self.assertEqual('2', self.db.putTag("Tag three"))
+    self.assertEqual('0', self.redisDB.putTag("Tag one"))
+    self.assertEqual('1', self.redisDB.putTag("Tag two"))
+    self.assertEqual('2', self.redisDB.putTag("Tag three"))
 
   #14
   def test_GetTag(self):
-    self.assertEqual('0', self.db.putTag("239ck39&%$#@*&"))
-    tag = self.db.getTag('0')
+    self.assertEqual('0', self.redisDB.putTag("239ck39&%$#@*&"))
+    tag = self.redisDB.getTag('0')
     self.assertEqual("239ck39&%$#@*&", tag.name)
     self.assertEqual('0', tag.viewCount)
     self.assertEqual('0', tag.id)
@@ -395,10 +395,10 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   #15
   def test_GetTags(self):
-    self.assertEqual('0', self.db.putTag("Tag one"))
-    self.assertEqual('1', self.db.putTag("Tag two"))
-    self.assertEqual('2', self.db.putTag("TagThree"))
-    tag = self.db.getTag('2')
+    self.assertEqual('0', self.redisDB.putTag("Tag one"))
+    self.assertEqual('1', self.redisDB.putTag("Tag two"))
+    self.assertEqual('2', self.redisDB.putTag("TagThree"))
+    tag = self.redisDB.getTag('2')
     self.assertEqual("TagThree", tag.name)
     self.assertEqual('0', tag.viewCount)
     self.assertEqual('2', tag.id)
@@ -407,8 +407,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #16
   def test_GetTagsPapers(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    tag = self.db.getTag('0')
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    tag = self.redisDB.getTag('0')
     self.assertEqual("TagOne", tag.name)
     self.assertEqual('0', tag.viewCount)
     self.assertEqual('0', tag.id)
@@ -416,11 +416,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   '''#17
   def test_search(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('1', self.db.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('2', self.db.putPaper("Paper Three's Title", ["Author one"],["TagTwo"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('3', self.db.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    result = self.db.getPapersMatchingTitle("Paper One")
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('2', self.redisDB.putPaper("Paper Three's Title", ["Author one"],["TagTwo"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    result = self.redisDB.getPapersMatchingTitle("Paper One")
     self.assertEqual(4, len(result))
     paper = Paper('0', "Paper One's Title", set(["Author one"]), set(["TagOne"]), '','','','','','','0','')
     self.assertEqual(paper.id,result[0].id)
@@ -431,11 +431,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   '''#18
   def test_searchTwo(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.db.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
-    self.assertEqual('2', self.db.putPaper("Paper Three's Title", ["Author one"],["TagTwo"]))
-    self.assertEqual('3', self.db.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
-    result = self.db.search("Paper Two")
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
+    self.assertEqual('2', self.redisDB.putPaper("Paper Three's Title", ["Author one"],["TagTwo"]))
+    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
+    result = self.redisDB.search("Paper Two")
     self.assertEqual(1, len(result))
     paper = Paper('1', "Paper Two's Title", set(["Author one", "Author two"]), set(["TagOne"]), '','','','','','','0','')
     self.assertEqual(paper.id,result[0].id)
@@ -446,11 +446,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   '''#19
   def test_searchTwoMiddle(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.db.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
-    self.assertEqual('2', self.db.putPaper("Paper Three's Title", ["Author one"],["TagTwo"]))
-    self.assertEqual('3', self.db.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
-    result = self.db.getPapersMatchingTitle("Two")
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
+    self.assertEqual('2', self.redisDB.putPaper("Paper Three's Title", ["Author one"],["TagTwo"]))
+    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
+    result = self.redisDB.getPapersMatchingTitle("Two")
     self.assertEqual(1, len(result))
     paper = Paper('1', "Paper Two's Title", set(["Author one", "Author two"]), set(["TagOne"]), '','','','','','','0','')
     self.assertEqual(paper.id,result[0].id)
@@ -461,11 +461,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   '''#20
   def test_searchThree(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.db.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
-    self.assertEqual('2', self.db.putPaper("Paper TwoToo's Title", ["Author one"],["TagTwo"]))
-    self.assertEqual('3', self.db.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
-    result = self.db.getPapersMatchingTitle("Paper Two")
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
+    self.assertEqual('2', self.redisDB.putPaper("Paper TwoToo's Title", ["Author one"],["TagTwo"]))
+    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
+    result = self.redisDB.getPapersMatchingTitle("Paper Two")
     self.assertEqual(2, len(result))
     paper = Paper('1', "Paper Two's Title", set(["Author one", "Author two"]), set(["TagOne"]), '','','','','','','0','')
     self.assertEqual(paper.id,result[0].id)
@@ -482,9 +482,9 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   '''#21
   def test_searchSeperated(self):
-    self.assertEqual('0', self.db.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.db.putPaper("Paper Title One's", ["Author one", "Author two"],["TagOne"]))
-    result = self.db.search("Paper One")
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Title One's", ["Author one", "Author two"],["TagOne"]))
+    result = self.redisDB.search("Paper One")
     paper = Paper('0', "Paper One's Title", set(["Author one"]), set(["TagOne"]), '','','','','','','0','')
     self.assertEqual(1, len(result))
     self.assertEqual(paper.id,result[0].id)
@@ -496,20 +496,20 @@ class RedisIntegrationTestCase(unittest.TestCase):
   '''
   #22
   def test_putUser(self):
-    self.assertEqual('0', self.db.putUser("User One"))
-    self.assertEqual('1', self.db.putUser("User Two"))
+    self.assertEqual('0', self.redisDB.putUser("User One"))
+    self.assertEqual('1', self.redisDB.putUser("User Two"))
   #23
   def test_getUser(self):
-    self.assertEqual('0', self.db.putUser("User One"))
-    result = self.db.getUser('0')
+    self.assertEqual('0', self.redisDB.putUser("User One"))
+    result = self.redisDB.getUser('0')
     self.assertEqual("User One", result.username)
     self.assertEqual(set([]), result.papers)
     self.assertEqual(set([]),result.authors)
     self.assertEqual(set([]),result.tags)
   #23
   def test_favoritePaper(self):
-    self.assertEqual('0', self.db.putUser("User One"))
-    result = self.db.getUser('0')
+    self.assertEqual('0', self.redisDB.putUser("User One"))
+    result = self.redisDB.getUser('0')
     self.assertEqual("User One", result.username)
     self.assertEqual(set([]), result.papers)
     self.assertEqual(set([]),result.authors)
@@ -519,11 +519,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def test_stress(self):
     start = datetime.datetime.now()
     for i in range(0,1000000):
-      self.db.putPaper("%s" % i, ["Author one"],["TagOne"])
+      self.redisDB.putPaper("%s" % i, ["Author one"],["TagOne"])
     finish = datetime.datetime.now()
     print finish - start
     start = datetime.datetime.now()
-    result = self.db.search("100")
+    result = self.redisDB.search("100")
     finish = datetime.datetime.now()
     print finish - start'''
 
