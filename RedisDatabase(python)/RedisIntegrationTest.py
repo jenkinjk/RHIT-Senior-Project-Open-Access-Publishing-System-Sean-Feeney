@@ -248,7 +248,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.loadMoreTestData()
     self.viewPiratePapers()
-    papers = self.redisDB.getPapersMatchingTags(["4","3","5"])
+    papers = self.redisDB.getPapersMatchingTagIDs(["4","3","5"])
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
