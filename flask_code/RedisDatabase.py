@@ -1,6 +1,5 @@
 '''
 Created on Oct 6, 2015
-
 @author: davidsac
 '''
 
@@ -11,20 +10,14 @@ from Author import Author
 from Tag import Tag
 from Paper import Paper
 from Publisher import Publisher
-from User import User
 
 class RedisDatabase():
 
   def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
-      self.redisDB = redis.Redis(host='localhost', port=6379, db=1)
-      self.redisDB.flushdb()
-      self.redisDB.set("Tags:IDCounter",0)
-      self.redisDB.set("Authors:IDCounter",0)
-      self.redisDB.set("Papers:IDCounter",0)
-      self.redisDB.set("Users:IDCounter",0)
+      self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=1)
     else:
-      self.redisDB = redis.Redis(host='localhost', port=6379, db=0)
+      self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
     
   def clearDatabase(self):
@@ -33,6 +26,7 @@ class RedisDatabase():
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
     self.redisDB.set("Publishers:IDCounter",0)
+    self.redisDB.set("Users:IDCounter",0)
     
     #Takes in a string of the author's name
     #Returns a string authorID
@@ -78,24 +72,25 @@ class RedisDatabase():
     #  - a list of strings of other papers that cite it:  FORMAT UNDECIDED SO FAR
     #  - a list of references to other papers :  FORMAT UNDECIDED SO FAR 
     #Returns a string paperID
-  def putPaper(self, title, authors, tags, abstract, userID, datePublished, publisherID, citedBys, references):
+  def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, citedBys, references):
     datePosted = datetime.now()
     id = self.redisDB.get("Papers:IDCounter")
     self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract", abstract)
     self.redisDB.set("Paper:"+id+":Title", title)
+    self.redisDB.set("Paper:"+id+":PostedByUserID", postedByUserID)
     self.redisDB.set("Paper:"+id+":ViewCount", 0)
     self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
     self.redisDB.zadd("Papers",0,id)
     for author in authors:
+      self.redisDB.sadd("Author:"+author+":Papers", id)
       self.redisDB.sadd("Paper:"+id+":Authors", author)
-      authorID = self.putAuthor(author)
-      self.redisDB.sadd("Author:"+authorID+":Papers", id)
     for tag in tags:
+      if self.getTag(tag)==None:
+        self.putTag(tag)
+      self.redisDB.zadd("Tag:"+tag+":Papers", 0, id)
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
-      tagID = self.putTag(tag)
-      self.redisDB.zadd("Tag:"+tagID+":Papers",id,0)
     self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
     words = self.getSearchWords(title)
     for word in words:
@@ -139,7 +134,7 @@ class RedisDatabase():
     viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
-    postedBy = ""
+    postedBy = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = []
     citedBys = []
     return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedBy, references, viewCount, citedBys)
@@ -182,7 +177,6 @@ class RedisDatabase():
       paper = self.getPaper(rawPaper)
       papers.append(paper) 
     return papers
-      
     
     # Returns a list of paper objects
   def getTopAuthors(self):
@@ -262,7 +256,7 @@ class RedisDatabase():
       author = self.getAuthor(authorID)
       authors.append(author)
     return authors
-
+	
   def getPapersMatchingAuthors(self, namesToSearch):
     papers = []
     paperIDs = set([])
@@ -274,7 +268,7 @@ class RedisDatabase():
       papers.append(self.getPaper(paperID))
     return papers
 
-    # Takes in a list of integer tagNames
+    # Takes in a list of string tagNames
     # Returns a list of paper objects that match
   def getPapersMatchingTagNames(self, tagNames):
     allTags = self.getAllTags()
@@ -284,7 +278,7 @@ class RedisDatabase():
         if tag.name == tagName:
           tagIDs.append(tagID)
     return self.getPapersMatchingTagIDs(tagIDs)
- 
+    
     # Takes in a list of integer tagIDs
     # Returns a list of paper objects that match
   def getPapersMatchingTagIDs(self, tagIDs):
@@ -360,18 +354,19 @@ class RedisDatabase():
     for word in wordSet:
       words.append(word)
     return words
-
+	
   #Users, username, List of favorite articles, list of favorite authors, list of interesting tags
   def putUser(self, username):
     id = self.redisDB.get("Users:IDCounter")
-    self.redisDB.hmset("User:"+id, {"Username":username,"Followers":0})
-    self.redisDB.zadd("Users",id,0) #To be ranked by followers
+    id = str(id)
+    self.redisDB.set("User:"+id+":Username",username)
+    #self.redisDB.zadd("Users",id,0) #To be ranked by followers
     self.redisDB.incr("Users:IDCounter")
     return id
 
-  #Should return a new user object
+  '''#Should return a new user object
   def getUser(self, id):
-    resultUser = self.redisDB.hvals("User:"+id)
+    resultUser = self.redisDB.get("User:"+id)
     username = resultUser[0]
     followers = resultUser[1]
     papers = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
@@ -400,5 +395,8 @@ class RedisDatabase():
   def putFavoriteTag(self, userID, tagID, favoriteLevel):
     self.redisDB.zadd("User:"+userID+":FavoriteTags",tagID,favoriteLevel)
     length = self.redisDB.zrange("User:"+userID+":FavoriteTags",0,-1)
-    return len(length)
+    return len(length)'''
+
+
+
 

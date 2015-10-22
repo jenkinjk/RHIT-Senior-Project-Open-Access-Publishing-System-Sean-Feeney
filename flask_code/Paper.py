@@ -25,5 +25,10 @@ class Paper:
     return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
   
   def __repr__(self):
+<<<<<<< HEAD
     return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
         
+=======
+    return 'id:'+self.id+'    title:'+self.title+'   authors:'+str(self.authors)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisher+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedBy:'+self.postedBy+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
+        
+>>>>>>> 564e3e568fa2055824143c68e5c77897c5668069

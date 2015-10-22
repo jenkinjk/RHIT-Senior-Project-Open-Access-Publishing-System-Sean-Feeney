@@ -1,9 +1,4 @@
 flask_code/credentials.txt
-flask_code/Author.pyc
-flask_code/Paper.pyc
-flask_code/Publisher.pyc
-flask_code/RedisDatabase.pyc
-flask_code/Tag.pyc
-flask_code/User.pyc
-flask_code/documentHandler.pyc
-flask_code/s3DocumentHandler.pyc
+flask_code/*.pyc
+.project
+.pydevproject
