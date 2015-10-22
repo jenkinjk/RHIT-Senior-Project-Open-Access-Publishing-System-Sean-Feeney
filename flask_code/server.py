@@ -4,7 +4,7 @@ import s3DocumentHandler
 import os
 import pprint
 #import cPickle
-from RedisDatabaseImpl import RedisDatabase
+from RedisDatabase import RedisDatabase
 import Paper
 from datetime import datetime
 
