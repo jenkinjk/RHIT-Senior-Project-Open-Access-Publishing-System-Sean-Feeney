@@ -26,6 +26,7 @@ class RedisDatabase():
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
     self.redisDB.set("Publishers:IDCounter",0)
+    self.redisDB.set("Users:IDCounter",0)
     
     #Takes in a string of the author's name
     #Returns a string authorID
@@ -71,12 +72,13 @@ class RedisDatabase():
     #  - a list of strings of other papers that cite it:  FORMAT UNDECIDED SO FAR
     #  - a list of references to other papers :  FORMAT UNDECIDED SO FAR 
     #Returns a string paperID
-  def putPaper(self, title, authors, tags, abstract, userID, datePublished, publisherID, citedBys, references):
+  def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, citedBys, references):
     datePosted = datetime.now()
     id = self.redisDB.get("Papers:IDCounter")
     self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract", abstract)
     self.redisDB.set("Paper:"+id+":Title", title)
+    self.redisDB.set("Paper:"+id+":PostedByUserID", postedByUserID)
     self.redisDB.set("Paper:"+id+":ViewCount", 0)
     self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
@@ -132,7 +134,7 @@ class RedisDatabase():
     viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
-    postedBy = ""
+    postedBy = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = []
     citedBys = []
     return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedBy, references, viewCount, citedBys)
@@ -175,8 +177,6 @@ class RedisDatabase():
       paper = self.getPaper(rawPaper)
       papers.append(paper) 
     return papers
-    
-   
     
     # Returns a list of paper objects
   def getTopAuthors(self):
@@ -354,6 +354,49 @@ class RedisDatabase():
     for word in wordSet:
       words.append(word)
     return words
+	
+  #Users, username, List of favorite articles, list of favorite authors, list of interesting tags
+  def putUser(self, username):
+    id = self.redisDB.get("Users:IDCounter")
+    id = str(id)
+    self.redisDB.set("User:"+id+":Username",username)
+    #self.redisDB.zadd("Users",id,0) #To be ranked by followers
+    self.redisDB.incr("Users:IDCounter")
+    return id
+
+  '''#Should return a new user object
+  def getUser(self, id):
+    resultUser = self.redisDB.get("User:"+id)
+    username = resultUser[0]
+    followers = resultUser[1]
+    papers = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
+    authors = self.redisDB.zrange("User:"+id+":FavoriteAuthors",0,-1)
+    tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
+    return User(username, followers,papers,authors,tags)
+
+  #takes a user id and a paper id to add to this users list of favorites
+  #returns the current length of the favorites
+  def putFavoritePaper(self, userID, paperID, favoriteLevel):
+    self.redisDB.zadd("User:"+userID+":FavoritePapers",paperID,favoriteLevel)
+    length = self.redisDB.zrange("User:"+userID+":FavoritePapers",0,-1)
+    return len(length)
+
+
+  #takes a user id and an author id to add to this users list of favorites
+  #returns the current length of the favorites
+  def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
+    self.redisDB.zadd("User:"+userID+":FavoriteAuthors",authorID,favoriteLevel)
+    length = self.redisDB.zrange("User:"+userID+":FavoriteAuthors",0,-1)
+    return len(length)
+
+
+  #takes a user id and a Tag id to add to this users list of favorites
+  #returns the current length of the favorites
+  def putFavoriteTag(self, userID, tagID, favoriteLevel):
+    self.redisDB.zadd("User:"+userID+":FavoriteTags",tagID,favoriteLevel)
+    length = self.redisDB.zrange("User:"+userID+":FavoriteTags",0,-1)
+    return len(length)'''
+
 
 
 
