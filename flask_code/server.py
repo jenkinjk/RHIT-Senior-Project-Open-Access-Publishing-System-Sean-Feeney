@@ -62,7 +62,8 @@ def upload_page():
 
             docStore.storeDocument(upload_file, uniqueID)
 
-        return redirect('/upload')
+        results = []
+        return render_template('upload.html', results=results)
     # else it is a GET request
     else:
         results = []
