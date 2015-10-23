@@ -9,14 +9,22 @@ import Paper
 from datetime import datetime
 
 
+TEST = True
+
+
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 
 app = Flask(__name__)
-docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-#db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
-db = RedisDatabase('Test')
+
+if TEST:
+    db = RedisDatabase('Test')
+    docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
+else:    
+    db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
+    docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
+
 
 @app.route('/', methods=['GET'])
 def welcome_page():
@@ -47,7 +55,8 @@ def upload_page():
             authorNames = request.form['authorName'].split(',')
             for authorName in authorNames:
                 authorName.strip()
-                # TODO: workaround
+                # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
+                # to resolve same-name conflicts, then passing in the correct authorID
                 authorIDs.append(db.putAuthor(authorName))
             tags = request.form['tags'].split(',')
             for tag in tags:
@@ -55,7 +64,7 @@ def upload_page():
 
 
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorIDs, authorNames, tags, None, None, datetime(2015,10,21), None, [], []) 
+            uniqueID = db.putPaper(title, authorIDs, tags, None, None, datetime(2015,10,21), None, [], []) 
             print 'title:',title
             print 'authornames:',authorNames
             print 'tags:',tags
@@ -132,7 +141,7 @@ def search_endpoint(byWhat):
     elif(byWhat == 'byAuthors'):
         results = db.getPapersMatchingAuthors([request.form['authors']])
     elif(byWhat == 'byTags'):
-        results = db.getPapersMatchingTagNames([request.form['tags']])
+        results = db.getPapersMatchingTagIDs([request.form['tags']])
 
 
 
