@@ -16,6 +16,7 @@ class RedisDatabase():
   def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
       self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=1)
+      self.clearDatabase()
     else:
       self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
@@ -268,6 +269,16 @@ class RedisDatabase():
       papers.append(self.getPaper(paperID))
     return papers
 
+  def getPapersMatchingAuthorIDs(self, IDsToSearch):
+    papers = []
+    paperIDs = set([])
+    for author in IDsToSearch:
+      for paper in author.papers:
+        paperIDs.add(paper)
+    for paperID in paperIDs:
+      papers.append(self.getPaper(paperID))
+    return papers
+
     # Takes in a list of string tagNames
     # Returns a list of paper objects that match
   def getPapersMatchingTagNames(self, tagNames):
@@ -394,6 +405,7 @@ class RedisDatabase():
     self.redisDB.zadd("User:"+userID+":FavoriteTags",tagID,favoriteLevel)
     length = self.redisDB.zcount("User:"+userID+":FavoriteTags")
     return length
+
 
 
 

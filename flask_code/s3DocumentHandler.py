@@ -27,7 +27,8 @@ class S3DocumentHandler(documentHandler.DocumentHandler):
         exists = True
         try:
             #print self.s3.meta.client.head_bucket(Bucket=self.BUCKET_NAME)
-            print s3_client.head_bucket(Bucket=self.BUCKET_NAME)
+            #print s3_client.head_bucket(Bucket=self.BUCKET_NAME)
+            s3_client.head_bucket(Bucket=self.BUCKET_NAME)
             print 'connected to', self.BUCKET_NAME, 'bucket'
         except botocore.exceptions.ClientError as e:
             # If a client error is thrown, then check that it was a 404 error.

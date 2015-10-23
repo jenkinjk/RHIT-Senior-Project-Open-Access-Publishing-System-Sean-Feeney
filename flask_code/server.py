@@ -8,7 +8,7 @@ from RedisDatabase import RedisDatabase
 import Paper
 from datetime import datetime
 
-
+# if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
 TEST = True
 
 
@@ -139,7 +139,8 @@ def search_endpoint(byWhat):
     if(byWhat == 'byTitle'):
         results = db.getPapersMatchingTitle(request.form['title'])
     elif(byWhat == 'byAuthors'):
-        results = db.getPapersMatchingAuthors([request.form['authors']])
+        authorIDs = db.getAuthorsMatchingAuthors([request.form['authors']])
+        results = db.getPapersMatchingAuthorIDs(authorIDs)
     elif(byWhat == 'byTags'):
         results = db.getPapersMatchingTagIDs([request.form['tags']])
 
@@ -147,11 +148,17 @@ def search_endpoint(byWhat):
 
     return render_template('search.html', results=results)
         
-# Obviously, REMOVE FOR PRODUCTION        
-@app.route('/shutdown', methods=['POST'])
+# REMOVE FOR PRODUCTION        
+@app.route('/shutdown', methods=['GET', 'POST'])
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'
+
+# REMOVE FOR PRODUCTION        
+@app.route('/cleanout', methods=['GET', 'POST'])
+def cleanout():
+    docStore.removeAllNonMatching(db.getAllPaperIDs())
+    return 'deleting entries from S3 that are not reflected in database'
         
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
