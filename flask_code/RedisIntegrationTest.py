@@ -8,7 +8,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def setUp(self):
     self.redisDB = RedisDatabase("Test")
     self.redisDB.clearDatabase()
-    self.tagIDs = []
+    self.tags = []
     self.authorIDs = []
     self.publisherIDs = []
     self.paperIDs = []
@@ -25,25 +25,35 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.publisherIDs.append(self.redisDB.putPublisher("RHIT"))
     self.publisherIDs.append(self.redisDB.putPublisher("McGraw-Hill"))
     
-    self.tagIDs.append(self.redisDB.putTag("Biology"))
-    self.tagIDs.append(self.redisDB.putTag("Nanotechnology"))
-    self.tagIDs.append(self.redisDB.putTag("Distributed Computing"))
-    self.tagIDs.append(self.redisDB.putTag("Big Data"))
+    self.redisDB.putTag("Biology")
+    self.redisDB.putTag("Nanotechnology")
+    self.redisDB.putTag("Distributed Computing")
+    self.redisDB.putTag("Big Data")
+	
+    self.tags.append("Biology")
+    self.tags.append("Nanotechnology")
+    self.tags.append("Distributed Computing")
+    self.tags.append("Big Data")
+    
 
-    self.paperIDs.append(self.redisDB.putPaper("MY TITLE IS IN CAPS", [self.authorIDs[0], self.authorIDs[5]], [self.tagIDs[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("cheese bacon", [self.authorIDs[2], self.authorIDs[3]], [self.tagIDs[1], self.tagIDs[2]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("MY TITLE IS IN CAPS", [self.authorIDs[0], self.authorIDs[5]], [self.tags[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("cheese bacon", [self.authorIDs[2], self.authorIDs[3]], [self.tags[1], self.tags[2]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
 
   def loadMoreTestData(self):
-    self.tagIDs.append(self.redisDB.putTag("Pirates"))
-    self.tagIDs.append(self.redisDB.putTag("Dieting"))
-    self.paperIDs.append(self.redisDB.putPaper("Foo foo fOo Bar Bar bAR", [self.authorIDs[0], self.authorIDs[5]], [self.tagIDs[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], [], []))
+    self.redisDB.putTag("Pirates")
+    self.redisDB.putTag("Dieting")
+
+    self.tags.append("Pirates")
+    self.tags.append("Dieting")
+
+    self.paperIDs.append(self.redisDB.putPaper("Foo foo fOo Bar Bar bAR", [self.authorIDs[0], self.authorIDs[5]], [self.tags[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], [], []))
     self.authorIDs.append(self.redisDB.putAuthor("Jimmy Fallon"))
-    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tagIDs[4], self.tagIDs[3],self.tagIDs[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tagIDs[3],self.tagIDs[4]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tagIDs[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tagIDs[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Hungry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tagIDs[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Happy Planet of the Apes", [self.authorIDs[0], self.authorIDs[6]], [self.tagIDs[4],self.tagIDs[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[4], self.tags[3],self.tags[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3],self.tags[4]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Hungry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Happy Planet of the Apes", [self.authorIDs[0], self.authorIDs[6]], [self.tags[4],self.tags[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
 
   def viewPiratePapers(self):
     for i in range(0,15):
@@ -73,7 +83,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetTag(self):
     self.loadTestData()
-    self.assertEqual("id:0    name:Biology   papers:['0']      viewCount:0", str(self.redisDB.getTag(self.tagIDs[0])))
+    self.assertEqual("id:0    name:Biology   papers:['0']      viewCount:0", str(self.redisDB.getTag(self.tags[0])))
 
   def testGetPublisher(self):
     self.loadTestData()
@@ -247,7 +257,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.loadMoreTestData()
     self.viewPiratePapers()
-    papers = self.redisDB.getPapersMatchingTagIDs(["4","3","5"])
+    papers = self.redisDB.getPapersMatchingtags(["Pirates","Big Data","Dieting"])
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
