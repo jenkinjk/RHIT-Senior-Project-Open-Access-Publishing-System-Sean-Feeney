@@ -108,7 +108,7 @@ class RedisDatabase():
     # Returns a tag object
   def getTag(self, tag):
     paperIDs = self.redisDB.zrange("Tag:"+tag+":Papers",0,-1)
-    viewCount = self.redisDB.get("Tag:"+tagID+":ViewCount")
+    viewCount = self.redisDB.get("Tag:"+tag+":ViewCount")
     return Tag( tag, viewCount, paperIDs)  
   
     # Takes in an integer publisherID
@@ -384,8 +384,8 @@ class RedisDatabase():
 
   #takes a user id and a Tag id to add to this users list of favorites
   #returns the current length of the favorites
-  def putFavoriteTag(self, userID, tagID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoriteTags",tagID,favoriteLevel)
+  def putFavoriteTag(self, userID, tag, favoriteLevel):
+    self.redisDB.zadd("User:"+userID+":FavoriteTags",tag,favoriteLevel)
     length = self.redisDB.zcount("User:"+userID+":FavoriteTags")
     return length
 
