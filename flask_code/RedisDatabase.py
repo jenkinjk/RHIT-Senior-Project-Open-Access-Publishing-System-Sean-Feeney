@@ -43,7 +43,7 @@ class RedisDatabase():
     
     #Takes in a string of the tag's name
   def putTag(self, name):
-    if self.getTag(tag)==None:
+    if self.getTag(name)==None:
       self.redisDB.set("Tag:"+name+":ViewCount", 0)
       self.redisDB.zadd("Tags",0,name)
     return
