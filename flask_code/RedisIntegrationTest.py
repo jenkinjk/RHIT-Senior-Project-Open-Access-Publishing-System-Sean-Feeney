@@ -83,6 +83,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetTag(self):
     self.loadTestData()
+    print "tags[0]",self.tags[0]
     self.assertEqual("name:Biology   paperIDs:['0']      viewCount:0", str(self.redisDB.getTag(self.tags[0])))
 
   def testGetPublisher(self):
