@@ -108,9 +108,9 @@ class RedisDatabase():
     # Returns a tag object
   def getTag(self, tag):
     paperIDs = self.redisDB.zrange("Tag:"+tag+":Papers",0,-1)
-    print paperIDs
+    print "paperIDs:   "paperIDs
     viewCount = self.redisDB.get("Tag:"+tag+":ViewCount")
-    print viewCount
+    print "viewCount:  ", viewCount
     return Tag( tag, viewCount, paperIDs)  
   
     # Takes in an integer publisherID
