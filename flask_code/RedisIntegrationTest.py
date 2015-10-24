@@ -83,7 +83,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetTag(self):
     self.loadTestData()
-    self.assertEqual("id:0    name:Biology   papers:['0']      viewCount:0", str(self.redisDB.getTag(self.tags[0])))
+    self.assertEqual("name:Biology   paperIDs:['0']      viewCount:0", str(self.redisDB.getTag(self.tags[0])))
 
   def testGetPublisher(self):
     self.loadTestData()
@@ -92,11 +92,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def testGetPaper(self):
     self.loadTestData()
     paper = self.redisDB.getPaper(self.paperIDs[0])
-    self.assertEqual("id:0    title:MY TITLE IS IN CAPS   authors:['0', '5']   tags:['0']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0",self.getPaperStringCheckedPostedDate(paper))    
+    self.assertEqual("id:0    title:MY TITLE IS IN CAPS   authors:['0', '5']   tags:['Biology']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0",self.getPaperStringCheckedPostedDate(paper))    
 
   def testGetAllTags(self):
     self.loadTestData()
-    expecteds = ["id:0    name:Biology   papers:['0']      viewCount:0", "id:1    name:Nanotechnology   papers:['1']      viewCount:0", "id:2    name:Distributed Computing   papers:['1']      viewCount:0", "id:3    name:Big Data   papers:[]      viewCount:0"]
+    expecteds = ["name:Biology   paperIDs:['0']      viewCount:0", "name:Nanotechnology   paperIDs:['1']      viewCount:0", "name:Distributed Computing   paperIDs:['1']      viewCount:0", "name:Big Data   paperIDs:[]      viewCount:0"]
     rawActuals = self.redisDB.getAllTags()
     self.assertEqual(len(expecteds),len(rawActuals)) 
     actuals = set([])
@@ -122,7 +122,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     rawActuals = self.redisDB.getTopPapers()
     actuals = []
-    expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'0\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\", \"id:1    title:cheese bacon   authors:[\'3\', \'2\']   tags:[\'1\', \'2\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
+    expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'Biology\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\", \"id:1    title:cheese bacon   authors:[\'3\', \'2\']   tags:[\'1\', \'2\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
     for rawActual in rawActuals:
       actuals.append(self.getPaperStringCheckedPostedDate(rawActual))
     self.assertEqual(expecteds,str(actuals))
@@ -176,14 +176,14 @@ class RedisIntegrationTestCase(unittest.TestCase):
       self.redisDB.incrementPaperViews("0")
     for i in range(0,5):
       self.redisDB.incrementPaperViews("1")
-    self.assertEqual(self.redisDB.getTag("0").viewCount, "28")
-    self.assertEqual(self.redisDB.getTag("1").viewCount, "5")
-    self.redisDB.tagPaper("0","1")
-    self.assertEqual(self.redisDB.getTag("1").viewCount, "33")
-    self.assertTrue("1" in self.redisDB.getPaper("0").tags)
+    self.assertEqual(self.redisDB.getTag("Biology").viewCount, "28")
+    self.assertEqual(self.redisDB.getTag("Nanotechnology").viewCount, "5")
+    self.redisDB.tagPaper("0","Nanotechnology")
+    self.assertEqual(self.redisDB.getTag("Nanotechnology").viewCount, "33")
+    self.assertTrue("Nanotechnology" in self.redisDB.getPaper("0").tags)
     self.assertEqual(self.redisDB.getPaper("0").viewCount, "28")
-    self.assertEqual(28, self.redisDB.redisDB.zscore("Tag:1:Papers", "0"))
-    self.assertEqual(33, self.redisDB.redisDB.zscore("Tags", "1"))
+    self.assertEqual(28, self.redisDB.redisDB.zscore("Tag:Nanotechnology:Papers", "0"))
+    self.assertEqual(33, self.redisDB.redisDB.zscore("Tags", "Nanotechnology"))
 
 
   def testGetAuthorsMatchingAuthorsSingle(self):
@@ -384,7 +384,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('0', author.id)
     self.assertEqual(['0'],author.papers)'''
 
-  #12
+  '''#12
   def test_PutTag(self):
     self.assertEqual('0', self.redisDB.putTag("Tag one"))
 
@@ -392,26 +392,30 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def test_PutTags(self):
     self.assertEqual('0', self.redisDB.putTag("Tag one"))
     self.assertEqual('1', self.redisDB.putTag("Tag two"))
-    self.assertEqual('2', self.redisDB.putTag("Tag three"))
+    self.assertEqual('2', self.redisDB.putTag("Tag three"))'''
 
   #14
   def test_GetTag(self):
-    self.assertEqual('0', self.redisDB.putTag("239ck39&%$#@*&"))
-    tag = self.redisDB.getTag('0')
+    '''self.assertEqual('0', self.redisDB.putTag("239ck39&%$#@*&"))   '''
+    self.redisDB.putTag("239ck39&%$#@*&")
+    tag = self.redisDB.getTag("239ck39&%$#@*&")
     self.assertEqual("239ck39&%$#@*&", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual('0', tag.id)
     self.assertEqual([],tag.papers)
 
   #15
   def test_GetTags(self):
-    self.assertEqual('0', self.redisDB.putTag("Tag one"))
+    '''self.assertEqual('0', self.redisDB.putTag("Tag one"))
     self.assertEqual('1', self.redisDB.putTag("Tag two"))
-    self.assertEqual('2', self.redisDB.putTag("TagThree"))
-    tag = self.redisDB.getTag('2')
+    self.assertEqual('2', self.redisDB.putTag("TagThree"))'''
+	
+    self.redisDB.putTag("Tag one")
+    self.redisDB.putTag("Tag two")
+    self.redisDB.putTag("TagThree")
+	
+    tag = self.redisDB.getTag("TagThree")
     self.assertEqual("TagThree", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual('2', tag.id)
     self.assertEqual([],tag.papers)
 
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
