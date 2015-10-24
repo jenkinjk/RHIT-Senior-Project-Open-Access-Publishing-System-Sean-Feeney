@@ -122,7 +122,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     rawActuals = self.redisDB.getTopPapers()
     actuals = []
-    expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'Biology\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\", \"id:1    title:cheese bacon   authors:[\'3\', \'2\']   tags:[\'1\', \'2\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
+    expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'Biology\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\", \"id:1    title:cheese bacon   authors:[\'3\', \'2\']   tags:[\'Nanotechnology\', \'Distributed Computing\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
     for rawActual in rawActuals:
       actuals.append(self.getPaperStringCheckedPostedDate(rawActual))
     self.assertEqual(expecteds,str(actuals))
@@ -135,7 +135,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     rawActuals = self.redisDB.getPapersPublishedInYear("2003")
     actuals = []
-    expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'0\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
+    expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'Biology\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
     for rawActual in rawActuals:
       actuals.append(self.getPaperStringCheckedPostedDate(rawActual))
     self.assertEqual(expecteds,str(actuals))
@@ -232,7 +232,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s2 = [s[1],s[2]]
     s3 = [s[3],s[4]]
     self.assertEqual(5,len(s))
-    self.assertEqual(str(s1),"[\"id:5    title:The Friendly Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'3\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]")
+    self.assertEqual(str(s1),"[\"id:5    title:The Friendly Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]")
     self.assertTrue("id:4    title:The Friendly Pirates of the Mediterranean   authors:['0', '6']   tags:['3', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0" in s2)
     self.assertTrue("id:3    title:The Angry Pirates of the Carribean   authors:['0', '6']   tags:['3', '5', '4']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0" in s2)
     self.assertTrue("id:6    title:The Angry Pirates of the Mediterranean   authors:['0', '6']   tags:['3']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0" in s3)
@@ -246,7 +246,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
-    self.assertEqual("[\"id:5    title:The Friendly Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'3\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:1\", \"id:3    title:The Angry Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'3\', \'5\', \'4\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:15\", \"id:4    title:The Friendly Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'3\', \'4\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:7\", \"id:6    title:The Angry Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'3\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:8\", \"id:7    title:The Hungry Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'3\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:5\"]",str(s))
+    self.assertEqual("[\"id:5    title:The Friendly Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:1\", \"id:3    title:The Angry Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'Big Data\', \'Dieting\', \'Pirates\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:15\", \"id:4    title:The Friendly Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'Big Data\', \'Pirates\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:7\", \"id:6    title:The Angry Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:8\", \"id:7    title:The Hungry Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:5\"]",str(s))
 
   #This test was removed because it tests the implementation, not the correctness of the results
   '''def testTrivialTitleWordsFilteredOutBeforePutPaper(self):
@@ -401,7 +401,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     tag = self.redisDB.getTag("239ck39&%$#@*&")
     self.assertEqual("239ck39&%$#@*&", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual([],tag.papers)
+    self.assertEqual([],tag.paperIDs)
 
   #15
   def test_GetTags(self):
@@ -416,7 +416,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     tag = self.redisDB.getTag("TagThree")
     self.assertEqual("TagThree", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual([],tag.papers)
+    self.assertEqual([],tag.paperIDs)
 
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #16
