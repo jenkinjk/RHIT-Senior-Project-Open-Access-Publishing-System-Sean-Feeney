@@ -110,8 +110,8 @@ class RedisDatabase():
     
 
     viewCount = self.redisDB.get("Tag:"+tag+":ViewCount")
-	if viewCount == None:
-	  return None
+    if viewCount == None:
+      return None
     paperIDs = self.redisDB.zrange("Tag:"+tag+":Papers",0,-1)
     return Tag(tag, viewCount, paperIDs)  
   
