@@ -6,6 +6,7 @@ import pprint
 #import cPickle
 from RedisDatabase import RedisDatabase
 import Paper
+import User
 from datetime import datetime
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
@@ -124,7 +125,8 @@ def login_page():
 	
 @app.route('/profile', methods=['GET'])
 def profile_page():
-    return render_template('profile.html')
+    user = User.User("Generic User", [],[],[],[])
+    return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
 def search_page():
