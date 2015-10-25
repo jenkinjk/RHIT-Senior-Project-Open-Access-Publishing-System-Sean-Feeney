@@ -6,14 +6,13 @@ Created on Oct 1, 2015
 
 class Tag:
 
-  def __init__(self, id, name, viewCount, papers):
-    self.id = id
+  def __init__(self, name, viewCount, paperIDs):
     self.name = name
     self.viewCount = viewCount
-    self.papers = papers
+    self.paperIDs = paperIDs
 
   def __str__(self):
-    return 'id:'+self.id+'    name:'+self.name+'   papers:'+str(self.papers)+'      viewCount:'+self.viewCount
+    return 'name:'+self.name+'   paperIDs:'+str(self.paperIDs)+'      viewCount:'+self.viewCount
 
   def __repr__(self):
-    return 'id:'+self.id+'    name:'+self.name+'   papers:'+str(self.papers)+'      viewCount:'+self.viewCount      
+    return 'name:'+self.name+'   paperIDs:'+str(self.paperIDs)+'      viewCount:'+self.viewCount      

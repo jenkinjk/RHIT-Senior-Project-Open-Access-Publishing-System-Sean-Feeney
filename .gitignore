@@ -1,0 +1,4 @@
+flask_code/credentials.txt
+flask_code/*.pyc
+.project
+.pydevproject

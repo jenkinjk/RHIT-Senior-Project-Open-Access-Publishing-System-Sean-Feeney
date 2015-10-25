@@ -4,17 +4,26 @@ import s3DocumentHandler
 import os
 import pprint
 #import cPickle
-from RedisDatabaseImpl import RedisDatabaseImpl
+from RedisDatabase import RedisDatabase
 import Paper
+from datetime import datetime
+
+# if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
+TEST = True
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 
 app = Flask(__name__)
-docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-db = RedisDatabaseImpl("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
+
+if TEST:
+    db = RedisDatabase('Test')
+    docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
+else:    
+    db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
+    docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
 
 @app.route('/', methods=['GET'])
@@ -42,19 +51,28 @@ def upload_page():
             
             # Parse out the entered information
             title = request.form['title']
+            authorIDs = []
             authorNames = request.form['authorName'].split(',')
             for authorName in authorNames:
                 authorName.strip()
+                # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
+                # to resolve same-name conflicts, then passing in the correct authorID
+                authorIDs.append(db.putAuthor(authorName))
             tags = request.form['tags'].split(',')
             for tag in tags:
                 tag.strip()
 
 
-            uniqueID = db.putPaper(title, authorNames, tags) # (string title, list of strings authors, list of strings tags)
+            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
+            uniqueID = db.putPaper(title, authorIDs, tags, None, None, datetime(2015,10,21), None, [], []) 
+            print 'title:',title
+            print 'authornames:',authorNames
+            print 'tags:',tags
 
             docStore.storeDocument(upload_file, uniqueID)
 
-        return redirect('/upload')
+        results = []
+        return render_template('upload.html', results=results)
     # else it is a GET request
     else:
         results = []
@@ -108,25 +126,39 @@ def login_page():
 def profile_page():
     return render_template('profile.html')
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/search', methods=['GET'])
 def search_page():
-    if(request.method == 'POST'):
-        results = []
-        # query DB for certain entries.  everything technically contains the empty string, and many things contain a space, so probably not good to return all those results if they ask
-        if(request.form['search'] not in ['', ' ']):
-            results = db.search(request.form['search'])
-            print results
+    return render_template('search.html')
 
-        return render_template('search.html', results=results)
-    else:
-        return render_template('search.html')
+@app.route('/search-<byWhat>', methods=['GET', 'POST'])
+def search_endpoint(byWhat):
+    results = []
+    
+    print 'request form:', request.form
+
+    if(byWhat == 'byTitle'):
+        results = db.getPapersMatchingTitle(request.form['title'])
+    elif(byWhat == 'byAuthors'):
+        authorIDs = db.getAuthorsMatchingAuthors([request.form['authors']])
+        results = db.getPapersMatchingAuthorIDs(authorIDs)
+    elif(byWhat == 'byTags'):
+        results = db.getPapersMatchingTagIDs([request.form['tags']])
+
+
+
+    return render_template('search.html', results=results)
         
-        
-# Obviously, REMOVE FOR PRODUCTION        
-@app.route('/shutdown', methods=['POST'])
+# REMOVE FOR PRODUCTION        
+@app.route('/shutdown', methods=['GET', 'POST'])
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'
+
+# REMOVE FOR PRODUCTION        
+@app.route('/cleanout', methods=['GET', 'POST'])
+def cleanout():
+    docStore.removeAllNonMatching(db.getAllPaperIDs())
+    return 'deleting entries from S3 that are not reflected in database'
         
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')

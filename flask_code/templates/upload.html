@@ -1,10 +1,14 @@
 {% extends "base.html" %}
-{% block head}
+{% block head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}">
+
+
+
 {% endblock %}
 {% block title %}Upload Articles{% endblock %}
 {% block pageTitle %}Upload Articles{% endblock %}
@@ -14,6 +18,12 @@
   <div class="col-lg-4 col-lg-offset-4 form-container">
     <form action="" method=post enctype=multipart/form-data>
       <div class="form-group">
+        <label for="exampleInputFile">File input</label>
+        <input class="full-width" type="file" name="file" id="exampleInputFile">
+        <!-- helper text if user needs extra explanation within form -->
+        <!-- <p class="help-block">Example block-level help text here.</p> -->
+      </div>
+      <div class="form-group">
         <label for="exampleTitle">Title</label>
         <input type="text" class="form-control" id="exampleTitle" placeholder="Title" name="title">
       </div>
@@ -21,15 +31,9 @@
         <label for="exampleAuthorName">Author Name</label>
         <input type="text" class="form-control" id="exampleAuthorName" placeholder="Author Name" name="authorName">
       </div>
-      <div class="form-group">
+      <div class="form-group full-width">
         <label for="exampleTags">Tags</label>
-        <input type="text" class="form-control" id="exampleTags" data-role="tagsinput" name="tags">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputFile">File input</label>
-        <input type="file" name="file" id="exampleInputFile">
-        <!-- helper text if user needs extra explanation within form -->
-        <!-- <p class="help-block">Example block-level help text here.</p> -->
+        <input type="text" class="form-control full-width" id="exampleTags" data-role="tagsinput" name="tags">
       </div>
       <button type="submit" class="btn btn-default">Upload</button>
     </form>
@@ -48,7 +52,8 @@
     </ul>
   </div>
 </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
