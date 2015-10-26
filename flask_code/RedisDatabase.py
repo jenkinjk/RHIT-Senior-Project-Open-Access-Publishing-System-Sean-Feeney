@@ -15,15 +15,14 @@ class RedisDatabase():
 
   def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
-      self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=1)
+      self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=1)
       self.clearDatabase()
     else:
-      self.redisDB = redis.StrictRedis(host='localhost', port=6379, db=0)
+      self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
     
   def clearDatabase(self):
     self.redisDB.flushdb()
-    self.redisDB.set("Tags:IDCounter",0)
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
     self.redisDB.set("Publishers:IDCounter",0)
@@ -43,14 +42,11 @@ class RedisDatabase():
     return id
     
     #Takes in a string of the tag's name
-    #Returns a string tagID 
   def putTag(self, name):
-    id = self.redisDB.get("Tags:IDCounter")
-    self.redisDB.set("Tag:"+id+":Name", name)
-    self.redisDB.set("Tag:"+id+":ViewCount", 0)
-    self.redisDB.zadd("Tags",0,id)
-    self.redisDB.incr("Tags:IDCounter")
-    return id
+    if self.getTag(name)==None:
+      self.redisDB.set("Tag:"+name+":ViewCount", 0)
+      self.redisDB.zadd("Tags",0,name)
+    return
   
     #Takes in a string of the publisher's name
     #Returns a string publisherID
@@ -65,7 +61,7 @@ class RedisDatabase():
     #Takes in:
     #  - a string of the paper's title
     #  - a list of string authorIDs
-    #  - a list of string tagIDs
+    #  - a list of string tags
     #  - a string of the paper's abstract
     #  - a string of the userID:  NOT IMPLEMENTED YET
     #  - a string of the date that the article was published:  FORMAT UNDECIDED SO FAR
@@ -88,8 +84,7 @@ class RedisDatabase():
       self.redisDB.sadd("Author:"+author+":Papers", id)
       self.redisDB.sadd("Paper:"+id+":Authors", author)
     for tag in tags:
-      if self.getTag(tag)==None:
-        self.putTag(tag)
+      self.putTag(tag)
       self.redisDB.zadd("Tag:"+tag+":Papers", 0, id)
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
     self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
@@ -109,13 +104,16 @@ class RedisDatabase():
     viewCount = self.redisDB.get("Author:"+authorID+":ViewCount")
     return Author(authorID, name, viewCount, papers)
   
-    # Takes in an integer tagID
+    # Takes in a string tag
     # Returns a tag object
-  def getTag(self, tagID):
-    papers = self.redisDB.zrange("Tag:"+tagID+":Papers",0,-1)
-    name = self.redisDB.get("Tag:"+tagID+":Name")
-    viewCount = self.redisDB.get("Tag:"+tagID+":ViewCount")
-    return Tag(tagID, name, viewCount, papers)  
+  def getTag(self, tag):
+    
+
+    viewCount = self.redisDB.get("Tag:"+tag+":ViewCount")
+    if viewCount == None:
+      return None
+    paperIDs = self.redisDB.zrange("Tag:"+tag+":Papers",0,-1)
+    return Tag(tag, viewCount, paperIDs)  
   
     # Takes in an integer publisherID
     # Returns a publisher object
@@ -227,19 +225,19 @@ class RedisDatabase():
       words = self.getSearchWords(author.name)
       for word in words:
         self.redisDB.zincrby("AuthorWord:"+word, authorID, 1)
-    for tagID in paper.tags:
-      self.redisDB.incr("Tag:"+tagID+":ViewCount")
-      self.redisDB.zincrby("Tag:"+tagID+":Papers", paperID, 1)
-      self.redisDB.zincrby("Tags", tagID, 1)
+    for tag in paper.tags:
+      self.redisDB.incr("Tag:"+tag+":ViewCount")
+      self.redisDB.zincrby("Tag:"+tag+":Papers", paperID, 1)
+      self.redisDB.zincrby("Tags", tag, 1)
     return
 
-    #Takes in integers paperID and tagID corresponding to the tag and paper to link together
-  def tagPaper(self, paperID, tagID):
+    #Takes in integers paperID and tag corresponding to the tag and paper to link together
+  def tagPaper(self, paperID, tag):
     paper = self.getPaper(paperID)
-    self.redisDB.zadd("Tag:"+tagID+":Papers", paper.viewCount, paperID)
-    self.redisDB.incrby("Tag:"+tagID+":ViewCount",paper.viewCount)
-    self.redisDB.zincrby("Tags", tagID,paper.viewCount)
-    self.redisDB.sadd("Paper:"+paperID+":Tags", tagID)
+    self.redisDB.zadd("Tag:"+tag+":Papers", paper.viewCount, paperID)
+    self.redisDB.incrby("Tag:"+tag+":ViewCount",paper.viewCount)
+    self.redisDB.zincrby("Tags", tag,paper.viewCount)
+    self.redisDB.sadd("Paper:"+paperID+":Tags", tag)
     
     # Takes in a list of strings with names of authors to search for
     #  If only one author is given, give a list with a single element
@@ -278,24 +276,13 @@ class RedisDatabase():
     for paperID in paperIDs:
       papers.append(self.getPaper(paperID))
     return papers
-
-    # Takes in a list of string tagNames
-    # Returns a list of paper objects that match
-  def getPapersMatchingTagNames(self, tagNames):
-    allTags = self.getAllTags()
-    tagIDs = []
-    for tagName in tagNames:
-      for tag in allTags:
-        if tag.name == tagName:
-          tagIDs.append(tagID)
-    return self.getPapersMatchingTagIDs(tagIDs)
     
-    # Takes in a list of integer tagIDs
+    # Takes in a list of string tags
     # Returns a list of paper objects that match
-  def getPapersMatchingTagIDs(self, tagIDs):
+  def getPapersMatchingTags(self, tags):
     tagKeys = []
-    for tagID in tagIDs:
-      tagKeys.append("Tag:"+tagID+":Papers")
+    for tag in tags:
+      tagKeys.append("Tag:"+tag+":Papers")
     paperIDs = self.getMergedSearchResults(tagKeys)
     papers = []
     for paperID in paperIDs:
@@ -401,8 +388,8 @@ class RedisDatabase():
 
   #takes a user id and a Tag id to add to this users list of favorites
   #returns the current length of the favorites
-  def putFavoriteTag(self, userID, tagID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoriteTags",tagID,favoriteLevel)
+  def putFavoriteTag(self, userID, tag, favoriteLevel):
+    self.redisDB.zadd("User:"+userID+":FavoriteTags",tag,favoriteLevel)
     length = self.redisDB.zcount("User:"+userID+":FavoriteTags")
     return length
 
