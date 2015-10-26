@@ -565,9 +565,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
       return False
     return True	  
   
-  def isSameUser():
+  def isSameUser(self):
+    pass
   
-  def isListSame(list1, list2):
+  def isListSame(self, list1, list2):
+    pass
     
 
 if __name__ == '__main__':
