@@ -144,16 +144,16 @@ class RedisDatabase():
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = []
     citedBys = []
-	authorNames = []
+    authorNames = []
     for authorID in authorIDs:
       authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
-	publisherName = self.getPublisher(publisherID).name
+    publisherName = self.getPublisher(publisherID).name
     return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
     # Returns a list of paper objects
-  def getPapersForAuthor(self, authorID):
+  def getPapersForAuthorID(self, authorID):
     rawPapers = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
     papers=[]
     for rawPaper in rawPapers:
