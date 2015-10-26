@@ -79,7 +79,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetAuthor(self):
     self.loadTestData()
-    self.assertEqual("id:0    name:Jimmy Fallon   papers:['0']      viewCount:0", str(self.redisDB.getAuthor(self.authorIDs[0])))
+    #author = Author()
+    self.assertEqual("id:0    name:Jimmy Fallon   papers:['0']      viewCount:0", self.redisDB.getAuthor(self.authorIDs[0]))
 
   def testGetTag(self):
     self.loadTestData()
@@ -543,6 +544,31 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def tearDown(self):
     pass
+
+  def isSamePaper(self):
+    pass
+  
+  def isSameAuthor(self, author, id, name, viewCount, paperIDs, paperTitles, paperAuthorNames, paperDatesPublished):
+    if not id ==  author.id:
+      return False
+    if not name == author.name:
+      return False
+    if not viewCount == author.viewCount:
+      return False
+    if not paperIDs == author.paperIDs:
+      return False
+    if not paperTitles == author.paperTitles:
+      return False
+    if not paperAuthorNames == author.paperAuthorNames:
+      return False
+    if not paperDatesPublished == author.paperDatesPublished:
+      return False
+    return True	  
+  
+  def isSameUser():
+  
+  def isListSame(list1, list2):
+    
 
 if __name__ == '__main__':
   unittest.main()

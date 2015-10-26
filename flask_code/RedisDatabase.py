@@ -101,7 +101,7 @@ class RedisDatabase():
     if name == None:
       return None
     paperIDs = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
-    paperAuthorNames []
+    paperAuthorNames = []
     paperTitles = []
     paperDatesPublished = []
 	for paperID in paperIDs:
