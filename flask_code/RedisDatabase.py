@@ -418,8 +418,8 @@ class RedisDatabase():
 	
   def addStalker(self, stalkerID, userIDToStalk):
     self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)
-	self.redisDB.zincrby("Users",userIDToStalk, 1)
-	self.redisDB.incr("User:"+userIDToStalk+":FollowerCount")
+    self.redisDB.zincrby("Users",userIDToStalk, 1)
+    self.redisDB.incr("User:"+userIDToStalk+":FollowerCount")
 
 
 
