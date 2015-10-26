@@ -104,7 +104,7 @@ class RedisDatabase():
     paperAuthorNames = []
     paperTitles = []
     paperDatesPublished = []
-	for paperID in paperIDs:
+    for paperID in paperIDs:
       paper = self.getPaper(paperID)
       paperAuthorNames.append(paper.authorNames)
       paperTitles.append(paper.title)
