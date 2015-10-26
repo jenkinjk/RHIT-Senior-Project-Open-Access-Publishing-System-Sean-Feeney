@@ -381,7 +381,7 @@ class RedisDatabase():
     followingIDs = self.redisDB.get("User:"+id+":FollowingUserIDs")
     followingNames = []
     for followingID in followingIDs:
-    followingNames.append(self.redisDB.get("User:"+followingID+":UserName"))
+      followingNames.append(self.redisDB.get("User:"+followingID+":UserName"))
     paperIDs = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
     papers = []
     for paperID in paperIDs:
