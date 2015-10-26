@@ -370,27 +370,26 @@ class RedisDatabase():
     id = str(id)
     self.redisDB.set("User:"+id+":UserName",username)
     self.redisDB.zadd("Users",id,0) #To be ranked by followers
-	self.redisDB.set("User:"+id+":FollowerCount", 0)
+    self.redisDB.set("User:"+id+":FollowerCount", 0)
     self.redisDB.incr("Users:IDCounter")
     return id
 
   #Should return a new user object
   def getUser(self, id):
     userName = self.redisDB.get("User:"+id+":UserName")
-	followerCount = self.redisDB.get("User:"+id+":FollowerCount")
+    followerCount = self.redisDB.get("User:"+id+":FollowerCount")
     followingIDs = self.redisDB.get("User:"+id+":FollowingUserIDs")
-	followingNames = []
-	for followingID in followingIDs:
-	  followingNames.append(self.redisDB.get("User:"+followingID+":UserName"))
+    followingNames = []
+    for followingID in followingIDs:
+    followingNames.append(self.redisDB.get("User:"+followingID+":UserName"))
     paperIDs = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
-	papers = []
-	for paperID in paperIDs:
-	  papers.append(self.getPaper(paperID))
-	
+    papers = []
+    for paperID in paperIDs:
+      papers.append(self.getPaper(paperID))
     authorIDs = self.redisDB.zrange("User:"+id+":FavoriteAuthors",0,-1)
-	authors = []
-	for authorID in authorIDs:
-	  authors.append(self.getAuthor(authorID))
+    authors = []
+    for authorID in authorIDs:
+      authors.append(self.getAuthor(authorID))
     tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
     return User(username, followingIDs, followingNames, papers, authors, tags, followerCount)
 
