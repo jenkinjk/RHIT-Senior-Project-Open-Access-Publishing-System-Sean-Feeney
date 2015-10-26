@@ -1,4 +1,7 @@
 flask_code/credentials.txt
+flask_code/amazonCredentials.txt
+flask_code/facebookCredentials.txt
+flask_code/serverCredentials.txt
 flask_code/*.pyc
 .project
 .pydevproject

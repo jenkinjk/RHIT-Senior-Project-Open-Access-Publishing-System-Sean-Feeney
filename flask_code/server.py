@@ -1,9 +1,9 @@
-from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response, make_response
+from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response, make_response, session
 import documentHandler
 import s3DocumentHandler
 import os
 import pprint
-#import cPickle
+#from flask_oauth import OAuth
 from RedisDatabase import RedisDatabase
 import Paper
 from datetime import datetime
@@ -17,7 +17,22 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 app = Flask(__name__)
 
+# # get the facebook credentials
+# credential_file = open('facebookCredentials.txt', 'r')
+# credential_file.readline()
+# credentials = credential_file.readline().split(',')
+# FACEBOOK_APP_ID = credentials[0]
+# FACEBOOK_API_VERSION = credentials[1]
+# FACEBOOK_APP_SECRET = credentials[2]
 
+# get our app's credentials
+# credential_file = open('serverCredentials.txt', 'rb')
+# credential_file.readline()
+# credentials = credential_file.readline().split(',')
+# SECRET_KEY = credentials[0]
+# print SECRET_KEY
+
+# connect to either the test database or the real database
 if TEST:
     db = RedisDatabase('Test')
     docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
@@ -115,6 +130,7 @@ def allowed_file(filename):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
+    
     if(request.method == 'POST'):
         # we are getting a request to login
         # verify credentials, etc. for now we let everything through
@@ -124,6 +140,9 @@ def login_page():
 	
 @app.route('/profile', methods=['GET'])
 def profile_page():
+    print 'request:', request
+    print 'cookies:', request.cookies
+    print 'session:', session
     return render_template('profile.html')
 
 @app.route('/search', methods=['GET'])

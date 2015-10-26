@@ -3,7 +3,7 @@ import boto3
 import botocore
 
 # get credentials from file
-credential_file = open('credentials.txt', 'r')
+credential_file = open('amazonCredentials.txt', 'r')
 credential_file.readline()
 credentials = credential_file.readline().split(',')
 
