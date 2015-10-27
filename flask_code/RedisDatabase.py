@@ -148,7 +148,7 @@ class RedisDatabase():
     for authorID in authorIDs:
       authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
     publisherName = self.getPublisher(publisherID).name
-    return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
+    return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
