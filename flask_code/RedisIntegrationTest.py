@@ -271,7 +271,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.loadMoreTestData()
     self.viewPiratePapers()
-    papers = self.redisDB.getPapersMatchingAuthors(["Jimmy Dean","Thomas Jefferson", "Poop"])
+    papers = self.redisDB.getPapersMatchingAuthorNames(["Jimmy Dean","Thomas Jefferson", "Poop"])
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
@@ -295,11 +295,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual(paper.viewCount, str(views))
     self.assertEqual(views, self.redisDB.redisDB.zscore("Papers",id))
     self.assertEqual(views, self.redisDB.redisDB.zscore("YearPublished:"+str(paper.datePublished.year),id))
-    self.assertEqual(views, self.redisDB.redisDB.zscore("Publishers",paper.publisher))
-    self.assertEqual(str(views), self.redisDB.getPublisher(paper.publisher).viewCount)
+    self.assertEqual(views, self.redisDB.redisDB.zscore("Publishers",paper.publisherID))
+    self.assertEqual(str(views), self.redisDB.getPublisher(paper.publisherID).viewCount)
     for word in self.redisDB.getSearchWords(paper.title):
       self.assertEqual(views, self.redisDB.redisDB.zscore("PaperWord:"+word,id))
-    for rawAuthor in paper.authors:
+    for rawAuthor in paper.authorIDs:
       author = self.redisDB.getAuthor(rawAuthor)
       self.assertEqual(author.viewCount, str(views))
       self.assertEqual(views, self.redisDB.redisDB.zscore("Authors",rawAuthor))
