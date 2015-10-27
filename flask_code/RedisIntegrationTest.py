@@ -4,8 +4,10 @@ import datetime
 from difflib import Differ
 from Paper import Paper
 from Author import Author
+from Tag import Tag
 
 class RedisIntegrationTestCase(unittest.TestCase):
+
   def setUp(self):
     self.redisDB = RedisDatabase("Test")
     self.redisDB.clearDatabase()
@@ -13,7 +15,10 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.authorIDs = []
     self.publisherIDs = []
     self.paperIDs = []
-	self.jimmyFallon = Author('0', "Jimmy Fallon", 0, ['0'], ["MY TITLE IS IN CAPS"], [['Jimmy Fallon', "Jefferson Davis"]], datetime.datetime(2003, 8, 4))
+    date = datetime.datetime(2003, 8, 4)
+    self.jimmyFallon = Author("0", "Jimmy Fallon", '0', ['0'], ["MY TITLE IS IN CAPS"], [['Jimmy Fallon', "Jefferson Davis"]], [date])
+    self.jimmyFallonEmpty = Author("0", "Jimmy Fallon", '0', [], [], [], [])
+    self.bioTag = Tag()
 
   def loadTestData(self):
 
@@ -74,17 +79,16 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     author = self.redisDB.getAuthor(id)
-    self.assertEqual(self.jimmyFallon, author)
+    self.assertEqual(self.jimmyFallonEmpty, author)
     self.redisDB.clearDatabase()
     author = self.redisDB.getAuthor(id)
     self.assertEqual(None, author)
 
   def testGetAuthor(self):
     self.loadTestData()
-    author = Author('0', "Jimmy Fallon", 0, ['0'], ["MY TITLE IS IN CAPS"], [['Jimmy Fallon', "Jefferson Davis"]], datetime.datetime(2003, 8, 4))
-    self.assertEqual(author, self.redisDB.getAuthor(self.authorIDs[0]))
+    self.assertEqual(self.jimmyFallon, self.redisDB.getAuthor(self.authorIDs[0]))
 
-  '''def testGetTag(self):
+  def testGetTag(self):
     self.loadTestData()
 	#TagEqual
     self.assertEqual("name:Biology   paperIDs:['0']      viewCount:0", str(self.redisDB.getTag(self.tags[0])))
@@ -100,7 +104,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     paper = self.redisDB.getPaper(self.paperIDs[0])
     self.assertEqual("id:0    title:MY TITLE IS IN CAPS   authors:['0', '5']   tags:['Biology']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0",self.getPaperStringCheckedPostedDate(paper))    
 
-  def testGetAllTags(self):
+  '''def testGetAllTags(self):
     self.loadTestData()
 	#SetofTagsEqual
     expecteds = ["name:Biology   paperIDs:['0']      viewCount:0", "name:Nanotechnology   paperIDs:['1']      viewCount:0", "name:Distributed Computing   paperIDs:['1']      viewCount:0", "name:Big Data   paperIDs:[]      viewCount:0"]
