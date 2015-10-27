@@ -8,6 +8,8 @@ from RedisDatabase import RedisDatabase
 import Paper
 import User
 from datetime import datetime
+import base64
+import json
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
 TEST = True
@@ -18,13 +20,13 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 
 app = Flask(__name__)
 
-# # get the facebook credentials
-# credential_file = open('facebookCredentials.txt', 'r')
-# credential_file.readline()
-# credentials = credential_file.readline().split(',')
-# FACEBOOK_APP_ID = credentials[0]
-# FACEBOOK_API_VERSION = credentials[1]
-# FACEBOOK_APP_SECRET = credentials[2]
+# get the facebook credentials
+credential_file = open('facebookCredentials.txt', 'r')
+credential_file.readline()
+credentials = credential_file.readline().split(',')
+FACEBOOK_APP_ID = credentials[0]
+FACEBOOK_API_VERSION = credentials[1]
+FACEBOOK_APP_SECRET = credentials[2]
 
 # get our app's credentials
 # credential_file = open('serverCredentials.txt', 'rb')
@@ -44,12 +46,14 @@ else:
 
 @app.route('/', methods=['GET'])
 def welcome_page():
+    print 'user' + get_user_id() + ' requested the root page'
 	# this is where we get to choose where to redirect people.  for now, 
     # redirect to the login page.  later maybe the home page
     return redirect('/login')
 
 @app.route('/home', methods=['GET'])
 def home_page():
+    print 'user' + get_user_id() + ' is viewing the home page'
     return render_template('home.html')
 	
 
@@ -60,6 +64,7 @@ def home_page():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
+    print 'user' + get_user_id() + ' is uploading'
     if request.method == 'POST':
         upload_file = request.files['file']
         if upload_file and allowed_file(upload_file.filename):
@@ -96,6 +101,7 @@ def upload_page():
 
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
+    print 'user' + get_user_id() + ' is viewing a file'
     print 'viewing file', uniqueID 
     viewing_file = docStore.retrieveDocument(uniqueID)
     print 'content length:', viewing_file['Body']._content_length
@@ -131,7 +137,7 @@ def allowed_file(filename):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    
+    print 'user' + get_user_id() + ' is logging in'
     if(request.method == 'POST'):
         # we are getting a request to login
         # verify credentials, etc. for now we let everything through
@@ -141,18 +147,32 @@ def login_page():
 	
 @app.route('/profile', methods=['GET'])
 def profile_page():
-    print 'request:', request
-    print 'cookies:', request.cookies
-    print 'session:', session
+    print 'user' + get_user_id() + ' is on the profile page'
+    # print 'request:', request
+    # print 'cookies:', request.cookies
+    # print 'session:', session
+    # if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
+    #     # print request.cookies['fbsr_' + FACEBOOK_APP_ID]
+    #     auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
+    #     signature = base64.urlsafe_b64decode(str(auth_cookie[0]) + ((4 - len(auth_cookie[0]) % 4) * '='))
+    #     payload = json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))
+    #     # print 'signature:', signature
+    #     # print 'payload:', payload
+    #     # # we should probably check with facebook to make sure this is legit, and check the signature and all that.  but really what we care about for now is the user_ID
+    #     # print 'user_ID:', payload['user_id']
+    # else:
+    #     print 'user unknown (no facebook authentication cookie is set)'
     user = User.User("Generic User", [],[],[],[])
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
 def search_page():
+    print 'user' + get_user_id() + ' is searching'
     return render_template('search.html')
 
 @app.route('/search-<byWhat>', methods=['GET', 'POST'])
 def search_endpoint(byWhat):
+    print 'user' + get_user_id() + ' is searching'
     results = []
     
     print 'request form:', request.form
@@ -160,22 +180,21 @@ def search_endpoint(byWhat):
     if(byWhat == 'byTitle'):
         results = db.getPapersMatchingTitle(request.form['title'])
     elif(byWhat == 'byAuthors'):
-        authorIDs = db.getAuthorsMatchingAuthors([request.form['authors']])
-        results = db.getPapersMatchingAuthorIDs(authorIDs)
+        results = db.getPapersMatchingAuthorNames([request.form['authors']])
     elif(byWhat == 'byTags'):
-        results = db.getPapersMatchingTagIDs([request.form['tags']])
+        results = db.getPapersMatchingTags([request.form['tags']])
 
 
 
     return render_template('search.html', results=results)
         
-# REMOVE FOR PRODUCTION        
+# REMOVE FOR PRODUCTION
 @app.route('/shutdown', methods=['GET', 'POST'])
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'
 
-# REMOVE FOR PRODUCTION        
+# REMOVE FOR PRODUCTION
 @app.route('/cleanout', methods=['GET', 'POST'])
 def cleanout():
     docStore.removeAllNonMatching(db.getAllPaperIDs())
@@ -186,6 +205,16 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+
+
+def get_user_id():
+    # In reality we should check the signature to make sure it is from who we think it is
+    # currently we are not worried about security
+    if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
+        auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
+        return str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id'])
+    else:
+        return ""
 
 if __name__ == '__main__':
 	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
