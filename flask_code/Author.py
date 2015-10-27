@@ -20,3 +20,20 @@ class Author:
 
   def __repr__(self):
     return 'id:'+self.id+'    name:'+self.name+'   paperIDs:'+str(self.paperIDs)+'      viewCount:'+self.viewCount+'      paperTitles:'+str(self.paperTitles)+'      paperAuthorNames:'+str(self.paperAuthorNames)+'      paperDatesPublished:'+str(self.paperDatesPublished)
+
+  def __eq__(self, other):
+    if not self.id ==  other.id:
+      return False
+    if not self.name == other.name:
+      return False
+    if not self.viewCount == other.viewCount:
+      return False
+    if not self.paperIDs == other.paperIDs:
+      return False
+    if not self.paperTitles == other.paperTitles:
+      return False
+    if not self.paperAuthorNames == other.paperAuthorNames:
+      return False
+    if not self.paperDatesPublished == other.paperDatesPublished:
+      return False
+    return True	 

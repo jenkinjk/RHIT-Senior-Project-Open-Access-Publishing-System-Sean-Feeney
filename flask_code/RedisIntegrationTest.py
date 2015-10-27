@@ -72,6 +72,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     author = self.redisDB.getAuthor(id)
+	#authorEqual
     self.assertEqual("id:0    name:Jimmy Fallon   papers:[]      viewCount:0", str(author))
     self.redisDB.clearDatabase()
     author = self.redisDB.getAuthor(id)
@@ -79,24 +80,28 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetAuthor(self):
     self.loadTestData()
-    #author = Author()
-    self.assertEqual("id:0    name:Jimmy Fallon   papers:['0']      viewCount:0", self.redisDB.getAuthor(self.authorIDs[0]))
+    author = Author('0', "Jimmy Fallon", 0, ['0'], ["MY TITLE IS IN CAPS"], [['Jimmy Fallon', "Jefferson Davis"]], datetime.datetime(2003, 8, 4))
+    self.assertEqual(author, self.redisDB.getAuthor(self.authorIDs[0]))
 
-  def testGetTag(self):
+  '''def testGetTag(self):
     self.loadTestData()
+	#TagEqual
     self.assertEqual("name:Biology   paperIDs:['0']      viewCount:0", str(self.redisDB.getTag(self.tags[0])))
 
   def testGetPublisher(self):
     self.loadTestData()
+	#PublisherEqual
     self.assertEqual("id:0    name:RHIT      viewCount:0", str(self.redisDB.getPublisher(self.publisherIDs[0])))
 
   def testGetPaper(self):
     self.loadTestData()
+	#PaperEqual
     paper = self.redisDB.getPaper(self.paperIDs[0])
     self.assertEqual("id:0    title:MY TITLE IS IN CAPS   authors:['0', '5']   tags:['Biology']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0",self.getPaperStringCheckedPostedDate(paper))    
 
   def testGetAllTags(self):
     self.loadTestData()
+	#SetofTagsEqual
     expecteds = ["name:Biology   paperIDs:['0']      viewCount:0", "name:Nanotechnology   paperIDs:['1']      viewCount:0", "name:Distributed Computing   paperIDs:['1']      viewCount:0", "name:Big Data   paperIDs:[]      viewCount:0"]
     rawActuals = self.redisDB.getAllTags()
     self.assertEqual(len(expecteds),len(rawActuals)) 
@@ -109,6 +114,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetAllPublishers(self):
     self.loadTestData()
+	#SetofPublishersEqual
     expecteds = ["id:0    name:RHIT      viewCount:0", "id:1    name:McGraw-Hill      viewCount:0"]
     rawActuals = self.redisDB.getAllPublishers()
     self.assertEqual(len(expecteds),len(rawActuals)) 
@@ -121,6 +127,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetTopPapers(self):
     self.loadTestData()
+	#listofPapersEquals
     rawActuals = self.redisDB.getTopPapers()
     actuals = []
     expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'Biology\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\", \"id:1    title:cheese bacon   authors:[\'3\', \'2\']   tags:[\'Nanotechnology\', \'Distributed Computing\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
@@ -130,10 +137,12 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   def testGetTopAuthors(self):
     self.loadTestData()
+	#listofAuthorsEqual
     self.assertEqual("[id:0    name:Jimmy Fallon   papers:['0']      viewCount:0, id:1    name:Jimmy Dean   papers:[]      viewCount:0, id:2    name:James Dean   papers:['1']      viewCount:0, id:3    name:Dean Thomas   papers:['1']      viewCount:0, id:4    name:Thomas Jefferson   papers:[]      viewCount:0, id:5    name:Jefferson Davis   papers:['0']      viewCount:0]", str(self.redisDB.getTopAuthors()))
 
   def testGetPapersByYearValid(self):
     self.loadTestData()
+	#setofpapersEqual
     rawActuals = self.redisDB.getPapersPublishedInYear("2003")
     actuals = []
     expecteds = "[\"id:0    title:MY TITLE IS IN CAPS   authors:[\'0\', \'5\']   tags:[\'Biology\']   abstract:This is an abstract   publisher:0   datePublished:2003-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]"
@@ -192,16 +201,19 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s1 = self.redisDB.getAuthorsMatchingAuthorNames(["Jimmy"])
     self.assertEqual(len(s1),2)
     ss1 = [str(s1[0]),str(s1[1])]
+	#setofAuthorsEquals
     self.assertTrue("id:1    name:Jimmy Dean   papers:[]      viewCount:0" in ss1)
     self.assertTrue("id:0    name:Jimmy Fallon   papers:['0']      viewCount:0" in ss1)
 
     s2 = self.redisDB.getAuthorsMatchingAuthors(["Dean"])
     self.assertEqual(len(s2),3)
     ss2 = [str(s2[0]),str(s2[1]),str(s2[2])]
+	#setofAuthorsEquals
     self.assertTrue("id:1    name:Jimmy Dean   papers:[]      viewCount:0" in ss2)
     self.assertTrue("id:3    name:Dean Thomas   papers:['1']      viewCount:0" in ss2)
     self.assertTrue("id:2    name:James Dean   papers:['1']      viewCount:0" in ss2)
 
+	#setofAuthorsEquals
     self.assertEqual("[id:2    name:James Dean   papers:['1']      viewCount:0]",str(self.redisDB.getAuthorsMatchingAuthors(["James"])))
     self.assertEqual("[]",str(self.redisDB.getAuthorsMatchingAuthors(["Poop"])))
 
@@ -211,18 +223,19 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s1 = [str(s[0]),str(s[1]),str(s[2])]
     s2 = [str(s[3]),str(s[4]),str(s[5])]
     self.assertEqual(len(s),6)
+	#setofAuthorsCompare
     self.assertTrue("id:4    name:Thomas Jefferson   papers:[]      viewCount:0" in s1)
     self.assertTrue("id:1    name:Jimmy Dean   papers:[]      viewCount:0" in s1)
     self.assertTrue("id:3    name:Dean Thomas   papers:['1']      viewCount:0" in s1)
     self.assertTrue("id:2    name:James Dean   papers:['1']      viewCount:0" in s2)
     self.assertTrue("id:5    name:Jefferson Davis   papers:['0']      viewCount:0" in s2)
-    self.assertTrue("id:0    name:Jimmy Fallon   papers:['0']      viewCount:0" in s2)
+    self.assertTrue("id:0    name:Jimmy Fallon   papers:['0']      viewCount:0" in s2)'''
 
   '''def testTrivialAuthorWordsFilteredOutBeforePutAuthor(self):
     self.loadTestData()
     self.assertTrue(False)'''
 
-  def testGetPapersMatchingTitle(self):
+  '''def testGetPapersMatchingTitle(self):
     self.loadTestData()
     self.loadMoreTestData()
     papers = self.redisDB.getPapersMatchingTitle("The Friendly Pirates of the Carribean")
@@ -233,6 +246,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s2 = [s[1],s[2]]
     s3 = [s[3],s[4]]
     self.assertEqual(5,len(s))
+	#setofPapersEqual
     self.assertEqual(str(s1),"[\"id:5    title:The Friendly Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0\"]")
     self.assertTrue("id:4    title:The Friendly Pirates of the Mediterranean   authors:['0', '6']   tags:['Pirates', 'Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0" in s2)
     self.assertTrue("id:3    title:The Angry Pirates of the Carribean   authors:['0', '6']   tags:['Dieting', 'Pirates', 'Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:0" in s2)
@@ -247,14 +261,15 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
+	  #SetofPapersComp
     self.assertEqual("[\"id:5    title:The Friendly Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:1\", \"id:3    title:The Angry Pirates of the Carribean   authors:[\'0\', \'6\']   tags:[\'Dieting\', \'Pirates\', \'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:15\", \"id:4    title:The Friendly Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'Pirates\', \'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:7\", \"id:6    title:The Angry Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:8\", \"id:7    title:The Hungry Pirates of the Mediterranean   authors:[\'0\', \'6\']   tags:[\'Big Data\']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:5\"]",str(s))
-
+'''
   #This test was removed because it tests the implementation, not the correctness of the results
   '''def testTrivialTitleWordsFilteredOutBeforePutPaper(self):
     self.loadTestData()
     self.assertTrue(False)'''
 
-  def testGetPapersMatchingTags(self):
+  '''def testGetPapersMatchingTags(self):
     self.loadTestData()
     self.loadMoreTestData()
     self.viewPiratePapers()
@@ -262,6 +277,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     s = []
     for p in papers:
       s.append(self.getPaperStringCheckedPostedDate(p))
+	  #SetofPapersComp
     expecteds = ["id:3    title:The Angry Pirates of the Carribean   authors:['0', '6']   tags:['Dieting', 'Pirates', 'Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:15", "id:8    title:The Happy Planet of the Apes   authors:['0', '6']   tags:['Dieting', 'Pirates']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:18", "id:4    title:The Friendly Pirates of the Mediterranean   authors:['0', '6']   tags:['Pirates', 'Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:7", "id:6    title:The Angry Pirates of the Mediterranean   authors:['0', '6']   tags:['Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:8", "id:7    title:The Hungry Pirates of the Mediterranean   authors:['0', '6']   tags:['Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:5", "id:5    title:The Friendly Pirates of the Carribean   authors:['0', '6']   tags:['Big Data']   abstract:This is another abstract   publisher:1   datePublished:2004-08-04 00:00:00   datePosted:TruepostedBy:-1   references:[]   citedBys:[]      viewCount:1"]
     for i in range(0,len(expecteds)):
       self.assertEqual(expecteds[i],s[i])
@@ -383,7 +399,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual("Author Three", author.name)
     self.assertEqual('0', author.viewCount)
     self.assertEqual('2', author.id)
-    self.assertEqual([],author.paperIDs)
+    self.assertEqual([],author.paperIDs)'''
 
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #11
@@ -405,20 +421,20 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('1', self.redisDB.putTag("Tag two"))
     self.assertEqual('2', self.redisDB.putTag("Tag three"))'''
 
-  #14
+  '''#14
   def test_GetTag(self):
-    '''self.assertEqual('0', self.redisDB.putTag("239ck39&%$#@*&"))   '''
+    #self.assertEqual('0', self.redisDB.putTag("239ck39&%$#@*&"))   
     self.redisDB.putTag("239ck39&%$#@*&")
     tag = self.redisDB.getTag("239ck39&%$#@*&")
     self.assertEqual("239ck39&%$#@*&", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual([],tag.paperIDs)
+    self.assertEqual([],tag.paperIDs)'''
 
-  #15
+  '''#15
   def test_GetTags(self):
-    '''self.assertEqual('0', self.redisDB.putTag("Tag one"))
-    self.assertEqual('1', self.redisDB.putTag("Tag two"))
-    self.assertEqual('2', self.redisDB.putTag("TagThree"))'''
+    #self.assertEqual('0', self.redisDB.putTag("Tag one"))
+    #self.assertEqual('1', self.redisDB.putTag("Tag two"))
+    #self.assertEqual('2', self.redisDB.putTag("TagThree"))
 	
     self.redisDB.putTag("Tag one")
     self.redisDB.putTag("Tag two")
@@ -427,7 +443,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     tag = self.redisDB.getTag("TagThree")
     self.assertEqual("TagThree", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual([],tag.paperIDs)
+    self.assertEqual([],tag.paperIDs)'''
 
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #16
@@ -551,36 +567,6 @@ class RedisIntegrationTestCase(unittest.TestCase):
     result = self.redisDB.search("100")
     finish = datetime.datetime.now()
     print finish - start'''
-
-  def tearDown(self):
-    pass
-
-  def isSamePaper(self):
-    pass
-  
-  def isSameAuthor(self, author, id, name, viewCount, paperIDs, paperTitles, paperAuthorNames, paperDatesPublished):
-    if not id ==  author.id:
-      return False
-    if not name == author.name:
-      return False
-    if not viewCount == author.viewCount:
-      return False
-    if not paperIDs == author.paperIDs:
-      return False
-    if not paperTitles == author.paperTitles:
-      return False
-    if not paperAuthorNames == author.paperAuthorNames:
-      return False
-    if not paperDatesPublished == author.paperDatesPublished:
-      return False
-    return True	  
-  
-  def isSameUser(self):
-    pass
-  
-  def isListSame(self, list1, list2):
-    pass
-    
 
 if __name__ == '__main__':
   unittest.main()
