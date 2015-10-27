@@ -18,6 +18,8 @@ class Tag:
     return 'name:'+self.name+'   paperIDs:'+str(self.paperIDs)+'      viewCount:'+self.viewCount
 
   def __eq__(self, other):
+    if other == None:
+      return False
     if not self.name == other.name:
       return False
     if not self.viewCount == other.viewCount:
