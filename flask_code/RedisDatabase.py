@@ -225,12 +225,12 @@ class RedisDatabase():
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
     self.redisDB.zincrby("Papers", paperID, 1)
     self.redisDB.zincrby("YearPublished:"+str(paper.datePublished.year), paperID, 1)
-    self.redisDB.zincrby("Publishers", paper.publisher, 1)
-    self.redisDB.incr("Publisher:"+paper.publisher+":ViewCount")
+    self.redisDB.zincrby("Publishers", paper.publisherID, 1)
+    self.redisDB.incr("Publisher:"+paper.publisherID+":ViewCount")
     titleWords = self.getSearchWords(paper.title)
     for titleWord in titleWords:
       self.redisDB.zincrby("PaperWord:"+titleWord, paperID, 1)
-    for authorID in paper.authors:
+    for authorID in paper.authorIDs:
       self.redisDB.incr("Author:"+authorID+":ViewCount")
       self.redisDB.zincrby("Authors",authorID, 1)
       author = self.getAuthor(authorID)
