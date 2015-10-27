@@ -16,7 +16,7 @@ class Author:
     self.paperDatesPublished = paperDatesPublished
 
   def __str__(self):
-    return 'id:'+self.id+'    name:'+self.name+'   paperIDs:'+str(self.papers)+'      viewCount:'+self.viewCount+'      paperTitles:'+str(self.paperTitles)+'      paperAuthorNames:'+str(self.paperAuthorNames)+'      paperDatesPublished:'+str(self.paperDatesPublished)
+    return 'id:'+self.id+'    name:'+self.name+'   paperIDs:'+str(self.paperIDs)+'      viewCount:'+self.viewCount+'      paperTitles:'+str(self.paperTitles)+'      paperAuthorNames:'+str(self.paperAuthorNames)+'      paperDatesPublished:'+str(self.paperDatesPublished)
 
   def __repr__(self):
-    return 'id:'+self.id+'    name:'+self.name+'   paperIDs:'+str(self.papers)+'      viewCount:'+self.viewCount+'      paperTitles:'+str(self.paperTitles)+'      paperAuthorNames:'+str(self.paperAuthorNames)+'      paperDatesPublished:'+str(self.paperDatesPublished)
+    return 'id:'+self.id+'    name:'+self.name+'   paperIDs:'+str(self.paperIDs)+'      viewCount:'+self.viewCount+'      paperTitles:'+str(self.paperTitles)+'      paperAuthorNames:'+str(self.paperAuthorNames)+'      paperDatesPublished:'+str(self.paperDatesPublished)
