@@ -100,9 +100,17 @@ class RedisDatabase():
     name = self.redisDB.get("Author:"+authorID+":Name")
     if name == None:
       return None
-    papers = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
+    paperIDs = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
+    paperAuthorNames = []
+    paperTitles = []
+    paperDatesPublished = []
+    for paperID in paperIDs:
+      paper = self.getPaper(paperID)
+      paperAuthorNames.append(paper.authorNames)
+      paperTitles.append(paper.title)
+      paperDatesPublished.append(paper.datePublished)
     viewCount = self.redisDB.get("Author:"+authorID+":ViewCount")
-    return Author(authorID, name, viewCount, papers)
+    return Author(authorID, name, viewCount, paperIDs, paperTitles, paperAuthorNames, paperDatesPublished)
   
     # Takes in a string tag
     # Returns a tag object
@@ -125,7 +133,7 @@ class RedisDatabase():
     # Takes in an integer paperID
     # Returns a paper object
   def getPaper(self, paperID):
-    authors = list(self.redisDB.smembers("Paper:"+paperID+":Authors"))
+    authorIDs = list(self.redisDB.smembers("Paper:"+paperID+":Authors"))
     tags = list(self.redisDB.smembers("Paper:"+paperID+":Tags"))
     title = self.redisDB.get("Paper:"+paperID+":Title")
     abstract = self.redisDB.get("Paper:"+paperID+":Abstract")
@@ -136,12 +144,16 @@ class RedisDatabase():
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = []
     citedBys = []
-    return Paper(paperID, title, authors, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys)
+    authorNames = []
+    for authorID in authorIDs:
+      authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
+    publisherName = self.getPublisher(publisherID).name
+    return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
     # Returns a list of paper objects
-  def getPapersForAuthor(self, authorID):
+  def getPapersForAuthorID(self, authorID):
     rawPapers = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
     papers=[]
     for rawPaper in rawPapers:
@@ -213,12 +225,12 @@ class RedisDatabase():
     self.redisDB.incr("Paper:"+paperID+":ViewCount")
     self.redisDB.zincrby("Papers", paperID, 1)
     self.redisDB.zincrby("YearPublished:"+str(paper.datePublished.year), paperID, 1)
-    self.redisDB.zincrby("Publishers", paper.publisher, 1)
-    self.redisDB.incr("Publisher:"+paper.publisher+":ViewCount")
+    self.redisDB.zincrby("Publishers", paper.publisherID, 1)
+    self.redisDB.incr("Publisher:"+paper.publisherID+":ViewCount")
     titleWords = self.getSearchWords(paper.title)
     for titleWord in titleWords:
       self.redisDB.zincrby("PaperWord:"+titleWord, paperID, 1)
-    for authorID in paper.authors:
+    for authorID in paper.authorIDs:
       self.redisDB.incr("Author:"+authorID+":ViewCount")
       self.redisDB.zincrby("Authors",authorID, 1)
       author = self.getAuthor(authorID)
@@ -242,7 +254,7 @@ class RedisDatabase():
     # Takes in a list of strings with names of authors to search for
     #  If only one author is given, give a list with a single element
     # Returns a list of Author objects 
-  def getAuthorsMatchingAuthors(self, namesToSearch):
+  def getAuthorsMatchingAuthorNames(self, namesToSearch):
     words = []
     for name in namesToSearch:
       words += self.getSearchWords(name)
@@ -256,13 +268,13 @@ class RedisDatabase():
       authors.append(author)
     return authors
 	
-  def getPapersMatchingAuthors(self, namesToSearch):
+  def getPapersMatchingAuthorNames(self, namesToSearch):
     papers = []
     paperIDs = set([])
-    authors = self.getAuthorsMatchingAuthors(namesToSearch)
+    authors = self.getAuthorsMatchingAuthorNames(namesToSearch)
     for author in authors:
-      for paper in author.papers:
-        paperIDs.add(paper)
+      for paperID in author.paperIDs:
+        paperIDs.add(paperID)
     for paperID in paperIDs:
       papers.append(self.getPaper(paperID))
     return papers
@@ -270,9 +282,9 @@ class RedisDatabase():
   def getPapersMatchingAuthorIDs(self, IDsToSearch):
     papers = []
     paperIDs = set([])
-    for author in IDsToSearch:
-      for paper in author.papers:
-        paperIDs.add(paper)
+    for authorID in IDsToSearch:
+      for paperID in self.getAuthor(authorID).paperIDs:
+        paperIDs.add(paperID)
     for paperID in paperIDs:
       papers.append(self.getPaper(paperID))
     return papers
@@ -358,17 +370,28 @@ class RedisDatabase():
     id = str(id)
     self.redisDB.set("User:"+id+":UserName",username)
     self.redisDB.zadd("Users",id,0) #To be ranked by followers
+    self.redisDB.set("User:"+id+":FollowerCount", 0)
     self.redisDB.incr("Users:IDCounter")
     return id
 
   #Should return a new user object
   def getUser(self, id):
     userName = self.redisDB.get("User:"+id+":UserName")
-    followers = self.redisDB.zscore("Users", id)
-    papers = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
-    authors = self.redisDB.zrange("User:"+id+":FavoriteAuthors",0,-1)
+    followerCount = self.redisDB.get("User:"+id+":FollowerCount")
+    followingIDs = self.redisDB.get("User:"+id+":FollowingUserIDs")
+    followingNames = []
+    for followingID in followingIDs:
+      followingNames.append(self.redisDB.get("User:"+followingID+":UserName"))
+    paperIDs = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
+    papers = []
+    for paperID in paperIDs:
+      papers.append(self.getPaper(paperID))
+    authorIDs = self.redisDB.zrange("User:"+id+":FavoriteAuthors",0,-1)
+    authors = []
+    for authorID in authorIDs:
+      authors.append(self.getAuthor(authorID))
     tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
-    return User(username, followers,papers,authors,tags)
+    return User(username, followingIDs, followingNames, papers, authors, tags, followerCount)
 
   #takes a user id and a paper id to add to this users list of favorites
   #returns the current length of the favorites
@@ -392,6 +415,11 @@ class RedisDatabase():
     self.redisDB.zadd("User:"+userID+":FavoriteTags",tag,favoriteLevel)
     length = self.redisDB.zcount("User:"+userID+":FavoriteTags")
     return length
+	
+  def addStalker(self, stalkerID, userIDToStalk):
+    self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)
+    self.redisDB.zincrby("Users",userIDToStalk, 1)
+    self.redisDB.incr("User:"+userIDToStalk+":FollowerCount")
 
 
 
