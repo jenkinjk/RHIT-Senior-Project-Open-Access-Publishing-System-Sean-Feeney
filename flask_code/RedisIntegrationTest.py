@@ -3,6 +3,7 @@ from RedisDatabase import RedisDatabase
 import datetime
 from difflib import Differ
 from Paper import Paper
+from Author import Author
 
 class RedisIntegrationTestCase(unittest.TestCase):
   def setUp(self):
@@ -12,6 +13,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.authorIDs = []
     self.publisherIDs = []
     self.paperIDs = []
+	self.jimmyFallon = Author('0', "Jimmy Fallon", 0, ['0'], ["MY TITLE IS IN CAPS"], [['Jimmy Fallon', "Jefferson Davis"]], datetime.datetime(2003, 8, 4))
 
   def loadTestData(self):
 
@@ -72,8 +74,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     author = self.redisDB.getAuthor(id)
-	#authorEqual
-    self.assertEqual("id:0    name:Jimmy Fallon   papers:[]      viewCount:0", str(author))
+    self.assertEqual(self.jimmyFallon, author)
     self.redisDB.clearDatabase()
     author = self.redisDB.getAuthor(id)
     self.assertEqual(None, author)
