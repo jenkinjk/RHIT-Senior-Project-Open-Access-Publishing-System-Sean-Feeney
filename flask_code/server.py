@@ -46,14 +46,14 @@ else:
 
 @app.route('/', methods=['GET'])
 def welcome_page():
-    print 'user' + get_user_id() + ' requested the root page'
+    print 'user ' + get_user_id() + ' requested the root page'
 	# this is where we get to choose where to redirect people.  for now, 
     # redirect to the login page.  later maybe the home page
     return redirect('/login')
 
 @app.route('/home', methods=['GET'])
 def home_page():
-    print 'user' + get_user_id() + ' is viewing the home page'
+    print 'user ' + get_user_id() + ' is viewing the home page'
     return render_template('home.html')
 	
 
@@ -64,7 +64,7 @@ def home_page():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
-    print 'user' + get_user_id() + ' is uploading'
+    print 'user ' + get_user_id() + ' is uploading'
     if request.method == 'POST':
         upload_file = request.files['file']
         if upload_file and allowed_file(upload_file.filename):
@@ -101,7 +101,7 @@ def upload_page():
 
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
-    print 'user' + get_user_id() + ' is viewing a file'
+    print 'user ' + get_user_id() + ' is viewing a file'
     print 'viewing file', uniqueID 
     viewing_file = docStore.retrieveDocument(uniqueID)
     print 'content length:', viewing_file['Body']._content_length
@@ -137,7 +137,7 @@ def allowed_file(filename):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    print 'user' + get_user_id() + ' is logging in'
+    print 'user ' + get_user_id() + ' is logging in'
     if(request.method == 'POST'):
         # we are getting a request to login
         # verify credentials, etc. for now we let everything through
@@ -147,7 +147,7 @@ def login_page():
 	
 @app.route('/profile', methods=['GET'])
 def profile_page():
-    print 'user' + get_user_id() + ' is on the profile page'
+    print 'user ' + get_user_id() + ' is on the profile page'
     # print 'request:', request
     # print 'cookies:', request.cookies
     # print 'session:', session
@@ -171,12 +171,12 @@ def profile_page():
 
 @app.route('/search', methods=['GET'])
 def search_page():
-    print 'user' + get_user_id() + ' is searching'
+    print 'user ' + get_user_id() + ' is searching'
     return render_template('search.html')
 
 @app.route('/search-<byWhat>', methods=['GET', 'POST'])
 def search_endpoint(byWhat):
-    print 'user' + get_user_id() + ' is searching'
+    print 'user ' + get_user_id() + ' is searching'
     results = []
     
     print 'request form:', request.form
@@ -199,10 +199,16 @@ def shutdown():
     return 'Server shutting down...'
 
 # REMOVE FOR PRODUCTION
-@app.route('/cleanout', methods=['GET', 'POST'])
-def cleanout():
+@app.route('/cleanoutS3', methods=['GET', 'POST'])
+def cleanoutS3():
     docStore.removeAllNonMatching(db.getTopPapers(99999))
     return 'deleting entries from S3 that are not reflected in database'
+
+# REMOVE FOR PRODUCTION
+@app.route('/cleanoutDB', methods=['GET', 'POST'])
+def cleanoutDB():
+    db.clearDatabase()
+    return 'reinitilizing database'
         
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
