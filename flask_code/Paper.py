@@ -34,9 +34,7 @@ class Paper:
       return False
     if not self.title == other.title:
       return False
-    if not self.authorIDs == other.authorIDs:
-      return False
-    if not self.tags ==  other.tags:
+    if not set(self.tags) ==  set(other.tags):
       return False
     if not self.abstract == other.abstract:
       return False
@@ -54,7 +52,18 @@ class Paper:
       return False
     if not self.publisherName == other.publisherName:
       return False
-    if not self.authorNames == other.authorNames:
+    if not len(self.authorIDs) == len(other.authorIDs):
+      return False
+    if not len(self.authorNames) == len(other.authorNames):
+      return False
+    if not len(self.authorNames) == len(self.authorIDs):
+      return False     
+    tuplesA = set([])
+    tuplesB = set([])
+    for i in range(0,len(self.authorIDs)):
+      tuplesA.add((self.authorIDs[i], self.authorNames[i]))
+      tuplesB.add((other.authorIDs[i], other.authorNames[i]))
+    if not tuplesA == tuplesB:
       return False
     return True
     
@@ -64,9 +73,6 @@ class Paper:
       return False
     if not self.title == other.title:
       print "title ", self.title,"!=",other.title
-      return False
-    if not self.authorIDs == other.authorIDs:
-      print "authorIDs ", self.authorIDs,"!=",other.authorIDs
       return False
     if not self.tags ==  other.tags:
       print "tags ", self.tags,"!=",other.tags
@@ -95,10 +101,24 @@ class Paper:
     if not self.publisherName == other.publisherName:
       print "publisherName ", self.publisherName,"!=",other.publisherName
       return False
-    if not self.authorNames == other.authorNames:
-      print "authorNames ", self.authorNames,"!=",other.authorNames
+    if not len(self.authorIDs) == len(other.authorIDs):
+      print "len(self.authorIDs) ", len(self.authorIDs),"!=",len(other.authorIDs)
+      return False
+    if not len(self.authorNames) == len(other.authorNames):
+      print "len(self.authorNames) ", len(self.authorNames),"!=",len(other.authorNames)
+      return False
+    if not len(self.authorNames) == len(self.authorIDs):
+      print "len of author names and ids inconsistent ", len(self.authorNames),"!=",len(self.authorIDs)
+      return False     
+    tuplesA = set([])
+    tuplesB = set([])
+    for i in range(0,len(self.authorIDs)):
+      tuplesA.add((self.authorIDs[i], self.authorNames[i]))
+      tuplesB.add((other.authorIDs[i], other.authorNames[i]))
+    if not tuplesA == tuplesB:
+      print "tuples don't match ", tuplesA,"!=",tuplesB
       return False
     return True
 
   def __hash__(self):
-    return hash(self.id) ^ hash(self.name)
+    return hash(self.id) ^ hash(self.title)

@@ -32,19 +32,20 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.rhitPublisher = Publisher("0","RHIT","0")
     self.mcGrawPublisher = Publisher("1","McGraw-Hill","0")
     self.allCapsPaper = Paper("0", "MY TITLE IS IN CAPS",['0', '5'],['Biology'],"This is an abstract","0",date,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jefferson Davis"])
-    self.cheesePaper = Paper("1", "cheese bacon",['3', '2'],['Nanotechnology', 'Distributed Computing'],"This is another abstract","1",date2,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jefferson Davis"])
-    self.fpcPaper = Paper("5", "The Friendly Pirates of the Carribean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.fpmPaper = Paper("4", "The Friendly Pirates of the Mediterranean",['0', '6'],['Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.apcPaper = Paper("3", "The Angry Pirates of the Carribean",['0', '6'],['Dieting', 'Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.apmPaper = Paper("6", "The Angry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.hpmPaper = Paper("7", "The Hungry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-	self.fpcViewedPaper = Paper("5", "The Friendly Pirates of the Carribean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"1",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.fpmViewedPaper = Paper("4", "The Friendly Pirates of the Mediterranean",['0', '6'],['Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"7",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.apcViewedPaper = Paper("3", "The Angry Pirates of the Carribean",['0', '6'],['Dieting', 'Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"15",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.apmViewedPaper = Paper("6", "The Angry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"8",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-    self.hpmViewedPaper = Paper("7", "The Hungry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"5",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-	self.hpaViewedPaper = Paper("8", "The Happy Planet of the Apes",['0', '6'],['Dieting', 'Pirates'],"This is another abstract","1",date2,None,"-1",[],"18",[],"RHIT",["Jimmy Fallon", "Jimmy Fallon"])
-	
+    self.cheesePaper = Paper("1", "cheese bacon",['3', '2'],['Nanotechnology', 'Distributed Computing'],"This is another abstract","1",date2,None,"-1",[],"0",[],"McGraw-Hill",["Dean Thomas", "James Dean"])
+    self.fpcPaper = Paper("5", "The Friendly Pirates of the Carribean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.fpmPaper = Paper("4", "The Friendly Pirates of the Mediterranean",['0', '6'],['Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.apcPaper = Paper("3", "The Angry Pirates of the Carribean",['0', '6'],['Dieting', 'Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.apmPaper = Paper("6", "The Angry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.hpmPaper = Paper("7", "The Hungry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"0",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.fpcViewedPaper = Paper("5", "The Friendly Pirates of the Carribean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"1",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.fpmViewedPaper = Paper("4", "The Friendly Pirates of the Mediterranean",['0', '6'],['Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"7",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.apcViewedPaper = Paper("3", "The Angry Pirates of the Carribean",['0', '6'],['Dieting', 'Pirates', 'Big Data'],"This is another abstract","1",date2,None,"-1",[],"15",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.apmViewedPaper = Paper("6", "The Angry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"8",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.hpmViewedPaper = Paper("7", "The Hungry Pirates of the Mediterranean",['0', '6'],['Big Data'],"This is another abstract","1",date2,None,"-1",[],"5",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.hpaViewedPaper = Paper("8", "The Happy Planet of the Apes",['0', '6'],['Dieting', 'Pirates'],"This is another abstract","1",date2,None,"-1",[],"18",[],"McGraw-Hill",["Jimmy Fallon", "Jimmy Fallon"])
+    self.fooBarPaper = Paper("2", "Foo foo fOo Bar Bar bAR",['0', '5'],["Biology"],"This is an abstract","0",date,None,"-1",[],"0",[],"RHIT",["Jimmy Fallon", "Jefferson Davis"])
+
   def loadTestData(self):
 
     self.authorIDs.append(self.redisDB.putAuthor("Jimmy Fallon"))
@@ -132,15 +133,15 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     expecteds = set([self.bioTag,self.nanoTag,self.distTag,self.bigDataTag])
     actuals = set(self.redisDB.getAllTags())
-    self.assertEqual(len(expecteds),len(rawActuals)) 
+    self.assertEqual(len(expecteds),len(actuals)) 
     self.assertEqual(expecteds,actuals)
 
   #7
   def testGetUnviewedAllPublishers(self):
     self.loadTestData()
     expecteds = set([self.rhitPublisher,self.mcGrawPublisher])
-    rawActuals = set(self.redisDB.getAllPublishers())
-    self.assertEqual(len(expecteds),len(rawActuals)) 
+    actuals = set(self.redisDB.getAllPublishers())
+    self.assertEqual(len(expecteds),len(actuals)) 
     self.assertEqual(expecteds,actuals)
 
   #8
@@ -237,14 +238,13 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def testGetAuthorsMatchingAuthorNamesMultiple(self):
     self.loadTestData()
     s = self.redisDB.getAuthorsMatchingAuthorNames(["Jimmy Dean","Thomas Jefferson", "Poop"])
-
     self.assertEqual(len(s),6)
-	    actuals1 = set([s[0], s[1], s[2]])
+    actuals1 = set([s[0], s[1], s[2]])
     actuals2 = set([s[3], s[4], s[5]])
-		    expecteds1 = set([self.thomasJefferson, self.deanThomas, self.jimmyDean])
+    expecteds1 = set([self.thomasJefferson, self.deanThomas, self.jimmyDean])
     expecteds2 = set([self.jimmyFallon, self.jeffersonDavis, self.jamesDean])
     self.assertEqual(actuals1, expecteds1)
-	self.assertEqual(actuals2, expecteds2)
+    self.assertEqual(actuals2, expecteds2)
 
   '''def testTrivialAuthorWordsFilteredOutBeforePutAuthor(self):
     self.loadTestData()
@@ -276,7 +276,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.viewPiratePapers()
     actuals = self.redisDB.getPapersMatchingTitle("The Friendly Pirates of the Carribean")
     expecteds = [self.fpcViewedPaper,self.apcViewedPaper,self.fpmViewedPaper, self.apmViewedPaper, self.hpmViewedPaper]
-	self.assertEqual(actuals, expecteds)
+    self.assertEqual(actuals, expecteds)
 	
   #This test was removed because it tests the implementation, not the correctness of the results
   '''def testTrivialTitleWordsFilteredOutBeforePutPaper(self):
@@ -297,10 +297,10 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.loadMoreTestData()
     self.viewPiratePapers()
-    actuals = self.redisDB.getPapersMatchingAuthorNames(["Jimmy Dean","Thomas Jefferson", "Poop"])
-    expecteds = [self.apcViewedPaper, self.hpaViewedPaper,self.fpmViewedPaper,self.apmViewedPaper, self.hpmViewedPaper,self.fpcViewedPaper]
-	self.assertEqual(len(expecteds),len(actuals))	
-	self.assertEqual(expecteds,actuals)	  
+    actuals = set(self.redisDB.getPapersMatchingAuthorNames(["Jimmy Fallon","Jefferson Davis", "Poop"]))
+    expecteds = set([self.apcViewedPaper, self.hpaViewedPaper,self.fpmViewedPaper,self.apmViewedPaper, self.hpmViewedPaper,self.fpcViewedPaper, self.allCapsPaper, self.fooBarPaper])
+    self.assertEqual(len(expecteds),len(actuals))	
+    self.assertEqual(expecteds,actuals)
 
   #22
   def test_PutAuthor(self):
@@ -374,6 +374,16 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('2', author.id)
     self.assertEqual([],author.paperIDs)
 
+  #32	  
+  def testGetViewedPapersMatchingAuthorIDs(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+    actuals = set(self.redisDB.getPapersMatchingAuthorIDs(["2","5"]))
+    expecteds = set([self.cheesePaper, self.allCapsPaper, self.fooBarPaper])
+    self.assertEqual(len(expecteds),len(actuals))	
+    self.assertEqual(expecteds,actuals)
+
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #11
   def test_GetAuthorsPapers(self):
@@ -384,11 +394,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('0', author.id)
     self.assertEqual(['0'],author.papers)'''
 
-  '''#12
+  '''#33
   def test_PutTag(self):
     self.assertEqual('0', self.redisDB.putTag("Tag one"))
 
-  #13
+  #34
   def test_PutTags(self):
     self.assertEqual('0', self.redisDB.putTag("Tag one"))
     self.assertEqual('1', self.redisDB.putTag("Tag two"))
@@ -403,11 +413,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('0', tag.viewCount)
     self.assertEqual([],tag.paperIDs)'''
 
-  '''#15
+  #35
   def test_GetTags(self):
-    #self.assertEqual('0', self.redisDB.putTag("Tag one"))
-    #self.assertEqual('1', self.redisDB.putTag("Tag two"))
-    #self.assertEqual('2', self.redisDB.putTag("TagThree"))
 	
     self.redisDB.putTag("Tag one")
     self.redisDB.putTag("Tag two")
@@ -416,7 +423,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     tag = self.redisDB.getTag("TagThree")
     self.assertEqual("TagThree", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual([],tag.paperIDs)'''
+    self.assertEqual([],tag.paperIDs)
 
   '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
   #16
