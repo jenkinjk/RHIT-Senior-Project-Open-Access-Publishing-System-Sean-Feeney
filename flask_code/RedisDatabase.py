@@ -379,18 +379,26 @@ class RedisDatabase():
     userName = self.redisDB.get("User:"+id+":UserName")
     followerCount = self.redisDB.get("User:"+id+":FollowerCount")
     followingIDs = self.redisDB.get("User:"+id+":FollowingUserIDs")
+    if(followingIDs == None):
+      followingIDs = []
     followingNames = []
     for followingID in followingIDs:
       followingNames.append(self.redisDB.get("User:"+followingID+":UserName"))
     paperIDs = self.redisDB.zrange("User:"+id+":FavoritePapers",0,-1)
+    if(paperIDs == None):
+       paperIDs = []
     papers = []
     for paperID in paperIDs:
       papers.append(self.getPaper(paperID))
     authorIDs = self.redisDB.zrange("User:"+id+":FavoriteAuthors",0,-1)
+    if(authorIDs == None):
+      authorIDs = []
     authors = []
     for authorID in authorIDs:
       authors.append(self.getAuthor(authorID))
     tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
+    if(tags == None):
+      tags = []
     return User(username, followingIDs, followingNames, papers, authors, tags, followerCount)
 
   #takes a user id and a paper id to add to this users list of favorites
