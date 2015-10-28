@@ -15,10 +15,10 @@ class RedisDatabase():
 
   def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
-      self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=1)
+      self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=1)
       self.clearDatabase()
     else:
-      self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
+      self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
     
   def clearDatabase(self):
@@ -26,7 +26,7 @@ class RedisDatabase():
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
     self.redisDB.set("Publishers:IDCounter",0)
-    self.redisDB.set("Users:IDCounter",0)
+    #self.redisDB.set("Users:IDCounter",0)
     
     #Takes in a string of the author's name
     #Returns a string authorID
@@ -365,14 +365,14 @@ class RedisDatabase():
       words.append(word)
     return words
 	
-  #Users, username, List of favorite articles, list of favorite authors, list of interesting tags
-  def putUser(self, username):
-    id = self.redisDB.get("Users:IDCounter")
-    id = str(id)
-    self.redisDB.set("User:"+id+":UserName",username)
+  #Users, id, user's name, List of favorite articles, list of favorite authors, list of interesting tags
+  def putUser(self, Name, id):
+    #id = self.redisDB.get("Users:IDCounter")
+    #id = str(id)
+    self.redisDB.set("User:"+id+":UserName",Name)
     self.redisDB.zadd("Users",id,0) #To be ranked by followers
     self.redisDB.set("User:"+id+":FollowerCount", 0)
-    self.redisDB.incr("Users:IDCounter")
+    #self.redisDB.incr("Users:IDCounter")
     return id
 
   #Should return a new user object
