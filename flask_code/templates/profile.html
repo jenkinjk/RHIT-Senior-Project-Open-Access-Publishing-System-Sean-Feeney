@@ -6,12 +6,13 @@
 	<div class="row">
 		<div class="col-md-3" id="leftCol">
 			<div class="well">
-				<ul>
+				<ul class="nav nav-stacked" id="sidebar">
+          <div class="twitter-feed-header">Paper Update Feed</div>
 					<li class="list-group-item">
 						<blockquote>
 						  <p>So and So did such and such.</p>
 						  <footer>
-						  	Author<cite title="Source Title">Source Title</cite>
+						  	Author, <cite title="Source Title">Source Title</cite>
 						  </footer>
 						</blockquote>
 					</li>
@@ -19,7 +20,7 @@
 						<blockquote>
 						  <p>So and So did such and such.</p>
 						  <footer>
-						  	Author<cite title="Source Title">Source Title</cite>
+						  	Author, <cite title="Source Title">Source Title</cite>
 						  </footer>
 						</blockquote>
 					</li>
@@ -27,7 +28,7 @@
 						<blockquote>
 						  <p>So and So did such and such.</p>
 						  <footer>
-						  	Author<cite title="Source Title">Source Title</cite>
+						  	Author, <cite title="Source Title">Source Title</cite>
 						  </footer>
 						</blockquote>
 					</li>
@@ -35,69 +36,234 @@
 						<blockquote>
 						  <p>So and So did such and such.</p>
 						  <footer>
-						  	Author<cite title="Source Title">Source Title</cite>
+						  	Author, <cite title="Source Title">Source Title</cite>
 						  </footer>
 						</blockquote>
 					</li>
+          <li class="list-group-item">
+            <blockquote>
+              <p>So and So did such and such.</p>
+              <footer>
+                Author, <cite title="Source Title">Source Title</cite>
+              </footer>
+            </blockquote>
+          </li>
 				</ul>
-			</div>
-		</div>
-		<div class="col-md-9">
-			<h2 id="sec0">{{ user.username }}</h2>
-        	Lorem ipsum dolor sit amet, consectetur adipisicing elit. Modi eligendi alias tempore, laborum maiores quod necessitatibus temporibus in ad incidunt delectus eum impedit illo natus. Dolorum modi itaque, nulla animi.
-        	<hr class="col-md-12">
-            Rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae 
-            dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia cor magni dolores 
-            eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, 
-            sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. 
-            Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut.              
-            Rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae 
-            dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut 		odit aut fugit, sed quia cor magni dolores 
-            eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, 
-            sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. 
-            Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut!
+			</div> <!-- end of well -->
+		</div> <!-- end of left column -->
 
-            <h2 id="sec1">More Content</h2>
-            <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi dolorem eveniet deleniti neque, amet quia fuga eligendi, laborum, unde quo voluptatum, omnis quidem rem id ipsam reiciendis necessitatibus molestiae. Porro?
-            </p>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="panel panel-default">
-                  <div class="panel-heading"><h3>Mini subsection</h3></div>
-                  <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet sit veniam iure vitae molestias eum iusto quidem voluptas adipisci non, numquam sapiente deserunt deleniti labore ab, ea ut possimus quod?
-                  </div>
+    <!-- beginning of user information blocks -->
+		<div class="col-md-9">
+      <div class="row"> <!-- start of user panel row -->
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h2>{{ user.username }}</h2>
+            </div>
+            <div class="panel-body">
+              <div class="col-md-12">
+                <img class="profile-img col-md-4" src="{{ url_for('static', filename='img/profile-pic.jpg') }}" alt="No picture">
+                <div class="col-md-offset-4">
+                  Following: {{ user.followingIDs|length }}
+                </div></br>
+                <div class="col-md-offset-4">
+                  Followed By: {{ user.followerCount }}
+                </div></br>
+                <div class="col-md-offset-4">
+                  Tags:
+                  {% for tagName in user.tags %}
+                    {{ tagName }}, 
+                  {% endfor %}
+                </div></br>
+                <div class="col-md-offset-4">
+                  Bio: User Bio will go here
+                </div></br>
+              </div> <!-- end of col-md-12 inside panel body -->
+            </div> <!-- end of panel body -->
+          </div> <!-- end of default panel -->
+        </div> <!-- end of col-md-12 inside row -->
+      </div> <!-- end of user panel row -->
+
+      <div class="row"> <!-- start of favorite papers row -->
+        <div class="col-md-12"> <!-- start of favorite papers column -->
+          <div class="panel panel-default"> <!-- start of favorite papers subsection panel -->
+            <div class="panel-heading"> <!-- start of panel heading -->
+              <h2 id="sec0">Favorite Papers</h2>
+            </div> <!-- end of panel heading -->
+            <div class="panel-body"> <!-- start of favorite papers panel body -->
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
                 </div>
-              </div>
-              <div class="col-md-6">
-                  <div class="panel panel-default">
-                  <div class="panel-heading"><h3>Mini subsection</h3></div>
-                  <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Enim saepe itaque asperiores at. Odio ipsa maxime, ea fugiat ratione amet sint. Alias libero saepe explicabo, fugit delectus vero, magnam id.
-                  </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
                 </div>
-              </div>  
+              </div> <!-- end of paper block -->
+
+              <hr class="col-md-12"> <!-- divider line -->
+
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+              <hr class="col-md-12"> <!-- divider line -->
+
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+              <hr class="col-md-12"> <!-- divider line -->
+
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+              <hr class="col-md-12"> <!-- divider line -->
+
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+              <hr class="col-md-12"> <!-- divider line -->
+
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+            </div> <!-- end of favorite papers panel body -->
+          </div> <!-- end of favorite papers subsection panel -->
+        </div> <!-- end of favorite papers column -->
+      </div> <!-- end of favorite papers row -->
+    </div> <!-- end of "user information blocks" -->
+
+    <!-- divider between user info and favorite papers and rest of page -->
+    <div class="row">
+    <hr class="col-md-12">
+    </div>
+    <!-- end of divider -->
+
+    <div class="row"> <!-- start of suggested papers row -->
+      <div class="col-md-12"> <!-- start of suggested papers column -->
+        <div class="panel panel-default"> <!-- start of suggested papers subsection panel -->
+          <div class="panel-heading"> <!-- subsection panel title -->
+            <h2 id="sec1">Suggested Papers Based on Tags</h2>
+          </div>
+          <div class="panel-body"> <!-- start of suggested papers panel body -->
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
             </div>
 
-            <hr>
-			              
-            <h2 id="sec2">Section 2</h2>
-            <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est sit necessitatibus exercitationem cum, quo labore doloremque nesciunt voluptatibus cumque voluptates perspiciatis dolorem tempore, atque vero vitae alias perferendis vel accusamus.
-            </p>
-          
-            <hr>
-          
-            <h2 id="sec3">Section 3</h2>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laboriosam sunt delectus impedit commodi culpa unde maxime alias et eos aspernatur deleniti quibusdam, assumenda consequatur voluptatem perferendis praesentium explicabo tempore neque!
-            <br>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestiae aut velit itaque inventore explicabo. Ducimus sapiente quae, laborum ipsam neque tempora, cumque id ea porro at vel magni perspiciatis ex!
-            <h2 id="sec4">Section 4</h2>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis sunt quas, ex dolor officiis sit doloremque quam officia architecto enim culpa nemo dicta ea? Veritatis aspernatur dignissimos totam, culpa temporibus.
-            <hr>
+            <hr class="col-md-12"> <!-- divider line -->
 
-		</div>
-	</div>
-</div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+
+            <hr class="col-md-12"> <!-- divider line -->
+
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+
+            <hr class="col-md-12"> <!-- divider line -->
+
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+
+            <hr class="col-md-12"> <!-- divider line -->
+
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+
+            <hr class="col-md-12"> <!-- divider line -->
+
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+            <div class="paperBlock">
+              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
+              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
+              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+            </div>
+          </div> <!-- end of suggested papers panel body -->
+        </div> <!-- end of suggested papers subsection panel -->
+      </div> <!-- end of suggested papers column -->
+    </div> <!-- end of suggested papers row -->
+
+    <hr class="col-md-12"> <!-- divider line -->
+
+		</div> <!-- end of very first row -->
+	</div> <!-- end of container -->
 
 
 <script>

@@ -165,7 +165,7 @@ def profile_page():
 
 
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
-    user = User.User("Generic User", [],[],[],[], [], "0")
+    user = User.User("Generic User", [1,2,3],[],[],[],['tag1', 'tag2', 'tag3', 'tag4', 'tag5'],0)
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
