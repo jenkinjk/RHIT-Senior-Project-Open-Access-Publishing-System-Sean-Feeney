@@ -10,6 +10,7 @@ from Author import Author
 from Tag import Tag
 from Paper import Paper
 from Publisher import Publisher
+from User import User
 
 class RedisDatabase():
 
@@ -400,7 +401,7 @@ class RedisDatabase():
     tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
     if(tags == None):
       tags = []
-    return User(username, followingIDs, followingNames, papers, authors, tags, followerCount)
+    return User(userName, followingIDs, followingNames, papers, authors, tags, followerCount)
 
   #takes a user id and a paper id to add to this users list of favorites
   #returns the current length of the favorites
