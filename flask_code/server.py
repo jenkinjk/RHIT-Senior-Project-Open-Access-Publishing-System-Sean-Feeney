@@ -162,7 +162,10 @@ def profile_page():
     #     # print 'user_ID:', payload['user_id']
     # else:
     #     print 'user unknown (no facebook authentication cookie is set)'
-    user = User.User("Generic User", [],[],[],[])
+
+
+    # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
+    user = User.User("Generic User", [],[],[],[], [], "0")
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
@@ -214,7 +217,7 @@ def get_user_id():
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
         return str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id'])
     else:
-        return ""
+        return "Anonymous"
 
 if __name__ == '__main__':
 	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
