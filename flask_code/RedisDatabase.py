@@ -190,8 +190,8 @@ class RedisDatabase():
     return papers
     
     # Returns a list of paper objects
-  def getTopAuthors(self):
-    rawAuthors = self.redisDB.zrange("Authors",0,100)
+  def getTopAuthors(self, top_bound=100):
+    rawAuthors = self.redisDB.zrange("Authors",0,top_bound)
     authors = []
     for a in rawAuthors:
       author = self.getAuthor(a);
@@ -199,8 +199,8 @@ class RedisDatabase():
     return authors
     
     # Returns a list of author objects
-  def getTopPapers(self):
-    rawPapers = self.redisDB.zrange("Papers", 0, 100)
+  def getTopPapers(self, top_bound=100):
+    rawPapers = self.redisDB.zrange("Papers", 0, top_bound)
     papers = []
     for p in rawPapers:
       paper = self.getPaper(p);
@@ -310,6 +310,7 @@ class RedisDatabase():
     for titleWord in titleWords:
       titleKeys.append("PaperWord:"+titleWord)
     paperIDs = self.getMergedSearchResults(titleKeys)
+    print 'paperIDs:', paperIDs
     papers = []
     for paperID in paperIDs:
       paper = self.getPaper(paperID)

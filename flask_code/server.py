@@ -12,7 +12,7 @@ import base64
 import json
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
-TEST = True
+TEST = False
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -165,7 +165,8 @@ def profile_page():
 
 
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
-    user = User.User("Generic User", [1,2,3],[],[],[],['tag1', 'tag2', 'tag3', 'tag4', 'tag5'],0)
+    user = db.getUser(get_user_id())
+    #user = User.User("Generic User", [1,2,3],[],[],[],['tag1', 'tag2', 'tag3', 'tag4', 'tag5'],0)
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
@@ -200,7 +201,7 @@ def shutdown():
 # REMOVE FOR PRODUCTION
 @app.route('/cleanout', methods=['GET', 'POST'])
 def cleanout():
-    docStore.removeAllNonMatching(db.getAllPaperIDs())
+    docStore.removeAllNonMatching(db.getTopPapers(99999))
     return 'deleting entries from S3 that are not reflected in database'
         
 def shutdown_server():
@@ -213,6 +214,7 @@ def shutdown_server():
 def get_user_id():
     # In reality we should check the signature to make sure it is from who we think it is
     # currently we are not worried about security
+    # we also should query facebook to make sure the person is legit
     if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
         return str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id'])
