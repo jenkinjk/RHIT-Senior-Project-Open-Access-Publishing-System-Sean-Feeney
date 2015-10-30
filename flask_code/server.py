@@ -37,9 +37,11 @@ FACEBOOK_APP_SECRET = credentials[2]
 
 # connect to either the test database or the real database
 if TEST:
+    print "Running with test db and S3"
     db = RedisDatabase('Test')
     docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
 else:    
+    print "Running with production db and S3"
     db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
     docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
@@ -165,8 +167,12 @@ def profile_page():
 
 
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
-    user = db.getUser(get_user_id())
-    #user = User.User("Generic User", [1,2,3],[],[],[],['tag1', 'tag2', 'tag3', 'tag4', 'tag5'],0)
+    user_id = get_user_id()
+    if(user_id is "Anonymous"):
+        user = User.User("Anonymous User", [],[],[],[],[],0)
+    else:
+        user = db.getUser(user_id)
+
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
