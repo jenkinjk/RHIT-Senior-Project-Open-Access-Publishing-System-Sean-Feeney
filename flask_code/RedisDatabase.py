@@ -16,10 +16,10 @@ class RedisDatabase():
 
   def __init__(self, Test):
     if(Test == "Test"): #We can connect to a second database, which we can clean out without losing production data
-      self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=1)
+      self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=1)
       self.clearDatabase()
     else:
-      self.redisDB = redis.Redis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
+      self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
     
   def clearDatabase(self):
