@@ -10,48 +10,85 @@
 {% block title %}Search Articles{% endblock %}
 {% block pageTitle %}Search Articles{% endblock %}
 {% block content %}
-<div class="row">
-	<div class="col-lg-4 col-lg-offset-4 form-container">
-		<h2>Search by Title</h2>
-		<form action="search-byTitle" method=post enctype=multipart/form-data>
-			<p><input type=string name=title class=mimic-tagsinput>
-			   <input type=submit value=search></p>
-		</form>
+<div class="container"> <!-- container for whole page -->
+	<div class="row">
+		<div class="col-lg-4 col-lg-offset-4 form-container">
+			<h2>Search by Title</h2>
+			<form action="search-byTitle" method=post enctype=multipart/form-data>
+				<p><input type=string name=title class=mimic-tagsinput>
+				   <input type=submit value=search></p>
+			</form>
+		</div>
+		<div class="col-lg-4 col-lg-offset-4 form-container">
+			<h2>Search by Authors</h2>
+			<form action="search-byAuthors" method=post enctype=multipart/form-data>
+				<p><input type=string name=authors class=mimic-tagsinput>
+				   <input type=submit value=search></p>
+			</form>
+		</div>
+		<div class="col-lg-4 col-lg-offset-4 form-container">
+			<h2>Search by Tags</h2>
+			<form action="search-byTags" method=post enctype=multipart/form-data>
+				<p><input type=string name=tags data-role="tagsinput">
+				   <input type=submit value=search></p>
+			</form>
+			<!--
+			<div class="form-group">
+	        	<label for="exampleTags">Tags</label>
+	        	<input type="text" class="form-control" id="exampleTags" data-role="tagsinput" name="tags">
+	      	</div>
+	      -->
+		</div>
 	</div>
-	<div class="col-lg-4 col-lg-offset-4 form-container">
-		<h2>Search by Authors</h2>
-		<form action="search-byAuthors" method=post enctype=multipart/form-data>
-			<p><input type=string name=authors class=mimic-tagsinput>
-			   <input type=submit value=search></p>
-		</form>
-	</div>
-	<div class="col-lg-4 col-lg-offset-4 form-container">
-		<h2>Search by Tags</h2>
-		<form action="search-byTags" method=post enctype=multipart/form-data>
-			<p><input type=string name=tags data-role="tagsinput">
-			   <input type=submit value=search></p>
-		</form>
-		<!--
-		<div class="form-group">
-        	<label for="exampleTags">Tags</label>
-        	<input type="text" class="form-control" id="exampleTags" data-role="tagsinput" name="tags">
-      	</div>
-      -->
-	</div>
-</div>
 
-<div class="row">
-	<div class="col-lg-4 col-lg-offset-4">
-		<h2>Results:</h2>
-		<ul>
-		{% for result in results %}
-			<li>
-				<a href={{"/uploads/" + result.id}}>{{ result.title }}</a>
-				<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
-			</li>
-		{% endfor %}
+	<div class="row">
+		<div class="col-lg-4 col-lg-offset-4">
+			<h2>Results:</h2>
+			<ul>
+			{% for result in results %}
+				<li>
+					<a href={{"/uploads/" + result.id}}>{{ result.title }}</a>
+					<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
+				</li>
+			{% endfor %}
+		</div>
 	</div>
-</div>
+
+	<div class="row"> <!-- start of search results row -->
+        <div class="col-md-12"> <!-- start of search results column -->
+          <div class="panel panel-default"> <!-- start of search results subsection panel -->
+            <div class="panel-heading"> <!-- start of panel heading -->
+              <h2 id="sec0">Favorite Papers</h2>
+            </div> <!-- end of panel heading -->
+            <div class="panel-body"> <!-- start of search results panel body -->
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+              <hr class="col-md-12"> <!-- divider line -->
+
+              <div class="paperBlock">
+                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                <div class="col-md-5">
+                  Paper Title: &lt Insert Title of Paper Here &gt
+                </div>
+                <div class="col-md-5">
+                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
+                </div>
+              </div> <!-- end of paper block -->
+
+            </div> <!-- end of search results panel body -->
+          </div> <!-- end of search results subsection panel -->
+        </div> <!-- end of search results column -->
+    </div> <!-- end of search results row -->
+
+</div> <!-- end of container -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
