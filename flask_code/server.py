@@ -40,6 +40,7 @@ if TEST:
     print "Running with test db and S3"
     db = RedisDatabase('Test')
     docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
+    import addDummyUsers
 else:    
     print "Running with production db and S3"
     db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
@@ -109,6 +110,12 @@ def uploaded_file(uniqueID):
     print 'content length:', viewing_file['Body']._content_length
 
 
+
+    return render_template('view_pdf.html', pdf_data=viewing_file['Body'].read())
+
+
+
+
     response = make_response(viewing_file['Body'].read())
     response.headers['Content-Type'] = 'application/pdf'
     # uncomment this line to download as attachment instead of view
@@ -172,6 +179,7 @@ def profile_page():
         user = User.User("Anonymous User", [],[],[],[],[],0)
     else:
         user = db.getUser(user_id)
+        print user.username
 
     return render_template('profile.html', user=user)
 
