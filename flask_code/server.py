@@ -12,11 +12,11 @@ import base64
 import json
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
-TEST = False
+TEST = True
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
-
+BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
@@ -188,7 +188,11 @@ def search_endpoint(byWhat):
     print 'request form:', request.form
 
     if(byWhat == 'byTitle'):
-        results = db.getPapersMatchingTitle(request.form['title'])
+        # TODO: remove this for production, or expand to allow regular expressions.  this is just for testing purposes
+        if(request.form['title'] == '*'):
+            results = db.getTopPapers(BIG_NUMBER)
+        else:
+            results = db.getPapersMatchingTitle(request.form['title'])
     elif(byWhat == 'byAuthors'):
         results = db.getPapersMatchingAuthorNames([request.form['authors']])
     elif(byWhat == 'byTags'):
@@ -207,7 +211,7 @@ def shutdown():
 # REMOVE FOR PRODUCTION
 @app.route('/cleanoutS3', methods=['GET', 'POST'])
 def cleanoutS3():
-    docStore.removeAllNonMatching(db.getTopPapers(99999))
+    docStore.removeAllNonMatching(db.getTopPapers(BIG_NUMBER))
     return 'deleting entries from S3 that are not reflected in database'
 
 # REMOVE FOR PRODUCTION
