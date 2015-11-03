@@ -102,6 +102,14 @@ def upload_page():
         results = []
         return render_template('upload.html', results=results)
 
+
+
+@app.route('/viewer/<uniqueID>')
+def view_file(uniqueID):
+
+    return render_template('view_pdf.html', uniqueID=uniqueID)
+
+
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
     print 'user ' + get_user_id() + ' is viewing a file'
@@ -109,15 +117,9 @@ def uploaded_file(uniqueID):
     viewing_file = docStore.retrieveDocument(uniqueID)
     print 'content length:', viewing_file['Body']._content_length
 
-
-
-    return render_template('view_pdf.html', pdf_data=viewing_file['Body'].read())
-
-
-
-
     response = make_response(viewing_file['Body'].read())
     response.headers['Content-Type'] = 'application/pdf'
+    
     # uncomment this line to download as attachment instead of view
     #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
     return response

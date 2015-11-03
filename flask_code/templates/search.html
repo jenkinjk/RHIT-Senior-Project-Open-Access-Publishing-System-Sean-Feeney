@@ -47,7 +47,7 @@
 			<ul>
 			{% for result in results %}
 				<li>
-					<a href={{"/uploads/" + result.id}}>{{ result.title }}</a>
+					<a href={{"/viewer/" + result.id}}>{{ result.title }}</a>
 					<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
 				</li>
 			{% endfor %}
