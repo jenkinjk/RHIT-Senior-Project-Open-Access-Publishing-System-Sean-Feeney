@@ -15,14 +15,17 @@ FOLDER = 'docs/'
 
 class S3DocumentHandler(documentHandler.DocumentHandler):
 
-    def __init__(self, is_test=False):
+    def __init__(self, mode="Production"):
         session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name='us-east-1')
         self.s3 = session.resource('s3')
         s3_client = session.client('s3')
-        if is_test:
+        if mode == "Test":
             self.BUCKET_NAME = 'openaccesstest'
-        else:
+        elif mode == "Development":
+            self.BUCKET_NAME = 'openaccessdev'
+        elif mode == "Production":
             self.BUCKET_NAME = 'openaccesstemp'
+            
         #bucket = self.s3.Bucket(self.BUCKET_NAME)
         exists = True
         try:

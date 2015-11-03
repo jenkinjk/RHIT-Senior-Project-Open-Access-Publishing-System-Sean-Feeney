@@ -12,7 +12,9 @@ import base64
 import json
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
-TEST = True
+# MODE = "Test" 
+MODE = "Development" 
+# MODE = "Production"
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -28,31 +30,32 @@ FACEBOOK_APP_ID = credentials[0]
 FACEBOOK_API_VERSION = credentials[1]
 FACEBOOK_APP_SECRET = credentials[2]
 
-# get our app's credentials
-# credential_file = open('serverCredentials.txt', 'rb')
-# credential_file.readline()
-# credentials = credential_file.readline().split(',')
-# SECRET_KEY = credentials[0]
-# print SECRET_KEY
-
-# connect to either the test database or the real database
-if TEST:
-    print "Running with test db and S3"
-    db = RedisDatabase('Test')
-    docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
+if MODE == "Test":
+    print "Running in", MODE, "mode with self-clearing Test DB and test bucket of S3DocumentHandler"
+    db = RedisDatabase(MODE)
+    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+    # to save on S3 queries while testing, we could use this:
+    # print "Running in", MODE, "mode with self-clearing Test DB and SimpleDocHandler.  Note: Must have local filesystem write permissions (sudo?)"
+    # docStore = documentHandler.SimpleDocHandler()
     import addDummyUsers
-else:    
-    print "Running with production db and S3"
-    db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
-    docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
+
+elif MODE == "Development":
+    print "Running in", MODE, "mode with regular DB and dev bucket of S3DocumentHandler"
+    db = RedisDatabase(MODE)
+    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+
+elif MODE == "Production":
+    print "Running in", MODE, "mode with production DB and real bucket of S3DocumentHandler.  Realistic data only please."
+    db = RedisDatabase(MODE)
+    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
 
 
 @app.route('/', methods=['GET'])
 def welcome_page():
     print 'user ' + get_user_id() + ' requested the root page'
 	# this is where we get to choose where to redirect people.  for now, 
-    # redirect to the login page.  later maybe the home page
-    return redirect('/login')
+    # redirect to the profile page.  later maybe the home page
+    return redirect('/profile')
 
 @app.route('/home', methods=['GET'])
 def home_page():
