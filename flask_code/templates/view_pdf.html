@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}PDF Viewer{% endblock %}
+{% block pageTitle %}PDF Viewer{% endblock %}
+{% block content %}
+<!-- <iframe src="/uploads/{{uniqueID}}" width="800" height="800"></iframe> -->
+<div>
+<object data="/uploads/{{uniqueID}}" type="application/pdf" width="80%">
+	<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
+</object>
+</div>
+{% endblock %}
+
+
