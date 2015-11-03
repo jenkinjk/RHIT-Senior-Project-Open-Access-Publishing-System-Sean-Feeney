@@ -12,16 +12,9 @@ import base64
 import json
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
 TEST = True
-<<<<<<< HEAD
-ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
-BIG_NUMBER = 99999
-=======
-
-
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 BIG_NUMBER = 99999
 
->>>>>>> 785e0479d3654297bd5b34b728dd2d0240b937d3
 app = Flask(__name__)
 # get the facebook credentials
 credential_file = open('facebookCredentials.txt', 'r')
@@ -38,7 +31,6 @@ FACEBOOK_APP_SECRET = credentials[2]
 # print SECRET_KEY
 # connect to either the test database or the real database
 if TEST:
-<<<<<<< HEAD
 print "Running with test db and S3"
 db = RedisDatabase('Test')
 docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
@@ -47,18 +39,7 @@ else:
 print "Running with production db and S3"
 db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
 docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs
-=======
-    print "Running with test db and S3"
-    db = RedisDatabase('Test')
-    docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
-    import addDummyUsers
-else:    
-    print "Running with production db and S3"
-    db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
-    docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
 
-
->>>>>>> 785e0479d3654297bd5b34b728dd2d0240b937d3
 @app.route('/', methods=['GET'])
 def welcome_page():
 print 'user ' + get_user_id() + ' requested the root page'
@@ -73,7 +54,6 @@ return render_template('home.html')
 # TODO: this version of upload is just for demo purposes. for the real thing we wanna do javascript and ajax
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
-<<<<<<< HEAD
 print 'user ' + get_user_id() + ' is uploading'
 if request.method == 'POST':
 upload_file = request.files['file']
@@ -127,79 +107,7 @@ return response
 # amt_read = amt_read + 10
 #########
 #return Response(generate_file(), mimetype='application/pdf')
-=======
-    print 'user ' + get_user_id() + ' is uploading'
-    if request.method == 'POST':
-        upload_file = request.files['file']
-        if upload_file and allowed_file(upload_file.filename):
-            # TODO: we might should check our database to see if the file already exists 
-            
-            # Parse out the entered information
-            title = request.form['title']
-            authorIDs = []
-            authorNames = request.form['authorName'].split(',')
-            for authorName in authorNames:
-                authorName.strip()
-                # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
-                # to resolve same-name conflicts, then passing in the correct authorID
-                authorIDs.append(db.putAuthor(authorName))
-            tags = request.form['tags'].split(',')
-            for tag in tags:
-                tag.strip()
 
-
-            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorIDs, tags, None, None, datetime(2015,10,21), None, [], []) 
-            print 'title:',title
-            print 'authornames:',authorNames
-            print 'tags:',tags
-
-            docStore.storeDocument(upload_file, uniqueID)
-
-        results = []
-        return render_template('upload.html', results=results)
-    # else it is a GET request
-    else:
-        results = []
-        return render_template('upload.html', results=results)
-
-
-
-@app.route('/viewer/<uniqueID>')
-def view_file(uniqueID):
-
-    return render_template('view_pdf.html', uniqueID=uniqueID)
-
-
-@app.route('/uploads/<uniqueID>')
-def uploaded_file(uniqueID):
-    print 'user ' + get_user_id() + ' is viewing a file'
-    print 'viewing file', uniqueID 
-    viewing_file = docStore.retrieveDocument(uniqueID)
-    print 'content length:', viewing_file['Body']._content_length
-
-    response = make_response(viewing_file['Body'].read())
-    response.headers['Content-Type'] = 'application/pdf'
-    
-    # uncomment this line to download as attachment instead of view
-    #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
-    return response
-
-
-    # this part worked fine, but it is simpler to use the make_reponse function.  We may need to do things this way for streaming large files, however, so let's keep it around
-    #def generate_file():
-        #yield viewing_file['Body'].read()
-        ######### TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
-        #amt_read = 0
-        
-        #while(amt_read < viewing_file['Body']._content_length):
-        #    yield viewing_file['Body'].read(10)
-        #    amt_read = amt_read + 10
-        #########
-    #return Response(generate_file(), mimetype='application/pdf')
-    
-
->>>>>>> 785e0479d3654297bd5b34b728dd2d0240b937d3
 def allowed_file(filename):
 return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 ########################################
@@ -214,7 +122,6 @@ else:
 return render_template('login.html')
 @app.route('/profile', methods=['GET'])
 def profile_page():
-<<<<<<< HEAD
 print 'user ' + get_user_id() + ' is on the profile page'
 # print 'request:', request
 # print 'cookies:', request.cookies
@@ -238,42 +145,13 @@ else:
 user = db.getUser(user_id)
 print user.username
 return render_template('profile.html', user=user)
-=======
-    print 'user ' + get_user_id() + ' is on the profile page'
-    # print 'request:', request
-    # print 'cookies:', request.cookies
-    # print 'session:', session
-    # if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
-    #     # print request.cookies['fbsr_' + FACEBOOK_APP_ID]
-    #     auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
-    #     signature = base64.urlsafe_b64decode(str(auth_cookie[0]) + ((4 - len(auth_cookie[0]) % 4) * '='))
-    #     payload = json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))
-    #     # print 'signature:', signature
-    #     # print 'payload:', payload
-    #     # # we should probably check with facebook to make sure this is legit, and check the signature and all that.  but really what we care about for now is the user_ID
-    #     # print 'user_ID:', payload['user_id']
-    # else:
-    #     print 'user unknown (no facebook authentication cookie is set)'
 
-
-    # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
-    user_id = get_user_id()
-    if(user_id is "Anonymous"):
-        user = User.User("Anonymous User", [],[],[],[],[],0)
-    else:
-        user = db.getUser(user_id)
-        print user.username
-
-    return render_template('profile.html', user=user)
-
->>>>>>> 785e0479d3654297bd5b34b728dd2d0240b937d3
 @app.route('/search', methods=['GET'])
 def search_page():
 print 'user ' + get_user_id() + ' is searching'
 return render_template('search.html')
 @app.route('/search-<byWhat>', methods=['GET', 'POST'])
 def search_endpoint(byWhat):
-<<<<<<< HEAD
 print 'user ' + get_user_id() + ' is searching'
 results = []
 print 'request form:', request.form
@@ -288,28 +166,7 @@ results = db.getPapersMatchingAuthorNames([request.form['authors']])
 elif(byWhat == 'byTags'):
 results = db.getPapersMatchingTags([request.form['tags']])
 return render_template('search.html', results=results)
-=======
-    print 'user ' + get_user_id() + ' is searching'
-    results = []
-    
-    print 'request form:', request.form
 
-    if(byWhat == 'byTitle'):
-        # TODO: remove this for production, or expand to allow regular expressions.  this is just for testing purposes
-        if(request.form['title'] == '*'):
-            results = db.getTopPapers(BIG_NUMBER)
-        else:
-            results = db.getPapersMatchingTitle(request.form['title'])
-    elif(byWhat == 'byAuthors'):
-        results = db.getPapersMatchingAuthorNames([request.form['authors']])
-    elif(byWhat == 'byTags'):
-        results = db.getPapersMatchingTags([request.form['tags']])
-
-
-
-    return render_template('search.html', results=results)
-        
->>>>>>> 785e0479d3654297bd5b34b728dd2d0240b937d3
 # REMOVE FOR PRODUCTION
 @app.route('/shutdown', methods=['GET', 'POST'])
 def shutdown():
@@ -318,14 +175,10 @@ return 'Server shutting down...'
 # REMOVE FOR PRODUCTION
 @app.route('/cleanoutS3', methods=['GET', 'POST'])
 def cleanoutS3():
-<<<<<<< HEAD
+
 docStore.removeAllNonMatching(db.getTopPapers(BIG_NUMBER))
 return 'deleting entries from S3 that are not reflected in database'
-=======
-    docStore.removeAllNonMatching(db.getTopPapers(BIG_NUMBER))
-    return 'deleting entries from S3 that are not reflected in database'
 
->>>>>>> 785e0479d3654297bd5b34b728dd2d0240b937d3
 # REMOVE FOR PRODUCTION
 @app.route('/cleanoutDB', methods=['GET', 'POST'])
 def cleanoutDB():
