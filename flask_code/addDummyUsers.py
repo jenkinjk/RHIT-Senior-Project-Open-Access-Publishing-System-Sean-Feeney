@@ -7,4 +7,4 @@ db = RedisDatabase("Test") # our wrapper for the database
 
 db.putUser("Asher Morgan", "1162476383780112")
 db.putUser("Jonathan Jenkins", "986584014732857")
-db.putUser("Tyler Duffy", "10153554827465751")
+
