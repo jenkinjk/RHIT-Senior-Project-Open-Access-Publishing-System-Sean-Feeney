@@ -186,6 +186,8 @@ def profile_page():
         user = db.getUser(user_id)
         print user.username
 
+    for paperGuy in user.papers:
+        print paperGuy.title
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
@@ -220,6 +222,7 @@ def search_endpoint(byWhat):
 def addFavorite():
     # putFavoritePaper(self, userID, paperID, favoriteLevel)
     db.putFavoritePaper(get_user_id(), request.values['paperID'], 1)
+    print(request.values['paperID'])
     return "Added! :)"
         
 # REMOVE FOR PRODUCTION
