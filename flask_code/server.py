@@ -78,32 +78,41 @@ def upload_page():
             
             # Parse out the entered information
             title = request.form['title']
-            authorIDs = []
+
             authorNames = request.form['authorName'].split(',')
-            for authorName in authorNames:
-                authorName.strip()
-                # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
-                # to resolve same-name conflicts, then passing in the correct authorID
-                authorIDs.append(db.putAuthor(authorName))
+            authorNames = [authorName.strip() for authorName in authorNames]
+            # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
+            # to resolve same-name conflicts, then passing in the correct authorID
+            authorIDs = [db.putAuthor(authorName) for authorName in authorNames]
+
             tags = request.form['tags'].split(',')
-            for tag in tags:
-                tag.strip()
+            tags = [tag.strip() for tag in tags]
 
+            abstract = request.form['abstract']
 
-            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorIDs, tags, None, None, datetime(2015,10,21), None, [], []) 
+            datePublished = request.form['datePublished']
+            datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+
+            references = request.form['references']
+
             print 'title:',title
             print 'authornames:',authorNames
+            print 'authorIDs:',authorIDs
             print 'tags:',tags
+            print 'abstract:',abstract
+            print 'submittedBy:',get_user_id()
+            print 'datePublished:',datePublished
+            print 'references:',references
 
+            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
+            uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
+            
             docStore.storeDocument(upload_file, uniqueID)
 
-        results = []
-        return render_template('upload.html', results=results)
+        return render_template('upload.html')
     # else it is a GET request
     else:
-        results = []
-        return render_template('upload.html', results=results)
+        return render_template('upload.html')
 
 
 
