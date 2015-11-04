@@ -88,13 +88,13 @@ class InvalidFakeDatabase:
     return None
 
   def putFavoritePaper(self, userID, paperID, favoriteLevel):
-    return None
+    pass
   
   def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
-    return None
+    pass
 
   def putFavoriteTag(self, userID, tag, favoriteLevel):
-    return None
+    pass
 	
   def addStalker(self, stalkerID, userIDToStalk):
     pass

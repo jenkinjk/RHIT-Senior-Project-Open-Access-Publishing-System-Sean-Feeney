@@ -14,24 +14,28 @@ class ValidFakeDatabase:
 
     # initializes dummy data to return
   def __init__(self):
-    self.paperA = Paper("12345", "The Health Benefits of the All-Bacon Diet", ["4445", "666", "123"], ["487", "448", "3", "27"], "Bacon is actually one of the healthiest foods of all time.  This is an abstract!  For the full article, download the PDF.", "1234", datetime.datetime(2013, 8, 4, 12, 30, 45), datetime.datetime.now(), "Name", ["ref1", "ref2", "ref3"], "14000", ["citation link 1", "citation link 2", "citation link 2"])
-    self.paperB = Paper("90210", "The Dangers of Coding While Hungry", ["12068", "7797", "4326"], ["6", "48", "366", "2257"], " Abstracts never seem to be simple or contain useful information.", "444", datetime.datetime(2013, 8, 4, 12, 30, 45), datetime.datetime.now(), "Name", ["ref1", "ref2", "ref3"], "14000", ["citation link 1", "citation link 2", "citation link 2"])
-    self.paperC = Paper("666", "The Struggles of Eating a Giordano's Pizza Alone", ["567", "2213", "989"], ["6237", "3177", "432"], "Abstracts are the SparkNotes of the academic world.", "12534434", datetime.datetime(1999, 7, 6, 12, 30, 45), datetime.datetime.now(), "Name", ["ref1", "ref2", "ref3"], "14000", ["citation link 1", "citation link 2", "citation link 2"])
-    
-    self.authorA = Author("55555", "Shia Leboeuf", "4444", [])
-    self.authorB = Author("43216", "Andrew Davidson", "1", [])
-    self.authorC = Author("6542", "William Shakespeare", "11542", [])
-    self.authorD = Author("64632", "Edsger Dijkstra", "147", [])
-    self.authorE = Author("63421", "Alan Turing", "40000", [])
-    
-    self.tagA = Tag("112", "Genetics", "40000", [])
-    self.tagB = Tag("775", "Bioinformatics", "12345", [])
-    self.tagC = Tag("842", "Search Engines", "5555", [])
-    self.tagD = Tag("973", "Artificial Intelligence", "42", [])
+    self.dateA = datetime.datetime(2013, 8, 4, 12, 30, 45)
+	self.dateB = datetime.datetime(1999, 7, 6, 12, 30, 45)
+    self.paperA = Paper("12345", "The Health Benefits of the All-Bacon Diet", ["4445", "666", "123"], ["Genetics", "Bioinformatics", "Search Engines", "Artificial Intelligence"], "Bacon is actually one of the healthiest foods of all time.  This is an abstract!  For the full article, download the PDF.", "1234", self.dateA, datetime.datetime.now(), "1111", ["ref1", "ref2", "ref3"], "14000", ["citation link 1", "citation link 2", "citation link 2"], "Your Favorite Publisher",["Alan Turing", "Shia Leboeuf", "Andrew Davidson"])
+    self.paperB = Paper("90210", "The Dangers of Coding While Hungry", ["12068", "7797", "4326"], ["Genetics", "Bioinformatics", "Search Engines", "Artificial Intelligence"], " Abstracts never seem to be simple or contain useful information.", "444", self.dateA, datetime.datetime.now(), "6677", ["ref1", "ref2", "ref3"], "14000", ["citation link 1", "citation link 2", "citation link 2"], "Your Favorite Publisher",["Andrew Davidson","William Shakespeare","Edsger Dijkstra"])
+    self.paperC = Paper("666", "The Struggles of Eating a Giordano's Pizza Alone", ["567", "2213", "989"], ["6237", "3177", "432"], "Abstracts are the SparkNotes of the academic world.", "12534434", self.dateB, datetime.datetime.now(), "2345", ["ref1", "ref2", "ref3"], "14000", ["citation link 1", "citation link 2", "citation link 2"], "Prentice Hall", ["Andrew Davidson","William Shakespeare","Edsger Dijkstra"])
+
+    self.authorA = Author("55555", "Shia Leboeuf", "4444", ["0", "1"],["The Health Benefits of the All-Bacon Diet", "The Dangers of Coding While Hungry"],[["Andrew Davidson","William Shakespeare","Edsger Dijkstra"],["Alan Turing", "Shia Leboeuf", "Andrew Davidson"]],[self.dateB,self.dateA])
+    self.authorB = Author("43216", "Andrew Davidson", "1", ["0", "1"],["The Health Benefits of the All-Bacon Diet", "The Dangers of Coding While Hungry"],[["Andrew Davidson","William Shakespeare","Edsger Dijkstra"],["Alan Turing", "Shia Leboeuf", "Andrew Davidson"]],[self.dateB,self.dateA])
+    self.authorC = Author("6542", "William Shakespeare", "11542", ["2", "1"],["The Struggles of Eating a Giordano's Pizza Alone","The Dangers of Coding While Hungry"],[["Andrew Davidson","William Shakespeare","Edsger Dijkstra"],["Alan Turing", "Shia Leboeuf", "Andrew Davidson"]],[self.dateB,self.dateA])
+    self.authorD = Author("64632", "Edsger Dijkstra", "147", ["2", "1"],["The Struggles of Eating a Giordano's Pizza Alone","The Dangers of Coding While Hungry"],[["Andrew Davidson","William Shakespeare","Edsger Dijkstra"],["Alan Turing", "Shia Leboeuf", "Andrew Davidson"]],[self.dateB,self.dateA])
+    self.authorE = Author("63421", "Alan Turing", "40000", ["2", "1"],["The Struggles of Eating a Giordano's Pizza Alone","The Dangers of Coding While Hungry"],[["Andrew Davidson","William Shakespeare","Edsger Dijkstra"],["Alan Turing", "Shia Leboeuf", "Andrew Davidson"]],[self.dateB,self.dateA])
+
+    self.tagA = Tag("Genetics", "40000", ["0", "1"])
+    self.tagB = Tag("Bioinformatics", "12345", ["0", "1"])
+    self.tagC = Tag("Search Engines", "5555", ["2", "3"])
+    self.tagD = Tag("Artificial Intelligence", "42", ["2", "3"])
     
     self.publisherA = Publisher("1233", "Your Favorite Publisher",0)
     self.publisherB = Publisher("3468", "Prentice Hall",0)
     self.publisherC = Publisher("8372", "Rose-Hulman",0)
+
+    self.userA = User("0","Otis Redding", ["1", "3"],["Andrew Davidson","Jonathan Jenkins"], [self.paperA, self.paperB, self.paperC], [self.authorA, self.authorB, self.authorC], [self.tagA, self.tagC, self.tagB, self.tagD], "45", "005792830123")
     
     #Takes in:
     #  - a string of the paper's title
@@ -239,7 +243,6 @@ class ValidFakeDatabase:
       raise Exception("paperID must currently be either an integer or a string that represents an integer")
     if not isinstance(favoriteLevel, int):
       raise Exception("favoriteLevel must be an int")
-    return 3
   
   def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
     if not self.representsInt(userID):
@@ -248,7 +251,6 @@ class ValidFakeDatabase:
       raise Exception("authorID must currently be either an integer or a string that represents an integer")
     if not isinstance(favoriteLevel, int):
       raise Exception("favoriteLevel must be an int")
-    return 3
 
   def putFavoriteTag(self, userID, tag, favoriteLevel):
     if not self.representsInt(userID):
@@ -257,7 +259,6 @@ class ValidFakeDatabase:
       raise Exception("tag must be a string")
     if not isinstance(favoriteLevel, int):
       raise Exception("favoriteLevel must be an int")
-    return 3
 
   def addStalker(self, stalkerID, userIDToStalk):
     if not self.representsInt(stalkerID):
