@@ -214,6 +214,13 @@ def search_endpoint(byWhat):
 
 
     return render_template('search.html', results=results)
+
+
+@app.route('/addFavorite', methods=['POST'])
+def addFavorite():
+    # putFavoritePaper(self, userID, paperID, favoriteLevel)
+    db.putFavoritePaper(get_user_id(), request.values['paperID'], 1)
+    return "Added! :)"
         
 # REMOVE FOR PRODUCTION
 @app.route('/shutdown', methods=['GET', 'POST'])
