@@ -30,7 +30,7 @@ class RedisDatabase():
     self.redisDB.set("Authors:IDCounter",0)
     self.redisDB.set("Papers:IDCounter",0)
     self.redisDB.set("Publishers:IDCounter",0)
-    #self.redisDB.set("Users:IDCounter",0)
+    self.redisDB.set("Users:IDCounter",0)
     
     #Takes in a string of the author's name
     #Returns a string authorID
@@ -369,18 +369,22 @@ class RedisDatabase():
       words.append(word)
     return words
 	
-  #Users, id, user's name, List of favorite articles, list of favorite authors, list of interesting tags
-  def putUser(self, Name, id):
-    #id = self.redisDB.get("Users:IDCounter")
-    #id = str(id)
+  def putUser(self, Name, facebookID = None):
+    id = self.redisDB.get("Users:IDCounter")
     self.redisDB.set("User:"+id+":UserName",Name)
     self.redisDB.zadd("Users",id, 0) #To be ranked by followers
     self.redisDB.set("User:"+id+":FollowerCount", 0)
-    #self.redisDB.incr("Users:IDCounter")
+	if not facebookID == None:
+      self.assignUserFacebookID(id, facebookID)
+    self.redisDB.incr("Users:IDCounter")
     return id
 
+  def assignUserFacebookID(self, id, facebookID):
+    self.redisDB.set("User:"+id:"FacebookID", facebookID)
+    self.redisDB.set("FacebookID:"+facebookID+":id", id)	
+
   #Should return a new user object
-  def getUser(self, id):
+  def getUserByID(self, id):
     userName = self.redisDB.get("User:"+id+":UserName")
     followerCount = self.redisDB.get("User:"+id+":FollowerCount")
     followingIDs = self.redisDB.get("User:"+id+":FollowingUserIDs")
@@ -404,7 +408,12 @@ class RedisDatabase():
     tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
     if(tags == None):
       tags = []
-    return User(userName, followingIDs, followingNames, papers, authors, tags, followerCount)
+    facebookID = self.redisDB.get("User:"+id:"FacebookID")
+    return User(id, userName, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID)
+	
+  def getUserByFacebookID(self, facebookID):
+	id = self.redisDB.get("FacebookID:"+facebookID+":id")
+    return self.getUserByID(id)
 
   #takes a user id and a paper id to add to this users list of favorites
   #returns the current length of the favorites

@@ -6,25 +6,28 @@ Created on Oct 14, 2015
 
 class User():
 
-  def __init__(self, username, followingIDs, followingNames, papers, authors, tags, followerCount):
+  def __init__(self, id, username, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID = None):
+    self.id = id
     self.username = username
     self.followingIDs = followingIDs
     self.followingNames = followingNames
     self.papers = papers
-    self.tags = tags
     self.authors = authors
+    self.tags = tags
     self.followerCount = followerCount
+	self.facebookID = facebookID
     #encrypted password
-    #facebookID
 
   def __str__(self):
-    return 'username:'+self.username+'      followingIDs:'+self.followingIDs+'      followingNames:'+self.followingNames+'      papers:'+self.papers+'      tags:'+self.tags+'      authors:'+self.authors+'      followerCount:'+self.followerCount
+    return 'id:'+self.id+'		username:'+self.username+'		facebookID:'+self.facebookID+'      followingIDs:'+self.followingIDs+'      followingNames:'+self.followingNames+'      papers:'+self.papers+'      tags:'+self.tags+'      authors:'+self.authors+'      followerCount:'+self.followerCount
 
   def __repr__(self):
-    return 'username:'+self.username+'      followingIDs:'+self.followingIDs+'      followingNames:'+self.followingNames+'      papers:'+self.papers+'      tags:'+self.tags+'      authors:'+self.authors+'      followerCount:'+self.followerCount
+    return 'id:'+self.id+'		username:'+self.username+'		facebookID:'+self.facebookID+'      followingIDs:'+self.followingIDs+'      followingNames:'+self.followingNames+'      papers:'+self.papers+'      tags:'+self.tags+'      authors:'+self.authors+'      followerCount:'+self.followerCount
 
 
   def __eq__(self, other):
+    if not self.id ==  other.id:
+      return False
     if not self.username ==  other.username:
       return False
     if not self.followingIDs ==  other.followingIDs:
@@ -39,9 +42,14 @@ class User():
       return False
     if not self.followerCount ==  other.followerCount:
       return False
+    if not self.facebookID ==  other.facebookID:
+      return False
     return True
 
   def eqDebug(self, other):
+    if not self.id ==  other.id:
+      print "id ", self.id,"!=",other.id
+      return False
     if not self.username ==  other.username:
       print "username ", self.username,"!=",other.username
       return False
@@ -62,6 +70,9 @@ class User():
       return False
     if not self.followerCount ==  other.followerCount:
       print "followerCount ", self.followerCount,"!=",other.followerCount
+      return False
+    if not self.facebookID ==  other.facebookID:
+      print "facebookID ", self.facebookID,"!=",other.facebookID
       return False
     return True
 

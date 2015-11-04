@@ -384,36 +384,15 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual(len(expecteds),len(actuals))	
     self.assertEqual(expecteds,actuals)
 
-  '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
-  #11
-  def test_GetAuthorsPapers(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    author = self.redisDB.getAuthor('0')
-    self.assertEqual("Author one", author.name)
-    self.assertEqual('0', author.viewCount)
-    self.assertEqual('0', author.id)
-    self.assertEqual(['0'],author.papers)'''
-
-  '''#33
-  def test_PutTag(self):
-    self.assertEqual('0', self.redisDB.putTag("Tag one"))
-
-  #34
-  def test_PutTags(self):
-    self.assertEqual('0', self.redisDB.putTag("Tag one"))
-    self.assertEqual('1', self.redisDB.putTag("Tag two"))
-    self.assertEqual('2', self.redisDB.putTag("Tag three"))'''
-
-  '''#14
+  #33
   def test_GetTag(self):
-    #self.assertEqual('0', self.redisDB.putTag("239ck39&%$#@*&"))   
     self.redisDB.putTag("239ck39&%$#@*&")
     tag = self.redisDB.getTag("239ck39&%$#@*&")
     self.assertEqual("239ck39&%$#@*&", tag.name)
     self.assertEqual('0', tag.viewCount)
-    self.assertEqual([],tag.paperIDs)'''
+    self.assertEqual([],tag.paperIDs)
 
-  #35
+  #34
   def test_GetTags(self):
 	
     self.redisDB.putTag("Tag one")
@@ -425,116 +404,74 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual('0', tag.viewCount)
     self.assertEqual([],tag.paperIDs)
 
-  '''#THIS TEST SHOULDN'T PASS, SHOULD IT?
-  #16
+  #35
   def test_GetTagsPapers(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
     tag = self.redisDB.getTag('0')
     self.assertEqual("TagOne", tag.name)
     self.assertEqual('0', tag.viewCount)
     self.assertEqual('0', tag.id)
-    self.assertEqual(['0'],tag.papers)'''
+    self.assertEqual(['0'],tag.papers)
 
-  '''#17
-  def test_search(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('2', self.redisDB.putPaper("Paper Three's Title", ["Author one"],["TagTwo"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
-    result = self.redisDB.getPapersMatchingTitle("Paper One")
-    self.assertEqual(4, len(result))
-    paper = Paper('0', "Paper One's Title", set(["Author one"]), set(["TagOne"]), '','','','','','','0','')
-    self.assertEqual(paper.id,result[0].id)
-    self.assertEqual(result[0].authors, paper.authors)
-    self.assertEqual(result[0].viewCount, paper.viewCount)
-    self.assertEqual(result[0].title, paper.title)
-    self.assertEqual(result[0].tags,paper.tags)'''
-
-  '''#18
-  def test_searchTwo(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
-    self.assertEqual('2', self.redisDB.putPaper("Paper Three's Title", ["Author one"],["TagTwo"]))
-    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
-    result = self.redisDB.search("Paper Two")
-    self.assertEqual(1, len(result))
-    paper = Paper('1', "Paper Two's Title", set(["Author one", "Author two"]), set(["TagOne"]), '','','','','','','0','')
-    self.assertEqual(paper.id,result[0].id)
-    self.assertEqual(result[0].authors, paper.authors)
-    self.assertEqual(result[0].viewCount, paper.viewCount)
-    self.assertEqual(result[0].title, paper.title)
-    self.assertEqual(result[0].tags,paper.tags)'''
-
-  '''#19
-  def test_searchTwoMiddle(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
-    self.assertEqual('2', self.redisDB.putPaper("Paper Three's Title", ["Author one"],["TagTwo"]))
-    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
-    result = self.redisDB.getPapersMatchingTitle("Two")
-    self.assertEqual(1, len(result))
-    paper = Paper('1', "Paper Two's Title", set(["Author one", "Author two"]), set(["TagOne"]), '','','','','','','0','')
-    self.assertEqual(paper.id,result[0].id)
-    self.assertEqual(result[0].authors, paper.authors)
-    self.assertEqual(result[0].viewCount, paper.viewCount)
-    self.assertEqual(result[0].title, paper.title)
-    self.assertEqual(result[0].tags,paper.tags)'''
-
-  '''#20
-  def test_searchThree(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["Author one", "Author two"],["TagOne"]))
-    self.assertEqual('2', self.redisDB.putPaper("Paper TwoToo's Title", ["Author one"],["TagTwo"]))
-    self.assertEqual('3', self.redisDB.putPaper("Paper Four's Title", ["Author one"],["TagThree","TagFour"]))
-    result = self.redisDB.getPapersMatchingTitle("Paper Two")
-    self.assertEqual(2, len(result))
-    paper = Paper('1', "Paper Two's Title", set(["Author one", "Author two"]), set(["TagOne"]), '','','','','','','0','')
-    self.assertEqual(paper.id,result[0].id)
-    self.assertEqual(result[0].authors, paper.authors)
-    self.assertEqual(result[0].viewCount, paper.viewCount)
-    self.assertEqual(result[0].title, paper.title)
-    self.assertEqual(result[0].tags,paper.tags)
-    paper = Paper('2', "Paper TwoToo's Title", set(["Author one"]), set(["TagTwo"]), '','','','','','','0','')
-    self.assertEqual(paper.id,result[1].id)
-    self.assertEqual(result[1].authors, paper.authors)
-    self.assertEqual(result[1].viewCount, paper.viewCount)
-    self.assertEqual(result[1].title, paper.title)
-    self.assertEqual(result[1].tags,paper.tags)'''
-
-  '''#21
-  def test_searchSeperated(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["Author one"],["TagOne"]))
-    self.assertEqual('1', self.redisDB.putPaper("Paper Title One's", ["Author one", "Author two"],["TagOne"]))
-    result = self.redisDB.search("Paper One")
-    paper = Paper('0', "Paper One's Title", set(["Author one"]), set(["TagOne"]), '','','','','','','0','')
-    self.assertEqual(1, len(result))
-    self.assertEqual(paper.id,result[0].id)
-    self.assertEqual(result[0].authors, paper.authors)
-    self.assertEqual(result[0].viewCount, paper.viewCount)
-    self.assertEqual(result[0].title, paper.title)
-    self.assertEqual(result[0].tags,paper.tags)'''
-
-  '''
-  #22
+  
+  #36
   def test_putUser(self):
     self.assertEqual('0', self.redisDB.putUser("User One"))
     self.assertEqual('1', self.redisDB.putUser("User Two"))
-  #23
+  #37
   def test_getUser(self):
-    self.assertEqual('0', self.redisDB.putUser("User One"))
+    self.redisDB.putUser("User One")
     result = self.redisDB.getUser('0')
     self.assertEqual("User One", result.username)
     self.assertEqual(set([]), result.papers)
     self.assertEqual(set([]),result.authors)
     self.assertEqual(set([]),result.tags)
-  #23
+  #38
   def test_favoritePaper(self):
-    self.assertEqual('0', self.redisDB.putUser("User One"))
+    self.redisDB.putUser("User One")
     result = self.redisDB.getUser('0')
     self.assertEqual("User One", result.username)
     self.assertEqual(set([]), result.papers)
     self.assertEqual(set([]),result.authors)
-    self.assertEqual(set([]),result.tags)'''
+    self.assertEqual(set([]),result.tags)
+	
+  #39
+  def test_favoriteTag(self):
+    self.redisDB.putUser("User One")
+    result = self.redisDB.getUser('0')
+    self.assertEqual("User One", result.username)
+    self.assertEqual(set([]), result.papers)
+    self.assertEqual(set([]),result.authors)
+    self.assertEqual(set([]),result.tags)
+	
+  #40
+  def test_favoriteAuthor(self):
+    self.loadTestData()
+    self.redisDB.putUser("Andrew Davidson")
+	self.redisDB.putFavoriteAuthor("0","0",3)
+    result = self.redisDB.getUser('0')
+    self.assertEqual(result, User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon], [], 0))
+	
+  #41
+  def test_stalker(self):
+  ids = []
+  ids.append(self.redisDB.putUser("Andrew Davidson"))
+  ids.append(self.redisDB.putUser("Barbra Streissand"))
+  ids.append(self.redisDB.putUser("Andrew Carnegie"))
+  self.redisDB.addStalker(ids[1], ids[0])
+  self.redisDB.addStalker(ids[1], ids[2])
+  self.redisDB.addStalker(ids[0], ids[2])
+  userA = self.redisDB.getUserByID(ids[0])
+  userB = self.redisDB.getUserByID(ids[1])
+  userC = self.redisDB.getUserByID(ids[2])
+  self.assertEqual(userA, User("0", "Andrew Davidson", ["1"], ["Barbra Streissand"], [], [], [], 1))
+  self.assertEqual(userB, User("1", "Barbra Streissand", [], [], [], [], [], 0))
+  self.assertEqual(userC, User("2", "Andrew Carnegie", ["1", "0"], ["Barbra Streissand", "Andrew Davidson"], [], [], [], 2))
+  
+  #42
+  def testUserIntegration(self):
+  pass
+    
 
   '''#Stress testing for performance
   def test_stress(self):
