@@ -10,6 +10,8 @@ import User
 from datetime import datetime
 import base64
 import json
+# png:
+# import PDF_To_PNG_Converter
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
 # MODE = "Test" 
@@ -106,8 +108,12 @@ def upload_page():
 
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
-            
+            # png:
+            # thumbnail = PDF_To_PNG_Converter.convert(upload_file)
+
             docStore.storeDocument(upload_file, uniqueID)
+            # png:
+            # docStore.storeThumbnail(thumbnail, uniqueID)
 
         return render_template('upload.html')
     # else it is a GET request
@@ -118,7 +124,6 @@ def upload_page():
 
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
-
     return render_template('view_pdf.html', uniqueID=uniqueID)
 
 

@@ -97,14 +97,17 @@
                   <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
                   <div class="col-md-5">
                     <strong>Paper Title:</strong> {{ favPaper.title }}
+                    <a href={{"/viewer/" + favPaper.id}}>View Paper</a>
                   </div>
                   <div class="col-md-5">
                     <strong> Paper Author(s):</strong> {% for author in favPaper.authorNames %} {{author}}, {% endfor %}
                   </div>
+                  <div class="col-md-3">
+                    <strong>Tag(s):</strong> {% for tag in favPaper.tags %} {{tag}}, {% endfor %}
+                  </div>
                 </div> <!-- end of paper block -->
 
                 <hr class="col-md-12"> <!-- divider line -->
-                
               {% endfor %}
 
             </div> <!-- end of favorite papers panel body -->
