@@ -410,24 +410,20 @@ class RedisDatabase():
   #returns the current length of the favorites
   def putFavoritePaper(self, userID, paperID, favoriteLevel):
     self.redisDB.zadd("User:"+userID+":FavoritePapers",paperID, favoriteLevel)
-    length = self.redisDB.zcount("User:"+userID+":FavoritePapers")
-    return length
 
 
   #takes a user id and an author id to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
     self.redisDB.zadd("User:"+userID+":FavoriteAuthors",authorID, favoriteLevel)
-    length = self.redisDB.zcount("User:"+userID+":FavoriteAuthors")
-    return length
 
 
   #takes a user id and a Tag id to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoriteTag(self, userID, tag, favoriteLevel):
     self.redisDB.zadd("User:"+userID+":FavoriteTags",tag, favoriteLevel)
-    length = self.redisDB.zcount("User:"+userID+":FavoriteTags")
-    return length
+    # length = self.redisDB.zcount("User:"+userID+":FavoriteTags")
+    # return length
 	
   def addStalker(self, stalkerID, userIDToStalk):
     self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)

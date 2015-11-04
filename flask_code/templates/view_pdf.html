@@ -1,11 +1,17 @@
 {% extends "base.html" %}
+{% block head %}
+<!-- grab Jquery from a CDN, so we don't have to save and serve it -->
+<script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+{% endblock %}
 {% block title %}PDF Viewer{% endblock %}
 {% block pageTitle %}PDF Viewer{% endblock %}
 {% block content %}
 <!-- <iframe src="/uploads/{{uniqueID}}" width="800" height="800"></iframe> -->
+
 <div class="container">
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
+			<button onclick="addFavorite();">Favorite!</button>
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
 			</object>
@@ -14,6 +20,22 @@
 </div>
 <hr class="col-md-12"> <!-- divider line -->
 <hr class="col-md-12"> <!-- divider line -->
+
+<script>
+function addFavorite() {
+	console.log("Adding favorite...");
+	$.ajax({
+    type : "POST",
+    url : "/addFavorite",
+    data: {paperID : {{uniqueID}}},
+    
+    success: function(result) {
+        console.log(result);
+    }
+});
+}
+</script>
+
 {% endblock %}
 
 
