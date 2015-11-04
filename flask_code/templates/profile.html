@@ -91,17 +91,6 @@
               <h2 id="sec0">Favorite Papers</h2>
             </div> <!-- end of panel heading -->
             <div class="panel-body"> <!-- start of favorite papers panel body -->
-              <div class="paperBlock">
-                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                <div class="col-md-5">
-                  Paper Title: &lt Insert Title of Paper Here &gt
-                </div>
-                <div class="col-md-5">
-                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
-                </div>
-              </div> <!-- end of paper block -->
-
-              <hr class="col-md-12"> <!-- divider line -->
 
               {% for favPaper in user.papers %}
                 <div class="paperBlock">
@@ -110,71 +99,13 @@
                     <strong>Paper Title:</strong> {{ favPaper.title }}
                   </div>
                   <div class="col-md-5">
-                    <strong> Paper Author(s):</strong> {% for author in result.authorNames %} {{author}}, {% endfor %}
+                    <strong> Paper Author(s):</strong> {% for author in favPaper.authorNames %} {{author}}, {% endfor %}
                   </div>
                 </div> <!-- end of paper block -->
 
                 <hr class="col-md-12"> <!-- divider line -->
                 
               {% endfor %}
-
-              <div class="paperBlock">
-                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                <div class="col-md-5">
-                  Paper Title: &lt Insert Title of Paper Here &gt
-                </div>
-                <div class="col-md-5">
-                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
-                </div>
-              </div> <!-- end of paper block -->
-
-              <hr class="col-md-12"> <!-- divider line -->
-
-              <div class="paperBlock">
-                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                <div class="col-md-5">
-                  Paper Title: &lt Insert Title of Paper Here &gt
-                </div>
-                <div class="col-md-5">
-                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
-                </div>
-              </div> <!-- end of paper block -->
-
-              <hr class="col-md-12"> <!-- divider line -->
-
-              <div class="paperBlock">
-                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                <div class="col-md-5">
-                  Paper Title: &lt Insert Title of Paper Here &gt
-                </div>
-                <div class="col-md-5">
-                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
-                </div>
-              </div> <!-- end of paper block -->
-
-              <hr class="col-md-12"> <!-- divider line -->
-
-              <div class="paperBlock">
-                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                <div class="col-md-5">
-                  Paper Title: &lt Insert Title of Paper Here &gt
-                </div>
-                <div class="col-md-5">
-                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
-                </div>
-              </div> <!-- end of paper block -->
-
-              <hr class="col-md-12"> <!-- divider line -->
-
-              <div class="paperBlock">
-                <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                <div class="col-md-5">
-                  Paper Title: &lt Insert Title of Paper Here &gt
-                </div>
-                <div class="col-md-5">
-                  Paper Author(s): &lt Insert Author(s) of Paper Here &gt
-                </div>
-              </div> <!-- end of paper block -->
 
             </div> <!-- end of favorite papers panel body -->
           </div> <!-- end of favorite papers subsection panel -->
