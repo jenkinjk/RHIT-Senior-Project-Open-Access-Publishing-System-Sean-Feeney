@@ -30,6 +30,8 @@ class Paper:
 
 
   def __eq__(self, other):
+    if other == None:
+      return False
     if not self.id ==  other.id:
       return False
     if not self.title == other.title:
@@ -68,6 +70,9 @@ class Paper:
     return True
     
   def eqDebug(self, other):
+    if other == None:
+      print "other is None"
+      return False
     if not self.id ==  other.id:
       print "id ", self.id,"!=",other.id
       return False

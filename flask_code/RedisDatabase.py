@@ -119,8 +119,6 @@ class RedisDatabase():
     # Takes in a string tag
     # Returns a tag object
   def getTag(self, tag):
-    
-
     viewCount = self.redisDB.get("Tag:"+tag+":ViewCount")
     if viewCount == None:
       return None
@@ -131,15 +129,19 @@ class RedisDatabase():
     # Returns a publisher object
   def getPublisher(self, publisherID):
     name = self.redisDB.get("Publisher:"+publisherID+":Name")
+    if name == None:
+      return None
     viewCount = self.redisDB.get("Publisher:"+publisherID+":ViewCount")
     return Publisher(publisherID, name, viewCount)
 
     # Takes in an integer paperID
     # Returns a paper object
   def getPaper(self, paperID):
+    title = self.redisDB.get("Paper:"+paperID+":Title")
+    if title == None:
+      return None
     authorIDs = list(self.redisDB.smembers("Paper:"+paperID+":Authors"))
     tags = list(self.redisDB.smembers("Paper:"+paperID+":Tags"))
-    title = self.redisDB.get("Paper:"+paperID+":Title")
     abstract = self.redisDB.get("Paper:"+paperID+":Abstract")
     publisherID = self.redisDB.get("Paper:"+paperID+":PublisherID")
     viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
@@ -314,7 +316,7 @@ class RedisDatabase():
     for titleWord in titleWords:
       titleKeys.append("PaperWord:"+titleWord)
     paperIDs = self.getMergedSearchResults(titleKeys)
-    print 'paperIDs:', paperIDs
+    #print 'paperIDs:', paperIDs
     papers = []
     for paperID in paperIDs:
       paper = self.getPaper(paperID)
@@ -324,10 +326,10 @@ class RedisDatabase():
     #NOTE:  This is a helper function!!!  This should never be called outside of this class!!
     #Takes in a list of Redis Keys
     #Returns an ordered list of Ids for whichever resource was requested
-  def getMergedSearchResults(self, keys):
+  def getMergedSearchResults(self, keys, maxResultsCount = 30, keyRange = -1):
     occurences = {}
     for key in keys:
-      rslts = self.redisDB.zrange(key, 0, -1)
+      rslts = self.redisDB.zrange(key, 0, keyRange)
       for rslt in rslts:
         if rslt in occurences:
           occurences[rslt] = (occurences[rslt][0]+1,occurences[rslt][1])
@@ -355,6 +357,9 @@ class RedisDatabase():
     for key in sorted(groupedOccurences.iterkeys()):
       for tup in groupedOccurences[key]:
         ids.append(tup[0])
+        if len(ids) >= maxResultsCount:
+          ids.reverse()
+          return ids
     ids.reverse()
     return ids
   
@@ -374,20 +379,20 @@ class RedisDatabase():
     self.redisDB.set("User:"+id+":UserName",Name)
     self.redisDB.zadd("Users",0, id) #To be ranked by followers
     self.redisDB.set("User:"+id+":FollowerCount", 0)
-	if not facebookID == None:
+    if not facebookID == None:
       self.assignUserFacebookID(id, facebookID)
     self.redisDB.incr("Users:IDCounter")
     return id
 
   def assignUserFacebookID(self, id, facebookID):
-    self.redisDB.set("User:"+id:"FacebookID", facebookID)
+    self.redisDB.set("User:"+id+":FacebookID", facebookID)
     self.redisDB.set("FacebookID:"+facebookID+":id", id)	
 
   #Should return a new user object
   def getUserByID(self, id):
     userName = self.redisDB.get("User:"+id+":UserName")
     followerCount = self.redisDB.get("User:"+id+":FollowerCount")
-    followingIDs = self.redisDB.get("User:"+id+":FollowingUserIDs")
+    followingIDs = list(self.redisDB.smembers("User:"+id+":FollowingUserIDs"))
     if(followingIDs == None):
       followingIDs = []
     followingNames = []
@@ -408,29 +413,32 @@ class RedisDatabase():
     tags = self.redisDB.zrange("User:"+id+":FavoriteTags",0,-1)
     if(tags == None):
       tags = []
-    facebookID = self.redisDB.get("User:"+id:"FacebookID")
+    facebookID = self.redisDB.get("User:"+id+":FacebookID")
     return User(id, userName, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID)
 	
   def getUserByFacebookID(self, facebookID):
-	id = self.redisDB.get("FacebookID:"+facebookID+":id")
+    id = self.redisDB.get("FacebookID:"+facebookID+":id")
     return self.getUserByID(id)
 
   #takes a user id and a paper id to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoritePaper(self, userID, paperID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoritePapers",favoriteLevel, paperID)
+    if not self.getPaper(paperID) == None:
+      self.redisDB.zadd("User:"+userID+":FavoritePapers",favoriteLevel, paperID)
 
 
   #takes a user id and an author id to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoriteAuthors",favoriteLevel, authorID)
+    if not self.getAuthor(authorID) == None:
+      self.redisDB.zadd("User:"+userID+":FavoriteAuthors",favoriteLevel, authorID)
 
 
-  #takes a user id and a Tag id to add to this users list of favorites
+  #takes a user id and a Tag name to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoriteTag(self, userID, tag, favoriteLevel):
-    self.redisDB.zadd("User:"+userID+":FavoriteTags", favoriteLevel, tag)
+    if not self.getTag(tag) == None:
+      self.redisDB.zadd("User:"+userID+":FavoriteTags", favoriteLevel, tag)
 	
   def addStalker(self, stalkerID, userIDToStalk):
     self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)

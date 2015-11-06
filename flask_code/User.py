@@ -15,7 +15,7 @@ class User():
     self.authors = authors
     self.tags = tags
     self.followerCount = followerCount
-	self.facebookID = facebookID
+    self.facebookID = facebookID
     #encrypted password
 
   def __str__(self):
@@ -26,19 +26,30 @@ class User():
 
 
   def __eq__(self, other):
+    if other == None:
+      return False
     if not self.id ==  other.id:
       return False
     if not self.username ==  other.username:
       return False
-    if not self.followingIDs ==  other.followingIDs:
+    if not len(self.followingNames) == len(self.followingIDs):
       return False
-    if not self.followingNames ==  other.followingNames:
+    if not len(other.followingNames) == len(other.followingIDs):
+      return False 
+    if not len(self.followingNames) == len(self.followingIDs):
+      return False   
+    tuplesA = set([])
+    tuplesB = set([])
+    for i in range(0,len(self.followingIDs)):
+      tuplesA.add((self.followingIDs[i], self.followingNames[i]))
+      tuplesB.add((other.followingIDs[i], other.followingNames[i]))
+    if not tuplesA == tuplesB:
       return False
-    if not self.papers ==  other.papers:
+    if not set(self.papers) ==  set(other.papers):
       return False
-    if not self.authors ==  other.authors:
+    if not set(self.authors) ==  set(other.authors):
       return False
-    if not self.tags ==  other.tags:
+    if not set(self.tags) ==  set(other.tags):
       return False
     if not self.followerCount ==  other.followerCount:
       return False
@@ -47,26 +58,40 @@ class User():
     return True
 
   def eqDebug(self, other):
+    if other == None:
+      print "other is None"
+      return False
     if not self.id ==  other.id:
       print "id ", self.id,"!=",other.id
       return False
     if not self.username ==  other.username:
       print "username ", self.username,"!=",other.username
       return False
-    if not self.followingIDs ==  other.followingIDs:
-      print "followingIDs ", self.followingIDs,"!=",other.followingIDs
+    if not len(self.followingNames) == len(self.followingIDs):
+      print "len of self following names and ids inconsistent ", len(self.followingNames),"!=",len(self.followingIDs)
       return False
-    if not self.followingNames ==  other.followingNames:
-      print "followingNames ", self.followingNames,"!=",other.followingNames
+    if not len(other.followingNames) == len(other.followingIDs):
+      print "len of other following names and ids inconsistent ", len(other.followingNames),"!=",len(other.followingIDs)
+      return False 
+    if not len(self.followingNames) == len(self.followingIDs):
+      print "len of self and other following names and ids inconsistent ", len(self.followingIDs),"!=",len(other.followingIDs)
+      return False   
+    tuplesA = set([])
+    tuplesB = set([])
+    for i in range(0,len(self.followingIDs)):
+      tuplesA.add((self.followingIDs[i], self.followingNames[i]))
+      tuplesB.add((other.followingIDs[i], other.followingNames[i]))
+    if not tuplesA == tuplesB:
+      print "tuples don't match ", tuplesA,"!=",tuplesB
       return False
-    if not self.papers ==  other.papers:
-      print "papers ", self.papers,"!=",other.papers
+    if not set(self.papers) ==  set(other.papers):
+      print "papers ", set(self.papers),"!=",set(other.papers)
       return False
-    if not self.authors ==  other.authors:
-      print "authors ", self.authors,"!=",other.authors
+    if not set(self.authors) ==  set(other.authors):
+      print "authors ", set(self.authors),"!=",set(other.authors)
       return False
-    if not self.tags ==  other.tags:
-      print "tags ", self.tags,"!=",other.tags
+    if not set(self.tags) ==  set(other.tags):
+      print "tags ", set(self.tags),"!=",set(other.tags)
       return False
     if not self.followerCount ==  other.followerCount:
       print "followerCount ", self.followerCount,"!=",other.followerCount
