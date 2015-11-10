@@ -468,7 +468,8 @@ class RedisDatabase():
   def putFavoritePaper(self, userID, paperID, favoriteLevel):
     if not self.getPaper(paperID) == None:
       if favoriteLevel < 0 or favoriteLevel > 10:
-        raise Exception("Favorite level must be between 0 and 10")
+        #raise Exception("Favorite level must be between 0 and 10")
+        return
       else:
         self.redisDB.zadd("User:"+userID+":FavoritePapers",favoriteLevel, paperID)
 
@@ -477,7 +478,8 @@ class RedisDatabase():
   def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
     if not self.getAuthor(authorID) == None:
       if favoriteLevel < 0 or favoriteLevel > 10:
-        raise Exception("Favorite level must be between 0 and 10")
+        #raise Exception("Favorite level must be between 0 and 10")
+        return
       else:
         self.redisDB.zadd("User:"+userID+":FavoriteAuthors",favoriteLevel, authorID)
 
@@ -486,7 +488,8 @@ class RedisDatabase():
   def putFavoriteTag(self, userID, tag, favoriteLevel):
     if not self.getTag(tag) == None:
       if favoriteLevel < 0 or favoriteLevel > 10:
-        raise Exception("Favorite level must be between 0 and 10")
+        #raise Exception("Favorite level must be between 0 and 10")
+        return
       else:
         self.redisDB.zadd("User:"+userID+":FavoriteTags", favoriteLevel, tag)
 	  
@@ -527,6 +530,8 @@ class RedisDatabase():
     self.redisDB.zrem("User:"+userID+":FavoriteTags", tag)
 	
   def addStalker(self, stalkerID, userIDToStalk):
+    if stalkerID == userIDToStalk:
+      return
     self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)
     self.redisDB.zincrby("Users",userIDToStalk, 1)
     self.redisDB.incr("User:"+userIDToStalk+":FollowerCount")

@@ -294,7 +294,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual(len(expecteds),len(actuals))	
     self.assertEqual(expecteds,actuals)'''
 
-  #22
+  '''#22
   def test_PutAuthor(self):
     self.assertEqual('0', self.redisDB.putAuthor("Author one"))
 
@@ -397,67 +397,172 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.redisDB.putUser("Andrew Davidson")
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [], [], "0")
-    self.assertEqual(actual, expected)
+    self.assertEqual(actual, expected)'''
 
   #38
   def testFavoritePapers(self):
     self.loadTestData()
     self.redisDB.putUser("Andrew Davidson")
 
-    self.redisDB.putFavoritePaper("0","0",3)
+    self.redisDB.putFavoritePaper("0","0",0)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [self.allCapsPaper], [], [], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoritePaper('0',"1"))
 
-    self.redisDB.putFavoritePaper("0","1",3)
+    self.redisDB.putFavoritePaper("0","1",11)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [self.allCapsPaper], [], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoritePaper('0',"1"))
+
+    self.redisDB.putFavoritePaper("0","1",-1)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [self.allCapsPaper], [], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoritePaper('0',"1"))
+
+    self.redisDB.putFavoritePaper("0","1",10)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [self.cheesePaper, self.allCapsPaper], [], [], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"1"))
+
+    self.redisDB.removeFavoritePaper("0","1")
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [self.allCapsPaper], [], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoritePaper('0',"1"))
+
+    self.redisDB.putFavoritePaper("0","1",10)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [self.cheesePaper, self.allCapsPaper], [], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"1"))
 
     self.redisDB.putFavoritePaper("0","45",3)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [self.cheesePaper, self.allCapsPaper], [], [], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"0"))
+    self.assertTrue(self.redisDB.hasFavoritePaper('0',"1"))
+    self.assertFalse(self.redisDB.hasFavoritePaper('0',"45"))
 	
   #39
   def testFavoriteTags(self):
     self.loadTestData()
     self.redisDB.putUser("Andrew Davidson")
 
-    self.redisDB.putFavoriteTag("0","Big Data",3)
+    self.redisDB.putFavoriteTag("0","Big Data",0)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [], ["Big Data"], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertFalse(self.redisDB.hasFavoriteTag('0',"Biology"))
 
-    self.redisDB.putFavoriteTag("0","Biology",3)
+    self.redisDB.putFavoriteTag("0","Biology",-1)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [], ["Big Data"], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertFalse(self.redisDB.hasFavoriteTag('0',"Biology"))
+
+    self.redisDB.putFavoriteTag("0","Biology",11)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [], ["Big Data"], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertFalse(self.redisDB.hasFavoriteTag('0',"Biology"))
+
+    self.redisDB.putFavoriteTag("0","Biology",10)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [], ["Biology", "Big Data"], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Biology"))
+
+    self.redisDB.removeFavoriteTag("0","Biology")
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [], ["Big Data"], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertFalse(self.redisDB.hasFavoriteTag('0',"Biology"))
+
+    self.redisDB.putFavoriteTag("0","Biology",10)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [], ["Biology", "Big Data"], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Biology"))
 
     self.redisDB.putFavoriteTag("0","poop",3)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [], ["Biology", "Big Data"], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Big Data"))
+    self.assertTrue(self.redisDB.hasFavoriteTag('0',"Biology"))
+    self.assertFalse(self.redisDB.hasFavoriteTag('0',"poop"))
 	
   #40
   def testFavoriteAuthors(self):
     self.loadTestData()
     self.redisDB.putUser("Andrew Davidson")
 
-    self.redisDB.putFavoriteAuthor("0","0",3)
+    self.redisDB.putFavoriteAuthor("0","0",0)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon], [], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoriteAuthor('0',"3"))
 
-    self.redisDB.putFavoriteAuthor("0","3",3)
+    self.redisDB.putFavoriteAuthor("0","3",-1)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoriteAuthor('0',"3"))
+
+    self.redisDB.putFavoriteAuthor("0","3",11)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoriteAuthor('0',"3"))
+
+    self.redisDB.putFavoriteAuthor("0","3",10)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon, self.deanThomas], [], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"3"))
+
+    self.redisDB.removeFavoriteAuthor("0","3")
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertFalse(self.redisDB.hasFavoriteAuthor('0',"3"))
+
+    self.redisDB.putFavoriteAuthor("0","3",10)
+    actual = self.redisDB.getUserByID('0')
+    expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon, self.deanThomas], [], "0")
+    self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"3"))
 
     self.redisDB.putFavoriteAuthor("0","45",3)
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [self.jimmyFallon, self.deanThomas], [], "0")
     self.assertEqual(actual, expected)
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"0"))
+    self.assertTrue(self.redisDB.hasFavoriteAuthor('0',"3"))
+    self.assertFalse(self.redisDB.hasFavoriteAuthor('0',"45"))
 	
   #41
   def test_stalker(self):
@@ -468,6 +573,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.redisDB.addStalker(ids[1], ids[0])
     self.redisDB.addStalker(ids[1], ids[2])
     self.redisDB.addStalker(ids[0], ids[2])
+    self.redisDB.addStalker(ids[0], ids[0])
     actualA = self.redisDB.getUserByID(ids[0])
     actualB = self.redisDB.getUserByID(ids[1])
     actualC = self.redisDB.getUserByID(ids[2])
@@ -477,6 +583,23 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual(actualA, expectedA)
     self.assertEqual(actualB, expectedB)
     self.assertEqual(actualC, expectedC)
+    self.assertTrue(self.redisDB.isStalking("0", "2"))
+    self.assertTrue(self.redisDB.isStalking("1", "2"))
+    self.assertTrue(self.redisDB.isStalking("1", "0"))
+    self.assertFalse(self.redisDB.isStalking("0", "1"))
+    self.assertFalse(self.redisDB.isStalking("0", "0"))
+    self.assertFalse(self.redisDB.isStalking("2", "0"))
+    self.assertFalse(self.redisDB.isStalking("2", "1"))
+
+    self.redisDB.removeStalker(ids[1], ids[0])
+    actualA = self.redisDB.getUserByID(ids[0])
+    actualB = self.redisDB.getUserByID(ids[1])
+    expectedA = User("0", "Andrew Davidson", ["2"], ["Andrew Carnegie"], [], [], [], "0")
+    expectedB = User("1", "Barbra Streissand", ["2"], ["Andrew Carnegie"], [], [], [], "0")
+    self.assertEqual(actualA, expectedA)
+    self.assertEqual(actualB, expectedB)
+    self.assertTrue(self.redisDB.isStalking("1", "2"))
+    self.assertFalse(self.redisDB.isStalking("1", "0"))
   
   #42
   def testUserIntegration(self):

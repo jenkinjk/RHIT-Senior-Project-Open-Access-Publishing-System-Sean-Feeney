@@ -32,7 +32,7 @@ class User():
       return False
     if not self.username ==  other.username:
       return False
-    if not len(self.followingNames) == len(self.followingIDs):
+    if not len(other.followingIDs) == len(self.followingIDs):
       return False
     if not len(other.followingNames) == len(other.followingIDs):
       return False 
@@ -67,14 +67,14 @@ class User():
     if not self.username ==  other.username:
       print "username ", self.username,"!=",other.username
       return False
-    if not len(self.followingNames) == len(self.followingIDs):
-      print "len of self following names and ids inconsistent ", len(self.followingNames),"!=",len(self.followingIDs)
+    if not len(other.followingIDs) == len(self.followingIDs):
+      print "len of other and self following ids inconsistent ", len(other.followingIDs),"!=",len(self.followingIDs)
       return False
     if not len(other.followingNames) == len(other.followingIDs):
       print "len of other following names and ids inconsistent ", len(other.followingNames),"!=",len(other.followingIDs)
       return False 
     if not len(self.followingNames) == len(self.followingIDs):
-      print "len of self and other following names and ids inconsistent ", len(self.followingIDs),"!=",len(other.followingIDs)
+      print "len of self following names and ids inconsistent ", len(self.followingNames),"!=",len(self.followingIDs)
       return False   
     tuplesA = set([])
     tuplesB = set([])
