@@ -214,28 +214,64 @@ def search_endpoint(byWhat):
     print 'user ' + get_user_id() + ' is searching'
     results = []
     
-    print 'request form:', request.form
+    # print 'request form:', request.form['tags']
+    # print request.form['authors']
+    # print request.form['tags']    
 
     if(byWhat == 'byTitle'):
         # TODO: remove this for production, or expand to allow regular expressions.  this is just for testing purposes
         if(request.form['title'] == '*'):
+            print "hey"
             results = db.getTopPapers(BIG_NUMBER)
+            print results
         else:
             results = db.getPapersMatchingTitle(request.form['title'])
     elif(byWhat == 'byAuthors'):
-        results = db.getPapersMatchingAuthorNames([request.form['authors']])
+        authorNames = request.form['authors'].split(',')
+        authorNames = [authorName.strip() for authorName in authorNames]
+        results = db.getPapersMatchingAuthorNames(authorNames)
     elif(byWhat == 'byTags'):
-        results = db.getPapersMatchingTags([request.form['tags']])
-
-
-
+        tags = request.form['tags'].split(',')
+        tags = [tag.strip() for tag in tags]
+        results = db.getPapersMatchingTags(tags)
     return render_template('search.html', results=results)
+
+
+@app.route('/advancedSearch', methods=['GET', 'POST'])
+def advanced_search_page():
+    print 'user ' + get_user_id() + ' is searching'
+    if(request.method == 'GET'):
+        results = []
+    else:
+        results = []
+
+        title = request.form['title']
+        authorNames = request.form['authors'].split(',')
+        authorNames = [authorName.strip() for authorName in authorNames]
+        tags = request.form['tags'].split(',')
+        tags = [tag.strip() for tag in tags]
+
+        print "Title:", title
+        print "AuthorNames:", authorNames
+        print "Tags:", tags
+
+        # TODO: grab the advanced search results from the back end
+
+
+    return render_template('advanced_search.html', results=results)
 
 
 @app.route('/addFavorite', methods=['POST'])
 def addFavorite():
     # putFavoritePaper(self, userID, paperID, favoriteLevel)
     db.putFavoritePaper(get_user_id(), request.values['paperID'], 1)
+    print(request.values['paperID'])
+    return "Added! :)"
+
+@app.route('/resolveAuthorName', methods=['POST'])
+def resolveAuthorName():
+    
+
     print(request.values['paperID'])
     return "Added! :)"
         
