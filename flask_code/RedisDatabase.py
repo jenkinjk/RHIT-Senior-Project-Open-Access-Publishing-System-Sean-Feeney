@@ -260,7 +260,15 @@ class RedisDatabase():
     # Takes in a list of strings with names of authors to search for
     #  If only one author is given, give a list with a single element
     # Returns a list of Author objects 
-  def getAuthorsMatchingAuthorNames(self, namesToSearch):
+  def getAuthorsMatchingAuthorNames(self, namesToSearch): 
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(namesToSearch)
+    authors = []
+    for authorID in authorIDs:
+      author = self.getAuthor(authorID)
+      authors.append(author)
+    return authors
+	
+  def getAuthorIDsMatchingAuthorNames(self, namesToSearch):
     words = []
     for name in namesToSearch:
       words += self.getSearchWords(name)
@@ -268,11 +276,7 @@ class RedisDatabase():
     for word in words:
       authorWordKeys.append("AuthorWord:"+word)  
     authorIDs = self.getMergedSearchResults(authorWordKeys)
-    authors = []
-    for authorID in authorIDs:
-      author = self.getAuthor(authorID)
-      authors.append(author)
-    return authors
+    return authorIDs
 	
   def getPapersMatchingAuthorNames(self, namesToSearch):
     papers = []
@@ -322,6 +326,47 @@ class RedisDatabase():
       paper = self.getPaper(paperID)
       papers.append(paper)
     return papers
+	
+  def getPapersAdvancedSearch(self, titles, tags, authorNamesToSearch):
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
+    return self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+  
+  def getPapersAdvancedAuthorIDSearch(self, titles, tags, authorIDs)
+    searchKeys = []
+    for title in titles:
+      titleWords = self.getSearchWords(title)
+      for titleWord in titleWords:
+        searchKeys.append("PaperWord:"+titleWord)
+    for tag in tags:
+      searchKeys.append("Tag:"+tag+":Papers")
+    paperIDs = self.getMergedSearchResults(searchKeys)
+	
+	authorIDSet = set(authorIDs)
+	adjustedPaperIDs = []
+	addedIDs = set([])
+	
+	for paperID in paperIDs:
+	  if paperID in authorIDSet:
+	    adjustedPaperIDs.append(paperID)
+		addedIDs.add(paperID)
+		authorIDSet.remove(paperID)
+	for paperID in paperIDs:
+	  if paperID not in addedIDs:
+	    adjustedPaperIDs.append(paperID)
+	for paperID in authorIDSet:
+	  adjustedPaperIDs.append(paperID)
+    papers = []
+    for paperID in adjustedPaperIDs:
+      paper = self.getPaper(paperID)
+      papers.append(paper)
+    return papers
+  
+  def getPaperRecsForUserID(self, userID):
+    user = self.getUserByID(userID)
+	authorIDs = []
+	for author in authors:
+	  authorIDs.append(author.id)
+	return self.getPapersAdvancedAuthorIDSearch([],user.tags,authorIDs)
     
     #NOTE:  This is a helper function!!!  This should never be called outside of this class!!
     #Takes in a list of Redis Keys
@@ -424,21 +469,64 @@ class RedisDatabase():
   #returns the current length of the favorites
   def putFavoritePaper(self, userID, paperID, favoriteLevel):
     if not self.getPaper(paperID) == None:
-      self.redisDB.zadd("User:"+userID+":FavoritePapers",favoriteLevel, paperID)
-
+      if favoriteLevel < 0 or favoriteLevel > 10:
+        raise Exception("Favorite level must be between 0 and 10")
+      else:
+        self.redisDB.zadd("User:"+userID+":FavoritePapers",favoriteLevel, paperID)
 
   #takes a user id and an author id to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoriteAuthor(self, userID, authorID, favoriteLevel):
     if not self.getAuthor(authorID) == None:
-      self.redisDB.zadd("User:"+userID+":FavoriteAuthors",favoriteLevel, authorID)
-
+      if favoriteLevel < 0 or favoriteLevel > 10:
+        raise Exception("Favorite level must be between 0 and 10")
+      else:
+        self.redisDB.zadd("User:"+userID+":FavoriteAuthors",favoriteLevel, authorID)
 
   #takes a user id and a Tag name to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoriteTag(self, userID, tag, favoriteLevel):
     if not self.getTag(tag) == None:
-      self.redisDB.zadd("User:"+userID+":FavoriteTags", favoriteLevel, tag)
+      if favoriteLevel < 0 or favoriteLevel > 10:
+        raise Exception("Favorite level must be between 0 and 10")
+      else:
+        self.redisDB.zadd("User:"+userID+":FavoriteTags", favoriteLevel, tag)
+	  
+  #takes a user id and a paper id to search for in this users list of favorites
+  #returns true if the paper is in the user's favorites list
+  def hasFavoritePaper(self, userID, paperID):
+    rslt = self.redisDB.zscore("User:"+userID+":FavoritePapers", paperID)
+	if rslt == None:
+	  return False
+	return True
+
+  #takes a user id and an author id to search for in this users list of favorites
+  #returns true if the author is in the user's favorites list
+  def hasFavoriteAuthor(self, userID, authorID):
+    rslt = self.redisDB.zscore("User:"+userID+":FavoriteAuthors", authorID)
+	if rslt == None:
+	  return False
+	return True
+
+  #takes a user id and a Tag name to search for in this users list of favorites
+  #returns true if the tag is in the user's favorites list
+  def hasFavoriteTag(self, userID, tag):
+    rslt = self.redisDB.zscore("User:"+userID+":FavoriteTags", tag)
+	if rslt == None:
+	  return False
+	return True
+	
+  #takes a user id and a paper id to delete from this users list of favorites
+  def removeFavoritePaper(self, userID, paperID):
+    self.redisDB.zrem("User:"+userID+":FavoritePapers", paperID)
+
+  #takes a user id and an author id to delete from this users list of favorites
+  def removeFavoriteAuthor(self, userID, authorID):
+    self.redisDB.zrem("User:"+userID+":FavoriteAuthors", authorID)
+
+  #takes a user id and a Tag name to delete from this users list of favorites
+  def removeFavoriteTag(self, userID, tag):
+    self.redisDB.zrem("User:"+userID+":FavoriteTags", tag)
 	
   def addStalker(self, stalkerID, userIDToStalk):
     self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)

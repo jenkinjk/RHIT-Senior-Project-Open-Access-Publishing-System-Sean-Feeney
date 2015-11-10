@@ -102,7 +102,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     for i in range(0,18):
       self.redisDB.incrementPaperViews("8")
 
-  '''#1
+  #1
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     self.assertEqual(self.jimmyFallonEmpty, self.redisDB.getAuthor(id))
@@ -529,12 +529,12 @@ class RedisIntegrationTestCase(unittest.TestCase):
     expectedC = User("2", "Andrew Carnegie", [], [], [], [], [], "2")
     self.assertEqual(actualA, expectedA)
     self.assertEqual(actualB, expectedB)
-    self.assertEqual(actualC, expectedC)'''
+    self.assertEqual(actualC, expectedC)
 
 
     
 
-  #Stress testing for performance
+  '''#Stress testing for performance
   def testSearchStress(self):
     self.loadTestData()
     self.redisDB.putUser("Andrew Davidson")
@@ -571,7 +571,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     print "total time elapsed: ", endSearch - startSearch
     print "total time for both steps: ", endSearch - startInsert
     print "rslt:"
-    print rslt
+    print rslt'''
 	
 
   def checkPaperViewCountUpdated(self, views, id):
