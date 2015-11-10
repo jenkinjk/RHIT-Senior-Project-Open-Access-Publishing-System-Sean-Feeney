@@ -331,7 +331,7 @@ class RedisDatabase():
     authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
     return self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
   
-  def getPapersAdvancedAuthorIDSearch(self, titles, tags, authorIDs)
+  def getPapersAdvancedAuthorIDSearch(self, titles, tags, authorIDs):
     searchKeys = []
     for title in titles:
       titleWords = self.getSearchWords(title)
@@ -339,22 +339,20 @@ class RedisDatabase():
         searchKeys.append("PaperWord:"+titleWord)
     for tag in tags:
       searchKeys.append("Tag:"+tag+":Papers")
-    paperIDs = self.getMergedSearchResults(searchKeys)
-	
-	authorIDSet = set(authorIDs)
-	adjustedPaperIDs = []
-	addedIDs = set([])
-	
-	for paperID in paperIDs:
-	  if paperID in authorIDSet:
-	    adjustedPaperIDs.append(paperID)
-		addedIDs.add(paperID)
-		authorIDSet.remove(paperID)
-	for paperID in paperIDs:
-	  if paperID not in addedIDs:
-	    adjustedPaperIDs.append(paperID)
-	for paperID in authorIDSet:
-	  adjustedPaperIDs.append(paperID)
+    paperIDs = self.getMergedSearchResults(searchKeys)	
+    authorIDSet = set(authorIDs)
+    adjustedPaperIDs = []
+    addedIDs = set([])
+    for paperID in paperIDs:
+      if paperID in authorIDSet:
+        adjustedPaperIDs.append(paperID)
+        addedIDs.add(paperID)
+        authorIDSet.remove(paperID)
+    for paperID in paperIDs:
+      if paperID not in addedIDs:
+        adjustedPaperIDs.append(paperID)
+    for paperID in authorIDSet:
+      adjustedPaperIDs.append(paperID)
     papers = []
     for paperID in adjustedPaperIDs:
       paper = self.getPaper(paperID)
@@ -363,10 +361,10 @@ class RedisDatabase():
   
   def getPaperRecsForUserID(self, userID):
     user = self.getUserByID(userID)
-	authorIDs = []
-	for author in authors:
-	  authorIDs.append(author.id)
-	return self.getPapersAdvancedAuthorIDSearch([],user.tags,authorIDs)
+    authorIDs = []
+    for author in authors:
+      authorIDs.append(author.id)
+    return self.getPapersAdvancedAuthorIDSearch([],user.tags,authorIDs)
     
     #NOTE:  This is a helper function!!!  This should never be called outside of this class!!
     #Takes in a list of Redis Keys
@@ -496,25 +494,25 @@ class RedisDatabase():
   #returns true if the paper is in the user's favorites list
   def hasFavoritePaper(self, userID, paperID):
     rslt = self.redisDB.zscore("User:"+userID+":FavoritePapers", paperID)
-	if rslt == None:
-	  return False
-	return True
+    if rslt == None:
+      return False
+    return True
 
   #takes a user id and an author id to search for in this users list of favorites
   #returns true if the author is in the user's favorites list
   def hasFavoriteAuthor(self, userID, authorID):
     rslt = self.redisDB.zscore("User:"+userID+":FavoriteAuthors", authorID)
-	if rslt == None:
-	  return False
-	return True
+    if rslt == None:
+      return False
+    return True
 
   #takes a user id and a Tag name to search for in this users list of favorites
   #returns true if the tag is in the user's favorites list
   def hasFavoriteTag(self, userID, tag):
     rslt = self.redisDB.zscore("User:"+userID+":FavoriteTags", tag)
-	if rslt == None:
-	  return False
-	return True
+    if rslt == None:
+      return False
+    return True
 	
   #takes a user id and a paper id to delete from this users list of favorites
   def removeFavoritePaper(self, userID, paperID):
@@ -532,6 +530,15 @@ class RedisDatabase():
     self.redisDB.sadd("User:"+stalkerID+":FollowingUserIDs", userIDToStalk)
     self.redisDB.zincrby("Users",userIDToStalk, 1)
     self.redisDB.incr("User:"+userIDToStalk+":FollowerCount")
+
+  def removeStalker(self, stalkerID, userIDToUnstalk):
+    self.redisDB.srem("User:"+stalkerID+":FollowingUserIDs", userIDToUnstalk)
+    self.redisDB.zincrby("Users",userIDToUnstalk, -1)
+    self.redisDB.decr("User:"+userIDToUnstalk+":FollowerCount")
+
+  def isStalking(self, stalkerID, userIDToCheck):
+    return self.redisDB.sismember("User:"+stalkerID+":FollowingUserIDs", userIDToCheck)
+
 
 
 
