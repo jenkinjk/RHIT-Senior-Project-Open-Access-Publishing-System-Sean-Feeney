@@ -17,6 +17,11 @@
                     {{ tagName }}
                     <button onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button><br>
             {% endfor %}
+            <br>
+            {% for author in paper.authorIDs %}
+                    {{ paper.authorNames[loop.index - 1]}}
+                    <button onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button><br>
+            {% endfor %}
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
 			</object>
@@ -46,6 +51,19 @@ function addFavoriteTag(tagArg) {
     type : "POST",
     url : "/addFavoriteTag",
     data: {tag : tagArg},
+    
+    success: function(result) {
+        console.log(result);
+    }
+});
+}
+
+function addFavoriteAuthor(authorArg) {
+	console.log("Adding favorite author...");
+	$.ajax({
+    type : "POST",
+    url : "/addFavoriteAuthor",
+    data: {author : authorArg},
     
     success: function(result) {
         console.log(result);
