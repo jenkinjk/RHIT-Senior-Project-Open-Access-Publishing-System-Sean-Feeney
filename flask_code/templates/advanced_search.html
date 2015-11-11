@@ -7,40 +7,22 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}">
 {% endblock %}
-{% block title %}Search Articles{% endblock %}
-{% block pageTitle %}Search Articles{% endblock %}
+{% block title %}Advanced Search{% endblock %}
+{% block pageTitle %}Advanced Search{% endblock %}
 {% block content %}
 <div class="container"> <!-- container for whole page -->
 	<div class="row">
 		
 		<div class="col-lg-4 col-lg-offset-4 form-container">
-			<h3>Search by Title</h3>
-			<form action="search-byTitle" method=post enctype=multipart/form-data>
-				<p><input type=string name=title class=mimic-tagsinput>
-				   <input type=submit value=search></p>
+			<form action="advancedSearch" method=post enctype=multipart/form-data>
+				<label>Title words</label>
+				<p><input type=string name=title class=mimic-tagsinput></p>
+				<label>Author names</label>
+				<p><input type=string name=authors class=mimic-tagsinput></p>
+				<label>Tags</label>
+				<p><input type=string name=tags data-role="tagsinput"></p>
+				<input type=submit value=search>
 			</form>
-		</div>
-				
-		<div class="col-lg-4 col-lg-offset-4 form-container">
-			<h3>Search by Authors</h3>
-			<form action="search-byAuthors" method=post enctype=multipart/form-data>
-				<p><input type=string name=authors class=mimic-tagsinput>
-				   <input type=submit value=search></p>
-			</form>
-		</div>
-		
-		<div class="col-lg-4 col-lg-offset-4 form-container">
-			<h3>Search by Tags</h3>
-			<form action="search-byTags" method=post enctype=multipart/form-data>
-				<p><input type=string name=tags data-role="tagsinput">
-				   <input type=submit value=search></p>
-			</form>
-			<!--
-			<div class="form-group">
-	        	<label for="exampleTags">Tags</label>
-	        	<input type="text" class="form-control" id="exampleTags" data-role="tagsinput" name="tags">
-	      	</div>
-	      -->
 		</div>
 	</div>
 
