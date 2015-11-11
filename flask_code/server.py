@@ -131,7 +131,7 @@ def upload_page():
 
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
-    return render_template('view_pdf.html', uniqueID=uniqueID)
+    return render_template('view_pdf.html', uniqueID=uniqueID, paper=db.getPaper(uniqueID))
 
 
 @app.route('/uploads/<uniqueID>')
@@ -204,12 +204,12 @@ def profile_page():
     if(user_id is "Anonymous"):
         user = User.User("Anonymous User", [],[],[],[],[],0)
     else:
-        user = db.getUser(user_id)
+        user = db.getUserByID(user_id)
         print user.username
 
     for paperGuy in user.papers:
         print paperGuy.title
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user, suggestions=db.getPaperRecsForUserID(user_id))
 
 @app.route('/search', methods=['GET'])
 def search_page():
@@ -273,6 +273,18 @@ def addFavorite():
     # putFavoritePaper(self, userID, paperID, favoriteLevel)
     db.putFavoritePaper(get_user_id(), request.values['paperID'], 1)
     print(request.values['paperID'])
+    return "Added! :)"
+
+@app.route('/addFavoriteTag', methods=['POST'])
+def addFavoriteTag():
+    db.putFavoriteTag(get_user_id(), request.values['tag'], 1)
+    print(request.values['tag'])
+    return "Added! :)"
+
+@app.route('/addFavoriteAuthor', methods=['POST'])
+def addFavoriteAuthor():
+    db.putFavoriteAuthor(get_user_id(), request.values['author'], 1)
+    print(request.values['author'])
     return "Added! :)"
 
 @app.route('/resolveAuthorName', methods=['POST'])

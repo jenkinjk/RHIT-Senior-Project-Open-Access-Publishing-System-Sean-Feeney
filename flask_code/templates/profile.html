@@ -70,9 +70,15 @@
                   Followed By: {{ user.followerCount }}
                 </div></br>
                 <div class="col-md-offset-4">
-                  Tags:
+                  Favorite Tags:
                   {% for tagName in user.tags %}
                     {{ tagName }}, 
+                  {% endfor %}
+                </div></br>
+                <div class="col-md-offset-4">
+                  Favorite Authors:
+                  {% for author in user.authors %}
+                    {{ author.name }}, 
                   {% endfor %}
                 </div></br>
                 <div class="col-md-offset-4">
@@ -129,81 +135,22 @@
             <h2 id="sec1">Suggested Papers Based on Tags</h2>
           </div>
           <div class="panel-body"> <!-- start of suggested papers panel body -->
+
+          {% for suggPaper in suggestions %}
+
             <div class="paperBlock">
               <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
+              <div class="col-md-5">
+                <strong>Paper Title:</strong> {{ suggPaper.title }}
+                    <a href={{"/viewer/" + suggPaper.id}}>View Paper</a>
+                </div>
+              <div class="col-md-5">Paper Author(s):</strong> {% for author in suggPaper.authorNames %} {{author}}, {% endfor %}</div>
             </div>
 
             <hr class="col-md-12"> <!-- divider line -->
 
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-
-            <hr class="col-md-12"> <!-- divider line -->
-
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-
-            <hr class="col-md-12"> <!-- divider line -->
-
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-
-            <hr class="col-md-12"> <!-- divider line -->
-
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-
-            <hr class="col-md-12"> <!-- divider line -->
-
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
-            <div class="paperBlock">
-              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="Thumbnail not found">
-              <div class="col-md-2">Paper Title: &lt Insert Title of Paper Here &gt</div>
-              <div class="col-md-2">Paper Author(s): &lt Insert Author(s) of Paper Here &gt</div>
-            </div>
+            {% endfor %}
+            
           </div> <!-- end of suggested papers panel body -->
         </div> <!-- end of suggested papers subsection panel -->
       </div> <!-- end of suggested papers column -->
