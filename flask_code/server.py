@@ -202,7 +202,7 @@ def profile_page():
 
     for paperGuy in user.papers:
         print paperGuy.title
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user, suggestions=db.getPaperRecsForUserID(user_id))
 
 @app.route('/search', methods=['GET'])
 def search_page():
