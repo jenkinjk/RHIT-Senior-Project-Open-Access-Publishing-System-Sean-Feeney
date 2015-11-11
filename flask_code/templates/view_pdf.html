@@ -12,6 +12,11 @@
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
 			<button onclick="addFavorite();">Favorite!</button>
+			<br>
+			{% for tagName in paper.tags %}
+                    {{ tagName }}
+                    <button>Favorite Tag!</button><br>
+            {% endfor %}
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
 			</object>
@@ -28,6 +33,20 @@ function addFavorite() {
     type : "POST",
     url : "/addFavorite",
     data: {paperID : {{uniqueID}}},
+    
+    success: function(result) {
+        console.log(result);
+    }
+});
+}
+
+function addFavoriteTag() {
+	console.log("Adding favorite tag...");
+	$.ajax({
+    type : "POST",
+    url : "/addFavoriteTag",
+    // TODO needs to be updated here for tags
+    // data: {paperID : {{uniqueID}}},
     
     success: function(result) {
         console.log(result);

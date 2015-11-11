@@ -153,7 +153,11 @@ class RedisDatabase():
     authorNames = []
     for authorID in authorIDs:
       authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
-    publisherName = self.getPublisher(publisherID).name
+    publisherGuy = self.getPublisher(publisherID)
+    if publisherGuy is None:
+      publisherName = "No Publisher Name"
+    else:
+      publisherName = publisherGuy.name
     return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE

@@ -124,7 +124,7 @@ def upload_page():
 
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
-    return render_template('view_pdf.html', uniqueID=uniqueID)
+    return render_template('view_pdf.html', uniqueID=uniqueID, paper=db.getPaper(uniqueID))
 
 
 @app.route('/uploads/<uniqueID>')
@@ -197,7 +197,7 @@ def profile_page():
     if(user_id is "Anonymous"):
         user = User.User("Anonymous User", [],[],[],[],[],0)
     else:
-        user = db.getUser(user_id)
+        user = db.getUserByID(user_id)
         print user.username
 
     for paperGuy in user.papers:
