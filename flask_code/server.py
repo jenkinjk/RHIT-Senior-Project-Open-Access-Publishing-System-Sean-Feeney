@@ -10,13 +10,17 @@ import User
 from datetime import datetime
 import base64
 import json
+# png:
+# import PDF_To_PNG_Converter
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
-TEST = False
+# MODE = "Test" 
+MODE = "Development" 
+# MODE = "Production"
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
-
+BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
@@ -28,30 +32,32 @@ FACEBOOK_APP_ID = credentials[0]
 FACEBOOK_API_VERSION = credentials[1]
 FACEBOOK_APP_SECRET = credentials[2]
 
-# get our app's credentials
-# credential_file = open('serverCredentials.txt', 'rb')
-# credential_file.readline()
-# credentials = credential_file.readline().split(',')
-# SECRET_KEY = credentials[0]
-# print SECRET_KEY
+if MODE == "Test":
+    print "Running in", MODE, "mode with self-clearing Test DB and test bucket of S3DocumentHandler"
+    db = RedisDatabase(MODE)
+    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+    # to save on S3 queries while testing, we could use this:
+    # print "Running in", MODE, "mode with self-clearing Test DB and SimpleDocHandler.  Note: Must have local filesystem write permissions (sudo?)"
+    # docStore = documentHandler.SimpleDocHandler()
+    import addDummyUsers
 
-# connect to either the test database or the real database
-if TEST:
-    print "Running with test db and S3"
-    db = RedisDatabase('Test')
-    docStore = s3DocumentHandler.S3DocumentHandler(is_test=True)
-else:    
-    print "Running with production db and S3"
-    db = RedisDatabase("Anything besides the string 'Test', which wipes the database each time for testing purposes") # our wrapper for the database
-    docStore = s3DocumentHandler.S3DocumentHandler() # our wrapper for whatever system stores the pdfs 
+elif MODE == "Development":
+    print "Running in", MODE, "mode with regular DB and dev bucket of S3DocumentHandler"
+    db = RedisDatabase(MODE)
+    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+
+elif MODE == "Production":
+    print "Running in", MODE, "mode with production DB and real bucket of S3DocumentHandler.  Realistic data only please."
+    db = RedisDatabase(MODE)
+    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
 
 
 @app.route('/', methods=['GET'])
 def welcome_page():
     print 'user ' + get_user_id() + ' requested the root page'
 	# this is where we get to choose where to redirect people.  for now, 
-    # redirect to the login page.  later maybe the home page
-    return redirect('/login')
+    # redirect to the profile page.  later maybe the home page
+    return redirect('/profile')
 
 @app.route('/home', methods=['GET'])
 def home_page():
@@ -74,32 +80,52 @@ def upload_page():
             
             # Parse out the entered information
             title = request.form['title']
-            authorIDs = []
+
             authorNames = request.form['authorName'].split(',')
-            for authorName in authorNames:
-                authorName.strip()
-                # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
-                # to resolve same-name conflicts, then passing in the correct authorID
-                authorIDs.append(db.putAuthor(authorName))
+            authorNames = [authorName.strip() for authorName in authorNames]
+            # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
+            # to resolve same-name conflicts, then passing in the correct authorID
+            authorIDs = [db.putAuthor(authorName) for authorName in authorNames]
+
             tags = request.form['tags'].split(',')
-            for tag in tags:
-                tag.strip()
+            tags = [tag.strip() for tag in tags]
 
+            abstract = request.form['abstract']
 
-            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorIDs, tags, None, None, datetime(2015,10,21), None, [], []) 
+            datePublished = request.form['datePublished']
+            datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+
+            references = request.form['references']
+
             print 'title:',title
             print 'authornames:',authorNames
+            print 'authorIDs:',authorIDs
             print 'tags:',tags
+            print 'abstract:',abstract
+            print 'submittedBy:',get_user_id()
+            print 'datePublished:',datePublished
+            print 'references:',references
+
+            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
+            uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
+            # png:
+            # thumbnail = PDF_To_PNG_Converter.convert(upload_file)
 
             docStore.storeDocument(upload_file, uniqueID)
+            # png:
+            # docStore.storeThumbnail(thumbnail, uniqueID)
 
-        results = []
-        return render_template('upload.html', results=results)
+        return render_template('upload.html')
     # else it is a GET request
     else:
-        results = []
-        return render_template('upload.html', results=results)
+        return render_template('upload.html')
+
+
+
+@app.route('/viewer/<uniqueID>')
+def view_file(uniqueID):
+    return render_template('view_pdf.html', uniqueID=uniqueID)
+
 
 @app.route('/uploads/<uniqueID>')
 def uploaded_file(uniqueID):
@@ -108,9 +134,9 @@ def uploaded_file(uniqueID):
     viewing_file = docStore.retrieveDocument(uniqueID)
     print 'content length:', viewing_file['Body']._content_length
 
-
     response = make_response(viewing_file['Body'].read())
     response.headers['Content-Type'] = 'application/pdf'
+    
     # uncomment this line to download as attachment instead of view
     #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
     return response
@@ -172,7 +198,10 @@ def profile_page():
         user = User.User("Anonymous User", [],[],[],[],[],0)
     else:
         user = db.getUser(user_id)
+        print user.username
 
+    for paperGuy in user.papers:
+        print paperGuy.title
     return render_template('profile.html', user=user)
 
 @app.route('/search', methods=['GET'])
@@ -185,18 +214,66 @@ def search_endpoint(byWhat):
     print 'user ' + get_user_id() + ' is searching'
     results = []
     
-    print 'request form:', request.form
+    # print 'request form:', request.form['tags']
+    # print request.form['authors']
+    # print request.form['tags']    
 
     if(byWhat == 'byTitle'):
-        results = db.getPapersMatchingTitle(request.form['title'])
+        # TODO: remove this for production, or expand to allow regular expressions.  this is just for testing purposes
+        if(request.form['title'] == '*'):
+            print "hey"
+            results = db.getTopPapers(BIG_NUMBER)
+            print results
+        else:
+            results = db.getPapersMatchingTitle(request.form['title'])
     elif(byWhat == 'byAuthors'):
-        results = db.getPapersMatchingAuthorNames([request.form['authors']])
+        authorNames = request.form['authors'].split(',')
+        authorNames = [authorName.strip() for authorName in authorNames]
+        results = db.getPapersMatchingAuthorNames(authorNames)
     elif(byWhat == 'byTags'):
-        results = db.getPapersMatchingTags([request.form['tags']])
-
-
-
+        tags = request.form['tags'].split(',')
+        tags = [tag.strip() for tag in tags]
+        results = db.getPapersMatchingTags(tags)
     return render_template('search.html', results=results)
+
+
+@app.route('/advancedSearch', methods=['GET', 'POST'])
+def advanced_search_page():
+    print 'user ' + get_user_id() + ' is searching'
+    if(request.method == 'GET'):
+        results = []
+    else:
+        results = []
+
+        title = request.form['title']
+        authorNames = request.form['authors'].split(',')
+        authorNames = [authorName.strip() for authorName in authorNames]
+        tags = request.form['tags'].split(',')
+        tags = [tag.strip() for tag in tags]
+
+        print "Title:", title
+        print "AuthorNames:", authorNames
+        print "Tags:", tags
+
+        # TODO: grab the advanced search results from the back end
+
+
+    return render_template('advanced_search.html', results=results)
+
+
+@app.route('/addFavorite', methods=['POST'])
+def addFavorite():
+    # putFavoritePaper(self, userID, paperID, favoriteLevel)
+    db.putFavoritePaper(get_user_id(), request.values['paperID'], 1)
+    print(request.values['paperID'])
+    return "Added! :)"
+
+@app.route('/resolveAuthorName', methods=['POST'])
+def resolveAuthorName():
+    
+
+    print(request.values['paperID'])
+    return "Added! :)"
         
 # REMOVE FOR PRODUCTION
 @app.route('/shutdown', methods=['GET', 'POST'])
@@ -207,7 +284,7 @@ def shutdown():
 # REMOVE FOR PRODUCTION
 @app.route('/cleanoutS3', methods=['GET', 'POST'])
 def cleanoutS3():
-    docStore.removeAllNonMatching(db.getTopPapers(99999))
+    docStore.removeAllNonMatching(db.getTopPapers(BIG_NUMBER))
     return 'deleting entries from S3 that are not reflected in database'
 
 # REMOVE FOR PRODUCTION

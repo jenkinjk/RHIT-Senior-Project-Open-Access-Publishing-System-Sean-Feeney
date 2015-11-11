@@ -8,39 +8,6 @@
     <title>{% block title %}{% endblock %} - Open Scholar</title>
   </head>
   <body>
-    <div id="wrapper">
-
-      <!-- nav bar -->
-      {% block navbar %}
-      <div class="row">
-        <div class="col-lg-6 col-lg-offset-3">
-          <nav class="navbar navbar-default">
-            <div class="container-fluid">
-              <div>
-                <ul class="nav navbar-nav">
-                  <li>
-                    <a href="/home" method="get">Home</a>
-                  </li>
-                  <li>
-                    <a href="/profile" method="get">My Profile</a>
-                  </li>
-                  <li>
-                    <a href="/search" method="get">Search Articles</a>
-                  </li>
-                  <li>
-                    <a href="/upload" method="get">Upload Articles</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-        </div>
-        <div class="col-lg-2 ">
-          <fb:login-button id="fb-login-button123" class="" onlogin="checkLoginState();"></fb:login-button>
-          <fb:login-button id="fb-logout-button123" class="" onlogin="logMeOut();">Log Out</fb:login-button>
-        </div>
-      </div>
-
 
 <script>
 
@@ -83,10 +50,78 @@
   //
   // These three cases are handled in the callback function.
 
-  FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
-  });
+  // FB.getLoginStatus(function(response) {
+  //   statusChangeCallback(response);
+  // });
   };
+
+  </script>
+
+
+    
+    <div id="wrapper">
+
+      <!-- nav bar -->
+      {% block navbar %}
+      <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+          <nav class="navbar navbar-default">
+            <div class="container-fluid">
+              <div>
+                <ul class="nav navbar-nav">
+                  <li>
+                    <a href="/home" method="get">Home</a>
+                  </li>
+                  <li>
+                    <a href="/profile" method="get">My Profile</a>
+                  </li>
+                  <li>
+                    <a href="/search" method="get">Search Articles</a>
+                  </li>
+                  <li>
+                    <a href="/advancedSearch" method="get">Advanced Search</a>
+                  </li>
+                  <li>
+                    <a href="/upload" method="get">Upload Articles</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="col-lg-2 ">
+          <fb:login-button id="fb-login-button123" class="" onlogin="checkLoginState();"></fb:login-button>
+          <fb:login-button id="fb-logout-button123" class="" onlogin="logMeOut();">Log Out</fb:login-button>
+        </div>
+      </div>
+      {% endblock %}
+      <!-- end of nav bar -->
+
+      <!-- content to be filled in by child pages -->
+      <div class="row">
+        <div class="col-lg-4 col-lg-offset-5">
+          <h1>{% block pageTitle %}{% endblock %}</h1>
+        </div>
+      </div>
+      <div id="content">{% block content %}{% endblock %}</div>
+      <!-- end of content -->
+
+      <!-- footer --> 
+      <div class="row">
+        <div id="footer">
+          <div class="footer-bg">
+            <h2>Open Scholar</h2>
+            <h5>Andrew Davidson, Tyler Duffy, Jonathan Jenkins, & Asher Morgan</h5>
+          </div>
+        </div>
+      </div>
+      <!-- end of footer -->
+
+    </div> <!-- end of wrapper -->
+
+
+
+  <script>
 
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
@@ -160,30 +195,5 @@
   // }
 </script>
 
-
-      {% endblock %}
-      <!-- end of nav bar -->
-
-      <!-- content to be filled in by child pages -->
-      <div class="row">
-        <div class="col-lg-4 col-lg-offset-5">
-          <h1>{% block pageTitle %}{% endblock %}</h1>
-        </div>
-      </div>
-      <div id="content">{% block content %}{% endblock %}</div>
-      <!-- end of content -->
-
-      <!-- footer --> 
-      <div class="row">
-        <div id="footer">
-          <div class="footer-bg">
-            <h2>Open Scholar</h2>
-            <h5>Andrew Davidson, Tyler Duffy, Jonathan Jenkins, & Asher Morgan</h5>
-          </div>
-        </div>
-      </div>
-      <!-- end of footer -->
-
-    </div> <!-- end of wrapper -->
   </body>
 </html>

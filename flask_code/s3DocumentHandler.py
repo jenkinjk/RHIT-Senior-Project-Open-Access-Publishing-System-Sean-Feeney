@@ -11,18 +11,22 @@ USER_NAME = credentials[0][1:-1]
 AWS_ACCESS_KEY_ID = credentials[1]
 AWS_SECRET_ACCESS_KEY = credentials[2]
 AWS_DEFAULT_REGION = 'us-east-1'
-FOLDER = 'docs/'
+DOC_FOLDER = 'docs/'
+THUMBNAIL_FOLDER =  'thumbnails/'
 
 class S3DocumentHandler(documentHandler.DocumentHandler):
 
-    def __init__(self, is_test=False):
+    def __init__(self, mode="Production"):
         session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name='us-east-1')
         self.s3 = session.resource('s3')
         s3_client = session.client('s3')
-        if is_test:
+        if mode == "Test":
             self.BUCKET_NAME = 'openaccesstest'
-        else:
+        elif mode == "Development":
+            self.BUCKET_NAME = 'openaccessdev'
+        elif mode == "Production":
             self.BUCKET_NAME = 'openaccesstemp'
+            
         #bucket = self.s3.Bucket(self.BUCKET_NAME)
         exists = True
         try:
@@ -42,31 +46,58 @@ class S3DocumentHandler(documentHandler.DocumentHandler):
 
     def storeDocument(self, file, uniqueID):
         #self.s3.Object(self.BUCKET_NAME, uniqueID).put(Body=file)
-        return self.s3.Object(self.BUCKET_NAME, FOLDER + uniqueID).put(Body=file)
+        return self.s3.Object(self.BUCKET_NAME, DOC_FOLDER + uniqueID).put(Body=file)
+
+    def storeThumbnail(self, file, uniqueID):
+        #self.s3.Object(self.BUCKET_NAME, uniqueID).put(Body=file)
+        return self.s3.Object(self.BUCKET_NAME, THUMBNAIL_FOLDER + uniqueID).put(Body=file)
 
     def documentExists(self, uniqueID):
         try:
             # just try and see if we can get metadata about it,  if so it exists
-            self.s3.ObjectAcl(self.BUCKET_NAME, FOLDER + uniqueID).owner
+            self.s3.ObjectAcl(self.BUCKET_NAME, DOC_FOLDER + uniqueID).owner
+        except botocore.exceptions.ClientError as e:
+            #print 'exception:', e
+            return False
+        return True
+
+    def thumbnailExists(self, uniqueID):
+        try:
+            # just try and see if we can get metadata about it,  if so it exists
+            self.s3.ObjectAcl(self.BUCKET_NAME, THUMBNAIL_FOLDER + uniqueID).owner
         except botocore.exceptions.ClientError as e:
             #print 'exception:', e
             return False
         return True
 
     def retrieveDocument(self, uniqueID):
-        return self.s3.Object(self.BUCKET_NAME, FOLDER + uniqueID).get()
+        return self.s3.Object(self.BUCKET_NAME, DOC_FOLDER + uniqueID).get()
+
+    def retrieveThumbnail(self, uniqueID):
+        return self.s3.Object(self.BUCKET_NAME, THUMBNAIL_FOLDER + uniqueID).get()
 
     def retrieveDocuments(self, uniqueIDs):
         return [self.retrieveDocument(uid) for uid in uniqueIDs]
 
+    def retrieveThumbnails(self, uniqueIDs):
+        return [self.retrieveDocument(uid) for uid in uniqueIDs]
+
     def removeDocument(self, uniqueID):
-        return self.s3.Object(self.BUCKET_NAME, FOLDER + uniqueID).delete()
+        return self.s3.Object(self.BUCKET_NAME, DOC_FOLDER + uniqueID).delete()
+
+    def removeThumbnail(self, uniqueID):
+        return self.s3.Object(self.BUCKET_NAME, THUMBNAIL_FOLDER + uniqueID).delete()
 
     def removeAllNonMatching(self, uniqueIDs):
         # removes all files from the S3 datastore that don't match one of the uniqueIDs in the list
-        startOfRealName = len(FOLDER)
-        for obj in self.s3.Bucket(self.BUCKET_NAME).objects.filter(Prefix=FOLDER):
-            if obj.key[startOfRealName:] not in uniqueIDs and obj.key != FOLDER :
+        startOfRealName = len(DOC_FOLDER)
+        for obj in self.s3.Bucket(self.BUCKET_NAME).objects.filter(Prefix=DOC_FOLDER):
+            if obj.key[startOfRealName:] not in uniqueIDs and obj.key != DOC_FOLDER :
+                obj.delete()
+
+        startOfRealName = len(THUMBNAIL_FOLDER)
+        for obj in self.s3.Bucket(self.BUCKET_NAME).objects.filter(Prefix=THUMBNAIL_FOLDER):
+            if obj.key[startOfRealName:] not in uniqueIDs and obj.key != THUMBNAIL_FOLDER :
                 obj.delete()
 
 def main():
