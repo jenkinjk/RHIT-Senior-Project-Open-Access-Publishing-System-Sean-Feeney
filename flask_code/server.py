@@ -10,6 +10,11 @@ import User
 from datetime import datetime
 import base64
 import json
+
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 # png:
 # import PDF_To_PNG_Converter
 
@@ -85,7 +90,6 @@ def upload_page():
             authorNames = [authorName.strip() for authorName in authorNames]
             # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
             # to resolve same-name conflicts, then passing in the correct authorID
-            authorIDs = [db.putAuthor(authorName) for authorName in authorNames]
 
             tags = request.form['tags'].split(',')
             tags = [tag.strip() for tag in tags]
@@ -93,15 +97,18 @@ def upload_page():
             abstract = request.form['abstract']
 
             datePublished = request.form['datePublished']
+            print 'datePublished:',datePublished
             datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             references = request.form['references']
+
+            authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
 
             print 'title:',title
             print 'authornames:',authorNames
             print 'authorIDs:',authorIDs
             print 'tags:',tags
-            print 'abstract:',abstract
+            print 'abstract:', abstract
             print 'submittedBy:',get_user_id()
             print 'datePublished:',datePublished
             print 'references:',references
@@ -335,6 +342,9 @@ def cleanoutS3():
 @app.route('/cleanoutDB', methods=['GET', 'POST'])
 def cleanoutDB():
     db.clearDatabase()
+    db.putUser("Asher Morgan", "1162476383780112")
+    db.putUser("Jonathan Jenkins", "986584014732857")
+    db.putUser("Tyler Duffy", "10153554827465751")
     return 'reinitilizing database'
         
 def shutdown_server():
@@ -342,6 +352,22 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+
+
+def get_id_for_author_name(author_name):
+    # get a list of author objects similar to the given author name
+    possibleAuthors = db.getAuthorsMatchingAuthorNames([author_name])
+    print "matching author:", author_name
+    for possibleAuthor in possibleAuthors:
+        print "possible author match:", possibleAuthor.name
+    # for each one (starting with the first which should be the closest match), see if it is an exact match
+        if possibleAuthor.name == author_name:
+            print "found author in database:", possibleAuthor.name
+            # if so, return this ID 
+            return possibleAuthor.id
+    # if you get all the way through the possibles without getting a perfect match, this guy isn't in our database.  time to add him
+    print "didn't find author in database, adding", author_name
+    return db.putAuthor(author_name)
 
 
 def get_user_id():
