@@ -268,6 +268,12 @@ def addFavorite():
     print(request.values['paperID'])
     return "Added! :)"
 
+@app.route('/addFavoriteTag', methods=['POST'])
+def addFavoriteTag():
+    db.putFavoriteTag(get_user_id(), request.values['tag'], 1)
+    print(request.values['tag'])
+    return "Added! :)"
+
 @app.route('/resolveAuthorName', methods=['POST'])
 def resolveAuthorName():
     

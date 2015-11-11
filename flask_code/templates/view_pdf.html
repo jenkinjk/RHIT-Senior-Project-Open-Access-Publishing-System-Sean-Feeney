@@ -15,7 +15,7 @@
 			<br>
 			{% for tagName in paper.tags %}
                     {{ tagName }}
-                    <button>Favorite Tag!</button><br>
+                    <button onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button><br>
             {% endfor %}
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
@@ -40,13 +40,12 @@ function addFavorite() {
 });
 }
 
-function addFavoriteTag() {
+function addFavoriteTag(tagArg) {
 	console.log("Adding favorite tag...");
 	$.ajax({
     type : "POST",
     url : "/addFavoriteTag",
-    // TODO needs to be updated here for tags
-    // data: {paperID : {{uniqueID}}},
+    data: {tag : tagArg},
     
     success: function(result) {
         console.log(result);
