@@ -7,6 +7,7 @@ cd libpng-1.6.18
 sudo make
 sudo make install
 cd ..
+sudo apt-get install libmagickwand-dev
 wget http://www.imagemagick.org/download/ImageMagick.tar.gz
 tar xf ImageMagick.tar.gz
 cd ImageMagick-6.9.2-5
