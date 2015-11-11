@@ -42,8 +42,6 @@
 		        {% endif %}
                 <br>
             {% endfor %}
-            <button onclick="flipToFalse();" id="trueGuy" type="hidden">TrueGuy</button>
-            <button onclick="flipToTrue();" id="falseGuy" style="display: none">FalseGuy</button>
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
 			</object>
@@ -143,17 +141,6 @@ function rmFavoriteAuthor(authorArg) {
     }
 });
 }
-
-function flipToTrue() {
-	document.getElementById("falseGuy").style.display="none";
-	document.getElementById("trueGuy").style.display="block";
-}
-
-function flipToFalse() {
-	document.getElementById("falseGuy").style.display="block";
-	document.getElementById("trueGuy").style.display="none";
-}
-
 </script>
 
 {% endblock %}

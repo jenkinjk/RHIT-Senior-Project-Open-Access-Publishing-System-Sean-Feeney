@@ -104,14 +104,14 @@ def upload_page():
 
             authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
 
-            print 'title:',title
-            print 'authornames:',authorNames
-            print 'authorIDs:',authorIDs
-            print 'tags:',tags
-            print 'abstract:', abstract
-            print 'submittedBy:',get_user_id()
-            print 'datePublished:',datePublished
-            print 'references:',references
+            # print 'title:',title
+            # print 'authornames:',authorNames
+            # print 'authorIDs:',authorIDs
+            # print 'tags:',tags
+            # print 'abstract:', abstract
+            # print 'submittedBy:',get_user_id()
+            # print 'datePublished:',datePublished
+            # print 'references:',references
 
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
@@ -265,8 +265,6 @@ def advanced_search_page():
     if(request.method == 'GET'):
         results = []
     else:
-        results = []
-
         title = request.form['title']
         authorNames = request.form['authors'].split(',')
         authorNames = [authorName.strip() for authorName in authorNames]
@@ -277,8 +275,8 @@ def advanced_search_page():
         print "AuthorNames:", authorNames
         print "Tags:", tags
 
-        # TODO: grab the advanced search results from the back end
-
+        # getPapersAdvancedSearch(self, titles, tags, authorNamesToSearch):
+        results = db.getPapersAdvancedSearch([title], tags, authorNames)
 
     return render_template('advanced_search.html', results=results)
 
