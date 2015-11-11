@@ -11,17 +11,39 @@
 <div class="container">
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
-			<button onclick="addFavorite();">Favorite!</button>
+			{% if favorited %}
+			<button id="fav" style="display: none" onclick="addFavorite();">Favorite!</button>
+			<button id="unfav" onclick="rmFavorite();">Unfavorite!</button>
+			{% else %}
+			<button id="fav" onclick="addFavorite();">Favorite!</button>
+			<button id="unfav" style="display: none" onclick="rmFavorite();">Unfavorite!</button>
+			{% endif %}
 			<br>
 			{% for tagName in paper.tags %}
-                    {{ tagName }}
-                    <button onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button><br>
+				{{ tagName }}
+				{% if favoritedTags[loop.index - 1] %}
+	                <button id="favTag{{tagName}}" style="display: none" onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button>
+	                <button id="defavTag{{tagName}}" onclick="rmFavoriteTag('{{tagName}}');">Unfavorite Tag!</button>
+                {% else %}
+	                <button id="favTag{{tagName}}" onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button>
+	                <button id="defavTag{{tagName}}" style="display: none" onclick="rmFavoriteTag('{{tagName}}');">Unfavorite Tag!</button>
+                {% endif %}
+                <br>
             {% endfor %}
             <br>
             {% for author in paper.authorIDs %}
-                    {{ paper.authorNames[loop.index - 1]}}
-                    <button onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button><br>
+            	{{ paper.authorNames[loop.index - 1]}}
+            	{% if favoritedAuthors[loop.index - 1] %}
+	                <button id="favAuthor{{author}}" style="display: none" onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button>
+	                <button id="defavAuthor{{author}}" onclick="rmFavoriteAuthor('{{author}}');">Unfavorite Author!</button>
+	            {% else %}
+		            <button id="favAuthor{{author}}" onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button>
+		            <button id="defavAuthor{{author}}" style="display: none" onclick="rmFavoriteAuthor('{{author}}');">Unfavorite Author!</button>
+		        {% endif %}
+                <br>
             {% endfor %}
+            <button onclick="flipToFalse();" id="trueGuy" type="hidden">TrueGuy</button>
+            <button onclick="flipToTrue();" id="falseGuy" style="display: none">FalseGuy</button>
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
 			</object>
@@ -41,6 +63,23 @@ function addFavorite() {
     
     success: function(result) {
         console.log(result);
+        document.getElementById("fav").style.display="none";
+		document.getElementById("unfav").style.display="inline-block";
+    }
+});
+}
+
+function rmFavorite() {
+	console.log("Removing favorite...");
+	$.ajax({
+    type : "POST",
+    url : "/removeFavorite",
+    data: {paperID : {{uniqueID}}},
+    
+    success: function(result) {
+        console.log(result);
+        document.getElementById("unfav").style.display="none";
+		document.getElementById("fav").style.display="inline-block";
     }
 });
 }
@@ -54,6 +93,23 @@ function addFavoriteTag(tagArg) {
     
     success: function(result) {
         console.log(result);
+        document.getElementById("favTag".concat(tagArg)).style.display="none";
+		document.getElementById("defavTag".concat(tagArg)).style.display="block";
+    }
+});
+}
+
+function rmFavoriteTag(tagArg) {
+	console.log("Removing favorite tag...");
+	$.ajax({
+    type : "POST",
+    url : "/removeFavoriteTag",
+    data: {tag : tagArg},
+    
+    success: function(result) {
+        console.log(result);
+        document.getElementById("defavTag".concat(tagArg)).style.display="none";
+		document.getElementById("favTag".concat(tagArg)).style.display="block";
     }
 });
 }
@@ -67,9 +123,37 @@ function addFavoriteAuthor(authorArg) {
     
     success: function(result) {
         console.log(result);
+        document.getElementById("favAuthor".concat(authorArg)).style.display="none";
+		document.getElementById("defavAuthor".concat(authorArg)).style.display="block";
     }
 });
 }
+
+function rmFavoriteAuthor(authorArg) {
+	console.log("Removing favorite author...");
+	$.ajax({
+    type : "POST",
+    url : "/removeFavoriteAuthor",
+    data: {author : authorArg},
+    
+    success: function(result) {
+        console.log(result);
+        document.getElementById("defavAuthor".concat(authorArg)).style.display="none";
+		document.getElementById("favAuthor".concat(authorArg)).style.display="block";
+    }
+});
+}
+
+function flipToTrue() {
+	document.getElementById("falseGuy").style.display="none";
+	document.getElementById("trueGuy").style.display="block";
+}
+
+function flipToFalse() {
+	document.getElementById("falseGuy").style.display="block";
+	document.getElementById("trueGuy").style.display="none";
+}
+
 </script>
 
 {% endblock %}

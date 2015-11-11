@@ -124,7 +124,22 @@ def upload_page():
 
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
-    return render_template('view_pdf.html', uniqueID=uniqueID, paper=db.getPaper(uniqueID))
+    viewingPaper = db.getPaper(uniqueID)
+    userID = get_user_id()
+    favorited = db.hasFavoritePaper(userID, uniqueID)
+    favoritedTags = []
+    favoritedAuthors = []
+    for authorID in viewingPaper.authorIDs:
+        if db.hasFavoriteAuthor(userID, authorID):
+            favoritedAuthors.append(True)
+        else:
+            favoritedAuthors.append(False)
+    for tag in viewingPaper.tags:
+        if db.hasFavoriteTag(userID, tag):
+            favoritedTags.append(True)
+        else:
+            favoritedTags.append(False)
+    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags)
 
 
 @app.route('/uploads/<uniqueID>')
@@ -263,8 +278,13 @@ def advanced_search_page():
 
 @app.route('/addFavorite', methods=['POST'])
 def addFavorite():
-    # putFavoritePaper(self, userID, paperID, favoriteLevel)
     db.putFavoritePaper(get_user_id(), request.values['paperID'], 1)
+    print(request.values['paperID'])
+    return "Added! :)"
+
+@app.route('/removeFavorite', methods=['POST'])
+def rmFavorite():
+    db.removeFavoritePaper(get_user_id(), request.values['paperID'])
     print(request.values['paperID'])
     return "Added! :)"
 
@@ -277,6 +297,18 @@ def addFavoriteTag():
 @app.route('/addFavoriteAuthor', methods=['POST'])
 def addFavoriteAuthor():
     db.putFavoriteAuthor(get_user_id(), request.values['author'], 1)
+    print(request.values['author'])
+    return "Added! :)"
+
+@app.route('/removeFavoriteTag', methods=['POST'])
+def rmFavoriteTag():
+    db.removeFavoriteTag(get_user_id(), request.values['tag'])
+    print(request.values['tag'])
+    return "Added! :)"
+
+@app.route('/removeFavoriteAuthor', methods=['POST'])
+def rmFavoriteAuthor():
+    db.removeFavoriteAuthor(get_user_id(), request.values['author'])
     print(request.values['author'])
     return "Added! :)"
 
