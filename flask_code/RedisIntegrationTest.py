@@ -102,7 +102,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     for i in range(0,18):
       self.redisDB.incrementPaperViews("8")
 
-  '''#1
+  #1
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     self.assertEqual(self.jimmyFallonEmpty, self.redisDB.getAuthor(id))
@@ -292,9 +292,9 @@ class RedisIntegrationTestCase(unittest.TestCase):
     actuals = set(self.redisDB.getPapersMatchingAuthorNames(["Jimmy Fallon","Jefferson Davis", "Poop"]))
     expecteds = set([self.apcViewedPaper, self.hpaViewedPaper,self.fpmViewedPaper,self.apmViewedPaper, self.hpmViewedPaper,self.fpcViewedPaper, self.allCapsPaper, self.fooBarPaper])
     self.assertEqual(len(expecteds),len(actuals))	
-    self.assertEqual(expecteds,actuals)'''
+    self.assertEqual(expecteds,actuals)
 
-  '''#22
+  #22
   def test_PutAuthor(self):
     self.assertEqual('0', self.redisDB.putAuthor("Author one"))
 
@@ -397,7 +397,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.redisDB.putUser("Andrew Davidson")
     actual = self.redisDB.getUserByID('0')
     expected = User("0", "Andrew Davidson", [], [], [], [], [], "0")
-    self.assertEqual(actual, expected)'''
+    self.assertEqual(actual, expected)
 
   #38
   def testFavoritePapers(self):
@@ -636,8 +636,63 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.assertEqual(actualB, expectedB)
     self.assertEqual(actualC, expectedC)
 
+  #43
+  def testAdvancedSearch(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+ 
+    self.redisDB.putPaper("The Friendly Friendlier Pirates of the Carribean", ['2', '3'], ['Pirates', 'Big Data'], "This is another abstract", -1, datetime.datetime(2003, 8, 4),self.publisherIDs[1], [], [])
+    ffpmPaper = Paper("9", "The Friendly Friendlier Pirates of the Carribean",['2', '3'],['Pirates', 'Big Data'],"This is another abstract","1",datetime.datetime(2003, 8, 4),None,"-1",[],"0",[],"McGraw-Hill",["James Dean", "Dean Thomas"])
 
-    
+    actuals = self.redisDB.getPapersAdvancedSearch(["The Friendly Pirates of the Carribean"],["Dieting"],["Jimmy Fulton"])
+
+    # apc matches 2 title words and 1 tag and an author with 18 views
+    # fpc matches 3 title words and an author with 1 view
+    # fpm matches 2 title words and an author with 7 views
+    # hpa matches 1 tag and an author with 18 views
+    # apm matches 1 title word and an author with 8 views
+    # hpm matches 1 title word and an author with 5 views
+    # ffpc matches 3 title words but not an author with 0 view
+    # allCaps matches only the author
+    # foo matches only the author
+    # cheese matches nothing and is not found in the results 
+
+    #The advanced search algorithm first shows all results that match both author(s) and title-word(s)/tag(s), then results that just match title-word(s)/tag(s), then results that just match author(s).  Between these first two groups, results come first based on the number of matches between title words/tags (a matched title word is weighted the same as a matched tag in the advanced search).  Among papers with the same number of matches, they are further ordered by view count.  At the end, the results that only match authors but not tag(s)/title-word(s) come in a random order.  
+
+    actuals0123456 = [actuals[0],actuals[1],actuals[2],actuals[3],actuals[4],actuals[5],actuals[6]]
+    expecteds0123456 = [self.apcViewedPaper, self.fpcViewedPaper, self.fpmViewedPaper, self.hpaViewedPaper, self.apmViewedPaper, self.hpmViewedPaper, ffpmPaper]
+    self.assertEqual(actuals0123456,expecteds0123456)
+
+    actuals78 = set([actuals[7],actuals[8]])
+    expecteds78 = set([self.fooBarPaper, self.allCapsPaper])
+    self.assertEqual(actuals78,expecteds78)
+
+  '''#44
+  def testPaperRecsForUserID(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+    self.redisDB.putUser("Andrew Davidson")
+    self.redisDB.putFavoriteAuthor("0","0",2)
+
+    self.redisDB.putFavoriteTag("0","Distributed Computing",2)
+    self.redisDB.putFavoriteTag("0","Biology",1)
+    self.redisDB.putFavoriteTag("0","Dieting",4)
+
+    actuals = self.redisDB.getPaperRecsForUserID("0")
+    self.assertEqual(actuals[0], self.hpaViewedPaper)
+    self.assertEqual(actuals[1], self.apcViewedPaper)
+
+    actuals23 = set([actuals[2],actuals[3]])
+    expecteds23 = set([self.fooBarPaper, self.allCapsPaper])
+    self.assertEqual(actuals23, expecteds23)
+
+    self.assertEqual(actuals[4], self.cheesePaper)
+
+    actuals5678 = set([actuals[5],actuals[6],actuals[7],actuals[8]])
+    expecteds5678 = set([self.apmViewedPaper,self.hpmViewedPaper, self.fpmViewedPaper,self.fpcViewedPaper])
+    self.assertEqual(actuals5678, expecteds5678)'''
 
   '''#Stress testing for performance
   def testSearchStress(self):
@@ -700,7 +755,11 @@ class RedisIntegrationTestCase(unittest.TestCase):
       self.assertEqual(views, self.redisDB.redisDB.zscore("Tags",rawTag))
       self.assertEqual(views, self.redisDB.redisDB.zscore("Tag:"+rawTag+":Papers",id))
 
-  #These tests were cancelled because they test the implementation, not the correctness, of the results
+  #TODO test getAll methods after viewing papers
+  #TODO test putting in a duplicate author name
+
+  #These tests were cancelled because they test the implementation, not the correctness, of the results.
+  #TODO we should still do these tests anyways
   '''def testTrivialTitleWordsFilteredOutBeforePutPaper(self):
     self.loadTestData()
     self.assertTrue(False)'''

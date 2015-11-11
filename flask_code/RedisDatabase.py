@@ -279,25 +279,23 @@ class RedisDatabase():
     return authorIDs
 	
   def getPapersMatchingAuthorNames(self, namesToSearch):
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(namesToSearch)
+    return self.getPapersMatchingAuthorIDs(authorIDs)
+
+  def getPapersMatchingAuthorIDs(self, IDsToSearch):
     papers = []
-    paperIDs = set([])
-    authors = self.getAuthorsMatchingAuthorNames(namesToSearch)
-    for author in authors:
-      for paperID in author.paperIDs:
-        paperIDs.add(paperID)
+    paperIDs = self.getPaperIDsMatchingAuthorIDs(IDsToSearch)
     for paperID in paperIDs:
       papers.append(self.getPaper(paperID))
     return papers
 
-  def getPapersMatchingAuthorIDs(self, IDsToSearch):
-    papers = []
+  def getPaperIDsMatchingAuthorIDs(self, IDsToSearch):
     paperIDs = set([])
     for authorID in IDsToSearch:
-      for paperID in self.getAuthor(authorID).paperIDs:
+      author = self.getAuthor(authorID)
+      for paperID in author.paperIDs:
         paperIDs.add(paperID)
-    for paperID in paperIDs:
-      papers.append(self.getPaper(paperID))
-    return papers
+    return paperIDs
     
     # Takes in a list of string tags
     # Returns a list of paper objects that match
@@ -339,19 +337,20 @@ class RedisDatabase():
         searchKeys.append("PaperWord:"+titleWord)
     for tag in tags:
       searchKeys.append("Tag:"+tag+":Papers")
-    paperIDs = self.getMergedSearchResults(searchKeys)	
-    authorIDSet = set(authorIDs)
+    paperIDs = self.getMergedSearchResults(searchKeys)
+    #TODO consider having this append papers that only match by author in order of views, perhaps by using hashes.
+    authorPaperIDs = self.getPaperIDsMatchingAuthorIDs(authorIDs)
     adjustedPaperIDs = []
     addedIDs = set([])
     for paperID in paperIDs:
-      if paperID in authorIDSet:
+      if paperID in authorPaperIDs:
         adjustedPaperIDs.append(paperID)
         addedIDs.add(paperID)
-        authorIDSet.remove(paperID)
+        authorPaperIDs.remove(paperID)
     for paperID in paperIDs:
       if paperID not in addedIDs:
         adjustedPaperIDs.append(paperID)
-    for paperID in authorIDSet:
+    for paperID in authorPaperIDs:
       adjustedPaperIDs.append(paperID)
     papers = []
     for paperID in adjustedPaperIDs:
@@ -362,7 +361,7 @@ class RedisDatabase():
   def getPaperRecsForUserID(self, userID):
     user = self.getUserByID(userID)
     authorIDs = []
-    for author in authors:
+    for author in user.authors:
       authorIDs.append(author.id)
     return self.getPapersAdvancedAuthorIDSearch([],user.tags,authorIDs)
     
