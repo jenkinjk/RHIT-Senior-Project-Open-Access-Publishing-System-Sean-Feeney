@@ -75,6 +75,7 @@ class RedisDatabase():
     #Returns a string paperID
   def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, citedBys, references):
     datePosted = datetime.now()
+    print "putting paper with timestamp", datePosted
     id = self.redisDB.get("Papers:IDCounter")
     self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract", abstract)
