@@ -8,7 +8,7 @@ class PDF_To_PNG_Converter():
     p = p.sequence[0]
     p = Image(p)
     p.resize(50, 50)
-#    p.save(filename = "test.png") This line is for demos
+    p.save(filename = "test.png") # This line is for demos
     return p
 
 
