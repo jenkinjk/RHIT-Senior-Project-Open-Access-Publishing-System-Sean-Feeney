@@ -12,3 +12,11 @@
 	text-align: center;
 	font-size: 25px;
 }
+
+button.favoriteButton {
+	background-color: #66FF33; /* green */
+}
+
+button.unfavoriteButton {
+	background-color: #FF3333; /* red */
+}

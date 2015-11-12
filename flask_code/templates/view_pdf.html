@@ -11,37 +11,52 @@
 <div class="container">
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
-			{% if favorited %}
-			<button id="fav" style="display: none" onclick="addFavorite();">Favorite!</button>
-			<button id="unfav" onclick="rmFavorite();">Unfavorite!</button>
-			{% else %}
-			<button id="fav" onclick="addFavorite();">Favorite!</button>
-			<button id="unfav" style="display: none" onclick="rmFavorite();">Unfavorite!</button>
-			{% endif %}
+            <div class="row">
+                <div class="col-lg-2 col-lg-offset-5">
+        			{% if favorited %}
+            			<button class="favoriteButton" id="fav" style="display: none" onclick="addFavorite();">Favorite!</button>
+            			<button class="unfavoriteButton" id="unfav" onclick="rmFavorite();">Unfavorite!</button>
+        			{% else %}
+            			<button class="favoriteButton" id="fav" onclick="addFavorite();">Favorite!</button>
+            			<button class="unfavoriteButton" id="unfav" style="display: none" onclick="rmFavorite();">Unfavorite!</button>
+        			{% endif %}
+                </div>
+            </div>
 			<br>
-			{% for tagName in paper.tags %}
-				{{ tagName }}
-				{% if favoritedTags[loop.index - 1] %}
-	                <button id="favTag{{tagName}}" style="display: none" onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button>
-	                <button id="defavTag{{tagName}}" onclick="rmFavoriteTag('{{tagName}}');">Unfavorite Tag!</button>
-                {% else %}
-	                <button id="favTag{{tagName}}" onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button>
-	                <button id="defavTag{{tagName}}" style="display: none" onclick="rmFavoriteTag('{{tagName}}');">Unfavorite Tag!</button>
-                {% endif %}
-                <br>
-            {% endfor %}
+            <div class="row">
+                <div class="col-lg-12">
+        			{% for tagName in paper.tags %}
+                    <div class="col-lg-3">
+        				{{ tagName }}
+        				{% if favoritedTags[loop.index - 1] %}
+            	                <button class="favoriteButton" id="favTag{{tagName}}" style="display: none" onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button>
+            	                <button class="unfavoriteButton" id="defavTag{{tagName}}" onclick="rmFavoriteTag('{{tagName}}');">Unfavorite Tag!</button>
+                        {% else %}
+            	                <button class="favoriteButton" id="favTag{{tagName}}" onclick="addFavoriteTag('{{tagName}}');">Favorite Tag!</button>
+            	                <button class="unfavoriteButton" id="defavTag{{tagName}}" style="display: none" onclick="rmFavoriteTag('{{tagName}}');">Unfavorite Tag!</button>
+                        {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
             <br>
-            {% for author in paper.authorIDs %}
-            	{{ paper.authorNames[loop.index - 1]}}
-            	{% if favoritedAuthors[loop.index - 1] %}
-	                <button id="favAuthor{{author}}" style="display: none" onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button>
-	                <button id="defavAuthor{{author}}" onclick="rmFavoriteAuthor('{{author}}');">Unfavorite Author!</button>
-	            {% else %}
-		            <button id="favAuthor{{author}}" onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button>
-		            <button id="defavAuthor{{author}}" style="display: none" onclick="rmFavoriteAuthor('{{author}}');">Unfavorite Author!</button>
-		        {% endif %}
-                <br>
-            {% endfor %}
+            <div class="row">
+                <div class="col-lg-12">
+                    {% for author in paper.authorIDs %}
+                        <div class="col-lg-4">
+                        	{{ paper.authorNames[loop.index - 1]}}
+                        	{% if favoritedAuthors[loop.index - 1] %}
+                	                <button class="favoriteButton" id="favAuthor{{author}}" style="display: none" onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button>
+                	                <button class="unfavoriteButton" id="defavAuthor{{author}}" onclick="rmFavoriteAuthor('{{author}}');">Unfavorite Author!</button>
+            	            {% else %}
+                		            <button class="favoriteButton" id="favAuthor{{author}}" onclick="addFavoriteAuthor('{{author}}');">Favorite Author!</button>
+                		            <button class="unfavoriteButton" id="defavAuthor{{author}}" style="display: none" onclick="rmFavoriteAuthor('{{author}}');">Unfavorite Author!</button>
+            		        {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
 				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
 			</object>
@@ -62,7 +77,7 @@ function addFavorite() {
     success: function(result) {
         console.log(result);
         document.getElementById("fav").style.display="none";
-		document.getElementById("unfav").style.display="inline-block";
+		document.getElementById("unfav").style.display="inline";
     }
 });
 }
@@ -77,7 +92,7 @@ function rmFavorite() {
     success: function(result) {
         console.log(result);
         document.getElementById("unfav").style.display="none";
-		document.getElementById("fav").style.display="inline-block";
+		document.getElementById("fav").style.display="inline";
     }
 });
 }
@@ -92,7 +107,7 @@ function addFavoriteTag(tagArg) {
     success: function(result) {
         console.log(result);
         document.getElementById("favTag".concat(tagArg)).style.display="none";
-		document.getElementById("defavTag".concat(tagArg)).style.display="block";
+		document.getElementById("defavTag".concat(tagArg)).style.display="inline";
     }
 });
 }
@@ -107,7 +122,7 @@ function rmFavoriteTag(tagArg) {
     success: function(result) {
         console.log(result);
         document.getElementById("defavTag".concat(tagArg)).style.display="none";
-		document.getElementById("favTag".concat(tagArg)).style.display="block";
+		document.getElementById("favTag".concat(tagArg)).style.display="inline";
     }
 });
 }
@@ -122,7 +137,7 @@ function addFavoriteAuthor(authorArg) {
     success: function(result) {
         console.log(result);
         document.getElementById("favAuthor".concat(authorArg)).style.display="none";
-		document.getElementById("defavAuthor".concat(authorArg)).style.display="block";
+		document.getElementById("defavAuthor".concat(authorArg)).style.display="inline";
     }
 });
 }
@@ -137,7 +152,7 @@ function rmFavoriteAuthor(authorArg) {
     success: function(result) {
         console.log(result);
         document.getElementById("defavAuthor".concat(authorArg)).style.display="none";
-		document.getElementById("favAuthor".concat(authorArg)).style.display="block";
+		document.getElementById("favAuthor".concat(authorArg)).style.display="inline";
     }
 });
 }
