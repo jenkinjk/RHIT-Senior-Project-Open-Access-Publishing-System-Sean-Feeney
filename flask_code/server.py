@@ -220,6 +220,8 @@ def profile_page():
         user = User.User("Anonymous User", [],[],[],[],[],0)
     else:
         user = db.getUserByID(user_id)
+        for favPaper in user.papers:
+            attach_paper_thumbnail(favPaper)
         print user.username
 
     for paperGuy in user.papers:
@@ -367,6 +369,9 @@ def get_id_for_author_name(author_name):
     print "didn't find author in database, adding", author_name
     return db.putAuthor(author_name)
 
+def attach_paper_thumbnail(paper):
+    # paper.thumbnail = docStore.retrieveThumbnail(paper.id)
+    print "thumbnail:", paper.thumbnail
 
 def get_user_id():
     # In reality we should check the signature to make sure it is from who we think it is

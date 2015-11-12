@@ -2,6 +2,48 @@
 {% block head %}
 <!-- grab Jquery from a CDN, so we don't have to save and serve it -->
 <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="{{url_for('static', filename='dist/build/pdf.js')}}"></script>
+
+<script>
+  //   // Specify the main script used to create a new PDF.JS web worker.
+  //   // In production, leave this undefined or change it to point to the
+  //   // combined `pdf.worker.js` file.
+  //   PDFJS.workerSrc = '../../src/worker_loader.js';
+  // </script>
+<script>
+'use strict';
+
+//
+// Fetch the PDF document from the URL using promises
+//
+PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
+  // Using promise to fetch the page
+  pdf.getPage(1).then(function(page) {
+    var scale = 0.25;
+    var viewport = page.getViewport(scale);
+
+    //
+    // Prepare canvas using PDF page dimensions
+    //
+    var canvas = document.getElementById('the-canvas');
+    var context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    //
+    // Render PDF page into canvas context
+    //
+    var renderContext = {
+      canvasContext: context,
+      viewport: viewport
+    };
+    page.render(renderContext);
+  });
+});
+</script>
+</head>
+
+
 {% endblock %}
 {% block title %}PDF Viewer{% endblock %}
 {% block pageTitle %}PDF Viewer{% endblock %}
@@ -42,9 +84,10 @@
 		        {% endif %}
                 <br>
             {% endfor %}
+            <!-- <canvas id="the-canvas" style="border:1px solid black; width:100; height:100"/> -->
 			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
-				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
-			</object>
+				<embed src="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%"/>
+            </object>
 		</div>
 	</div>
 </div>

@@ -21,6 +21,7 @@ class Paper:
     self.viewCount = viewCount
     self.publisherName = publisherName
     self.authorNames = authorNames
+    self.thumbnail = None
     
   def __str__(self):
     return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisherID:'+self.publisherID+'   publisherName:'+self.publisherName+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedByUserID:'+self.postedByUserID+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount

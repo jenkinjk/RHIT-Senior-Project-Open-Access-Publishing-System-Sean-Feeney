@@ -62,6 +62,7 @@
             </div>
             <div class="panel-body">
               <div class="col-md-12">
+                <!-- <img class="profile-img col-md-4" src="{{ url_for('static', filename='img/profile-pic.jpg') }}" alt="No picture"> -->
                 <img class="profile-img col-md-4" src="{{ url_for('static', filename='img/profile-pic.jpg') }}" alt="No picture">
                 <div class="col-md-offset-4">
                   Following: {{ user.followingIDs|length }}
@@ -101,6 +102,7 @@
               {% for favPaper in user.papers %}
                 <div class="paperBlock">
                   <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                  <!-- <img class="pdf_thumbnail col-md-1" src="{{ favPaper.thumbnail }}" alt="No Thumb"> -->
                   <div class="col-md-5">
                     <strong>Paper Title:</strong> {{ favPaper.title }}
                     <a href={{"/viewer/" + favPaper.id}}>View Paper</a>
