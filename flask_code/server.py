@@ -217,7 +217,8 @@ def profile_page():
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
     user_id = get_user_id()
     if(user_id is "Anonymous"):
-        user = User.User("Anonymous User", [],[],[],[],[],0)
+        #   def __init__(id, username, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID = None):
+        user = User.User(0,"Anonymous User", [],[],[],[],[],0)
     else:
         user = db.getUserByID(user_id)
         for favPaper in user.papers:
