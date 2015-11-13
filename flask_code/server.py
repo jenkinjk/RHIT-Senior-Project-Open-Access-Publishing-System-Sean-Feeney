@@ -29,6 +29,8 @@ BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
+png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
+
 # get the facebook credentials
 credential_file = open('facebookCredentials.txt', 'r')
 credential_file.readline()
@@ -116,8 +118,8 @@ def upload_page():
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
             # png:
-            thumbnail = PDF_To_PNG_Converter.convert(upload_file)
-            print "uploading thumbnail: ", thumbnail
+            thumbnail = png_converter.convert(upload_file)
+            print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
             docStore.storeDocument(upload_file, uniqueID)
             # png:
@@ -373,8 +375,7 @@ def get_id_for_author_name(author_name):
 
 def attach_paper_thumbnail(paper):
     paper.thumbnail = docStore.retrieveThumbnail(paper.id)
-    print "attaching thumbnail:", paper.thumbnail
-    print "thumbnail:", paper.thumbnail
+    print "attaching thumbnail:", paper.thumbnail.make_blob(format='png')
 
 def get_user_id():
     # In reality we should check the signature to make sure it is from who we think it is
