@@ -16,11 +16,11 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 # png:
-# import PDF_To_PNG_Converter
+import PDF_To_PNG_Converter
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
 # MODE = "Test" 
-MODE = "Development" 
+MODE = "Test" 
 # MODE = "Production"
 
 
@@ -28,6 +28,8 @@ ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 BIG_NUMBER = 99999
 
 app = Flask(__name__)
+
+png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
 
 # get the facebook credentials
 credential_file = open('facebookCredentials.txt', 'r')
@@ -116,11 +118,12 @@ def upload_page():
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
             # png:
-            # thumbnail = PDF_To_PNG_Converter.convert(upload_file)
+            thumbnail = png_converter.convert(upload_file)
+            print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
             docStore.storeDocument(upload_file, uniqueID)
             # png:
-            # docStore.storeThumbnail(thumbnail, uniqueID)
+            docStore.storeThumbnail(thumbnail, uniqueID)
 
         return render_template('upload.html')
     # else it is a GET request
@@ -371,8 +374,8 @@ def get_id_for_author_name(author_name):
     return db.putAuthor(author_name)
 
 def attach_paper_thumbnail(paper):
-    # paper.thumbnail = docStore.retrieveThumbnail(paper.id)
-    print "thumbnail:", paper.thumbnail
+    paper.thumbnail = docStore.retrieveThumbnail(paper.id)
+    print "attaching thumbnail:", paper.thumbnail.make_blob(format='png')
 
 def get_user_id():
     # In reality we should check the signature to make sure it is from who we think it is
