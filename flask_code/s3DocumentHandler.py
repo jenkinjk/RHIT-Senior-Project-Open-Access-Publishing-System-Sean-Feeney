@@ -9,10 +9,14 @@ credentials = credential_file.readline().split(',')
 
 USER_NAME = credentials[0][1:-1]
 AWS_ACCESS_KEY_ID = credentials[1]
-AWS_SECRET_ACCESS_KEY = credentials[2]
+AWS_SECRET_ACCESS_KEY = credentials[2].strip()
 AWS_DEFAULT_REGION = 'us-east-1'
 DOC_FOLDER = 'docs/'
 THUMBNAIL_FOLDER =  'thumbnails/'
+
+print "username:", USER_NAME
+print "accesskey:",AWS_ACCESS_KEY_ID
+print "secretkey:",AWS_SECRET_ACCESS_KEY
 
 class S3DocumentHandler(documentHandler.DocumentHandler):
 
