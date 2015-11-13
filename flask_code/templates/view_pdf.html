@@ -52,15 +52,15 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
 
 <div class="container">
 	<div class="row">
-		<div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+		<div class="col-lg-12 col-md-12">
             <div class="row">
                 <div class="col-lg-2 col-lg-offset-5">
         			{% if favorited %}
-            			<button class="favoriteButton" id="fav" style="display: none" onclick="addFavorite();">Favorite!</button>
-            			<button class="unfavoriteButton" id="unfav" onclick="rmFavorite();">Favorited!</button>
+            			<button class="favorite" id="fav" style="display: none" onclick="addFavorite();">Favorite!</button>
+            			<button class="favorited" id="unfav" onclick="rmFavorite();">Favorited!</button>
         			{% else %}
-            			<button class="favoriteButton" id="fav" onclick="addFavorite();">Favorite!</button>
-            			<button class="unfavoriteButton" id="unfav" style="display: none" onclick="rmFavorite();">Favorited!</button>
+            			<button class="favorite" id="fav" onclick="addFavorite();">Favorite!</button>
+            			<button class="favorited" id="unfav" style="display: none" onclick="rmFavorite();">Favorited!</button>
         			{% endif %}
                 </div>
             </div>
@@ -99,12 +99,12 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
             </div>
             <br> -->
             <div class="row">
-                <div class="col-lg-9">
+                <div class="col-lg-10">
         			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
         				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
         			</object>
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                           <h4>Tags</h4>
@@ -112,17 +112,17 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                         <div class="panel-body">
                             {% for tagName in paper.tags %}
                                     {% if favoritedTags[loop.index - 1] %}
-                                            <button class="favoriteButton" id="favTag{{tagName}}" style="display: none" onclick="addFavoriteTag('{{tagName}}');">{{ tagName }}</button>
-                                            <button class="unfavoriteButton" id="defavTag{{tagName}}" onclick="rmFavoriteTag('{{tagName}}');">{{ tagName }}</button>
+                                            <button class="favorite" id="favTag{{tagName}}" style="display: none" onclick="addFavoriteTag('{{tagName}}');">{{ tagName }}</button>
+                                            <button class="favorited" id="defavTag{{tagName}}" onclick="rmFavoriteTag('{{tagName}}');">{{ tagName }}</button>
                                     {% else %}
-                                            <button class="favoriteButton" id="favTag{{tagName}}" onclick="addFavoriteTag('{{tagName}}');">{{ tagName }}</button>
-                                            <button class="unfavoriteButton" id="defavTag{{tagName}}" style="display: none" onclick="rmFavoriteTag('{{tagName}}');">{{ tagName }}</button>
+                                            <button class="favorite" id="favTag{{tagName}}" onclick="addFavoriteTag('{{tagName}}');">{{ tagName }}</button>
+                                            <button class="favorited" id="defavTag{{tagName}}" style="display: none" onclick="rmFavoriteTag('{{tagName}}');">{{ tagName }}</button>
                                     {% endif %}
                             {% endfor %}
                         </div> <!-- end of panel body -->
                       </div> <!-- end of default panel -->
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4>Authors</h4>
@@ -130,11 +130,11 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                         <div class="panel-body">
                             {% for author in paper.authorIDs %}
                                     {% if favoritedAuthors[loop.index - 1] %}
-                                            <button class="favoriteButton" id="favAuthor{{author}}" style="display: none" onclick="addFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
-                                            <button class="unfavoriteButton" id="defavAuthor{{author}}" onclick="rmFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
+                                            <button class="favorite" id="favAuthor{{author}}" style="display: none" onclick="addFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
+                                            <button class="favorited" id="defavAuthor{{author}}" onclick="rmFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
                                     {% else %}
-                                            <button class="favoriteButton" id="favAuthor{{author}}" onclick="addFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
-                                            <button class="unfavoriteButton" id="defavAuthor{{author}}" style="display: none" onclick="rmFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
+                                            <button class="favorite" id="favAuthor{{author}}" onclick="addFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
+                                            <button class="favorited" id="defavAuthor{{author}}" style="display: none" onclick="rmFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
                                     {% endif %}
                             {% endfor %}
                         </div> <!-- end of panel body -->

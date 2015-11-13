@@ -13,7 +13,7 @@
 	font-size: 25px;
 }
 
-button.favoriteButton, button.unfavoriteButton {
+.favorite, .favorited {
 	border-radius: 5px;
 	border: none;
 	color: white;
@@ -21,11 +21,11 @@ button.favoriteButton, button.unfavoriteButton {
 	font-weight: bold;
 }
 
-button.unfavoriteButton {
+.favorited {
 	background-color: #66FF33; /* green */
 }
 
-button.favoriteButton {
+.favorite {
 	background-color: #5BC0DE; /* blue like tags input */
 }
 

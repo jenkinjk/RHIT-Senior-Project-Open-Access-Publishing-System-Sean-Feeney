@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container">
 	<div class="row">
-		<div class="col-md-3" id="leftCol">
+		<div class="col-lg-3 col-md-3" id="leftCol">
 			<div class="well">
 				<ul class="nav nav-stacked" id="sidebar">
           <div class="twitter-feed-header">Paper Update Feed</div>
@@ -37,36 +37,36 @@
 		</div> <!-- end of left column -->
 
     <!-- beginning of user information blocks -->
-		<div class="col-md-9">
+		<div class="col-lg-9 col-md-9">
       <div class="row"> <!-- start of user panel row -->
-        <div class="col-md-12">
+        <div class="col-lg-12 col-md-12">
           <div class="panel panel-default">
             <div class="panel-heading">
               <h2>{{ user.username }}</h2>
             </div>
             <div class="panel-body">
-              <div class="col-md-12">
+              <div class="col-lg-12 col-md-12">
                 <!-- <img class="profile-img col-md-4" src="{{ url_for('static', filename='img/profile-pic.jpg') }}" alt="No picture"> -->
-                <img class="profile-img col-md-4" src="{{ url_for('static', filename='img/profile-pic.jpg') }}" alt="No picture">
-                <div class="col-md-offset-4">
+                <img class="profile-img col-lg-4 col-md-4" src="{{ url_for('static', filename='img/profile-pic.jpg') }}" alt="No picture">
+                <div class="col-lg-offset-4 col-md-offset-4">
                   Following: {{ user.followingIDs|length }}
                 </div></br>
-                <div class="col-md-offset-4">
+                <div class="col-lg-offset-4 col-md-offset-4">
                   Followed By: {{ user.followerCount }}
                 </div></br>
-                <div class="col-md-offset-4">
+                <div class="col-lg-offset-4 col-md-offset-4">
                   Favorite Tags:
                   {% for tagName in user.tags %}
-                    {{ tagName }}, 
+                    <button class="favorited">{{ tagName }}</button>
                   {% endfor %}
                 </div></br>
-                <div class="col-md-offset-4">
+                <div class="col-lg-offset-4 col-md-offset-4">
                   Favorite Authors:
                   {% for author in user.authors %}
-                    {{ author.name }}, 
+                    <button class="favorited">{{ author.name }}</button> 
                   {% endfor %}
                 </div></br>
-                <div class="col-md-offset-4">
+                <div class="col-lg-offset-4 col-md-offset-4">
                   Bio: User Bio will go here
                 </div></br>
               </div> <!-- end of col-md-12 inside panel body -->
@@ -76,7 +76,7 @@
       </div> <!-- end of user panel row -->
 
       <div class="row"> <!-- start of favorite papers row -->
-        <div class="col-md-12"> <!-- start of favorite papers column -->
+        <div class="col-lg-12 col-md-12"> <!-- start of favorite papers column -->
           <div class="panel panel-default"> <!-- start of favorite papers subsection panel -->
             <div class="panel-heading"> <!-- start of panel heading -->
               <h2 id="sec0">Favorite Papers</h2>
@@ -85,17 +85,38 @@
 
               {% for favPaper in user.papers %}
                 <div class="paperBlock">
-                  <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+                  <img class="pdf_thumbnail col-lg-2 col-md-2" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
                   <!-- <img class="pdf_thumbnail col-md-1" src="{{ favPaper.thumbnail }}" alt="No Thumb"> -->
                   <div class="col-md-5">
                     <strong>Paper Title:</strong> {{ favPaper.title }}
                     <a href={{"/viewer/" + favPaper.id}}>View Paper</a>
                   </div>
                   <div class="col-md-5">
-                    <strong> Paper Author(s):</strong> {% for author in favPaper.authorNames %} {{author}}, {% endfor %}
+                    <strong> Paper Author(s):</strong> 
+                    <!-- get all the authors from the paper -->
+                    {% for author in favPaper.authorNames %}
+                    <!-- get all the author objects from the user's favorite authors -->
+                      {% for authorObj in user.authors %}
+                      <!-- check if paper author is in user's favorite authors -->
+                        {% if author in authorObj.name %}
+                          <button class="favorited">{{author}}</button>
+                        {% else %}
+                          <button class="favorite">{{author}}</button>
+                        {% endif %}
+                      {% endfor %}
+                    {% endfor %}
                   </div>
-                  <div class="col-md-3">
-                    <strong>Tag(s):</strong> {% for tag in favPaper.tags %} {{tag}}, {% endfor %}
+                  <div class="col-md-5">
+                    <strong>Tag(s):</strong>
+                    <!-- grab all tags from paper -->
+                    {% for tag in favPaper.tags %}
+                    <!-- check if given tag is in the user's favorite tags -->
+                      {% if tag in user.tags %}
+                        <button class="favorited">{{tag}}</button>
+                      {% else %}
+                        <button class="favorite">{{tag}}</button>
+                      {% endif %}
+                    {% endfor %}
                   </div>
                 </div> <!-- end of paper block -->
 
@@ -130,7 +151,19 @@
                 <strong>Paper Title:</strong> {{ suggPaper.title }}
                     <a href={{"/viewer/" + suggPaper.id}}>View Paper</a>
                 </div>
-              <div class="col-md-5">Paper Author(s):</strong> {% for author in suggPaper.authorNames %} {{author}}, {% endfor %}</div>
+              <!-- <div class="col-md-5">
+                <strong>Paper Author(s):</strong> {% for author in suggPaper.authorNames %} {{author}}, {% endfor %}
+              </div> -->
+              <div class="col-md-5">
+                <strong>Tag(s):</strong> 
+                {% for tag in suggPaper.tags %}
+                  {% if tag in user.tags %}
+                    <button class="favorited">{{tag}}</button>
+                  {% else %}
+                    <button class="favorite">{{tag}}</button>
+                  {% endif %}
+                {% endfor %}
+              </div>
             </div>
 
             <hr class="col-md-12"> <!-- divider line -->
