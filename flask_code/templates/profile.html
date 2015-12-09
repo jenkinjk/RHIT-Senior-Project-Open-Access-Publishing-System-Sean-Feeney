@@ -85,8 +85,8 @@
 
               {% for favPaper in user.papers %}
                 <div class="paperBlock">
-                  <img class="pdf_thumbnail col-lg-2 col-md-2" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-                  <!-- <img class="pdf_thumbnail col-md-1" src="{{ favPaper.thumbnail }}" alt="No Thumb"> -->
+                  <!-- <img class="pdf_thumbnail col-lg-2 col-md-2" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb"> -->
+                  <img class="pdf_thumbnail col-lg-2 col-md-2" src="{{"/thumbnails/" + favPaper.id}}" alt="No Thumb">
                   <div class="col-md-5">
                     <strong>Paper Title:</strong> {{ favPaper.title }}
                     <a href={{"/viewer/" + favPaper.id}}>View Paper</a>

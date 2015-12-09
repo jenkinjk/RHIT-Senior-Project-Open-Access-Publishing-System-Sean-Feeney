@@ -11,6 +11,8 @@ from datetime import datetime
 import base64
 import json
 
+# to help with some weird encoding errors we were getting from python, related to copying and pasting
+# abstracts with weird characters from pdf files.
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -178,6 +180,21 @@ def uploaded_file(uniqueID):
         #    amt_read = amt_read + 10
         #########
     #return Response(generate_file(), mimetype='application/pdf')
+
+
+@app.route('/thumbnails/<uniqueID>')
+def get_thumbnail(uniqueID):
+    print 'user ' + get_user_id() + ' is retrieving a thumbnail'
+    print 'for file', uniqueID 
+    viewing_file = docStore.retrieveThumbnail(uniqueID)
+    print 'content length:', viewing_file['Body']._content_length
+
+    response = make_response(viewing_file['Body'].read())
+    response.headers['Content-Type'] = 'image/png'
+    
+    # uncomment this line to download as attachment instead of view
+    #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
+    return response
     
 
 def allowed_file(filename):
@@ -224,8 +241,8 @@ def profile_page():
         user = User.User(0,"Anonymous User", [],[],[],[],[],0)
     else:
         user = db.getUserByID(user_id)
-        for favPaper in user.papers:
-            attach_paper_thumbnail(favPaper)
+        # for favPaper in user.papers:
+        #     attach_paper_thumbnail(favPaper)
         print user.username
 
     for paperGuy in user.papers:
