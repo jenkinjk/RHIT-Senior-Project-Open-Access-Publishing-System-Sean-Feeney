@@ -48,7 +48,10 @@ if MODE == "Test":
     # to save on S3 queries while testing, we could use this:
     # print "Running in", MODE, "mode with self-clearing Test DB and SimpleDocHandler.  Note: Must have local filesystem write permissions (sudo?)"
     # docStore = documentHandler.SimpleDocHandler()
-    import addDummyUsers
+    # import addDummyUsers
+    db.putUser("Asher Morgan", "1162476383780112")
+    db.putUser("Jonathan Jenkins", "986584014732857")
+    db.putUser("Tyler Duffy", "10153554827465751")
 
 elif MODE == "Development":
     print "Running in", MODE, "mode with regular DB and dev bucket of S3DocumentHandler"
@@ -240,7 +243,7 @@ def profile_page():
         #   def __init__(id, username, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID = None):
         user = User.User(0,"Anonymous User", [],[],[],[],[],0)
     else:
-        user = db.getUserByID(user_id)
+        user = db.getUserByFacebookID(user_id)
         # for favPaper in user.papers:
         #     attach_paper_thumbnail(favPaper)
         print user.username
