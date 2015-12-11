@@ -468,6 +468,9 @@ class RedisDatabase():
     id = self.redisDB.get("FacebookID:"+facebookID+":id")
     return self.getUserByID(id)
 
+  def facebookToRegularID(self, facebookID):
+      return self.redisDB.get("FacebookID:"+facebookID+":id")
+
   #takes a user id and a paper id to add to this users list of favorites
   #returns the current length of the favorites
   def putFavoritePaper(self, userID, paperID, favoriteLevel):

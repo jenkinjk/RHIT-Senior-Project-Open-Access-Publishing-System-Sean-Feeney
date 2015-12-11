@@ -18,11 +18,11 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 # png:
-import PDF_To_PNG_Converter
+# import PDF_To_PNG_Converter
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
-# MODE = "Test" 
 MODE = "Test" 
+# MODE = "Development" 
 # MODE = "Production"
 
 
@@ -31,7 +31,8 @@ BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
-png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
+# png:
+# png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
 
 # get the facebook credentials
 credential_file = open('facebookCredentials.txt', 'r')
@@ -122,13 +123,14 @@ def upload_page():
 
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
+
             # png:
-            thumbnail = png_converter.convert(upload_file)
-            print "uploading thumbnail: ", thumbnail.make_blob(format='png')
+            # thumbnail = png_converter.convert(upload_file)
+            # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
             docStore.storeDocument(upload_file, uniqueID)
             # png:
-            docStore.storeThumbnail(thumbnail, uniqueID)
+            # docStore.storeThumbnail(thumbnail, uniqueID)
 
         return render_template('upload.html')
     # else it is a GET request
@@ -243,7 +245,7 @@ def profile_page():
         #   def __init__(id, username, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID = None):
         user = User.User(0,"Anonymous User", [],[],[],[],[],0)
     else:
-        user = db.getUserByFacebookID(user_id)
+        user = db.getUserByID(user_id)
         # for favPaper in user.papers:
         #     attach_paper_thumbnail(favPaper)
         print user.username
@@ -283,6 +285,12 @@ def search_endpoint(byWhat):
         tags = [tag.strip() for tag in tags]
         results = db.getPapersMatchingTags(tags)
     return render_template('search.html', results=results)
+
+
+@app.route('/asynchronousSearch', methods=['GET', 'POST'])
+def asynchronous_search_endpoint():
+    print 'user ' + get_user_id() + ' is searching'
+
 
 
 @app.route('/advancedSearch', methods=['GET', 'POST'])
@@ -403,7 +411,7 @@ def get_user_id():
     # we also should query facebook to make sure the person is legit
     if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
-        return str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id'])
+        return db.facebookToRegularID(str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id']))
     else:
         return "Anonymous"
 
