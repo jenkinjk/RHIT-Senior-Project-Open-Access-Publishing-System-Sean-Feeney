@@ -93,17 +93,24 @@
                   </div>
                   <div class="col-md-5">
                     <strong> Paper Author(s):</strong> 
-                    <!-- get all the authors from the paper -->
+                    <!-- get all the authors from the paper
                     {% for author in favPaper.authorNames %}
-                    <!-- get all the author objects from the user's favorite authors -->
+                    <!-- get all the author objects from the user's favorite authors
                       {% for authorObj in user.authors %}
-                      <!-- check if paper author is in user's favorite authors -->
+                      <!-- check if paper author is in user's favorite authors
                         {% if author in authorObj.name %}
                           <button class="favorited">{{author}}</button>
                         {% else %}
                           <button class="favorite">{{author}}</button>
                         {% endif %}
                       {% endfor %}
+                    {% endfor %} -->
+                    {% for author in favPaper.authorNames %}
+                      {% if author in authorGuys %}
+                        <button class="favorited">{{author}}</button>
+                      {% else %}
+                        <button class="favorite">{{author}}</button>
+                      {% endif %}
                     {% endfor %}
                   </div>
                   <div class="col-md-5">
