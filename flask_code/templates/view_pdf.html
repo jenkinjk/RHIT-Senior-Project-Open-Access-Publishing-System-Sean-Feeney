@@ -2,15 +2,9 @@
 {% block head %}
 <!-- grab Jquery from a CDN, so we don't have to save and serve it -->
 <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
-<script src="{{url_for('static', filename='dist/build/pdf.js')}}"></script>
+<!-- <script src="{{url_for('static', filename='dist/build/pdf.js')}}"></script> -->
 
-<script>
-  //   // Specify the main script used to create a new PDF.JS web worker.
-  //   // In production, leave this undefined or change it to point to the
-  //   // combined `pdf.worker.js` file.
-  //   PDFJS.workerSrc = '../../src/worker_loader.js';
-  // </script>
-<script>
+<!-- <script>
 'use strict';
 
 //
@@ -40,8 +34,7 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
     page.render(renderContext);
   });
 });
-</script>
-</head>
+</script> -->
 
 
 {% endblock %}
@@ -65,39 +58,6 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                 </div>
             </div>
 			<br>
-            <!-- <div class="row">
-                <div class="col-lg-12">
-        			{% for tagName in paper.tags %}
-                    <div class="col-lg-1">
-        				{% if favoritedTags[loop.index - 1] %}
-            	                <button class="favoriteButton" id="favTag{{tagName}}" style="display: none" onclick="addFavoriteTag('{{tagName}}');">{{ tagName }}</button>
-            	                <button class="unfavoriteButton" id="defavTag{{tagName}}" onclick="rmFavoriteTag('{{tagName}}');">{{ tagName }}</button>
-                        {% else %}
-            	                <button class="favoriteButton" id="favTag{{tagName}}" onclick="addFavoriteTag('{{tagName}}');">{{ tagName }}</button>
-            	                <button class="unfavoriteButton" id="defavTag{{tagName}}" style="display: none" onclick="rmFavoriteTag('{{tagName}}');">{{ tagName }}</button>
-                        {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <br>
-
-            <div class="row">
-                <div class="col-lg-12">
-                    {% for author in paper.authorIDs %}
-                        <div class="col-lg-2">
-                        	{% if favoritedAuthors[loop.index - 1] %}
-                	                <button class="favoriteButton" id="favAuthor{{author}}" style="display: none" onclick="addFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
-                	                <button class="unfavoriteButton" id="defavAuthor{{author}}" onclick="rmFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
-            	            {% else %}
-                		            <button class="favoriteButton" id="favAuthor{{author}}" onclick="addFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
-                		            <button class="unfavoriteButton" id="defavAuthor{{author}}" style="display: none" onclick="rmFavoriteAuthor('{{author}}');">{{ paper.authorNames[loop.index - 1]}}</button>
-            		        {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <br> -->
             <div class="row">
                 <div class="col-lg-10">
         			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">

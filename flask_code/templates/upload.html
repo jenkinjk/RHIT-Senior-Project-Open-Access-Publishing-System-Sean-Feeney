@@ -1,13 +1,24 @@
 {% extends "base.html" %}
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css"> -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
 <link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}">
+<script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css"> -->
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
+
+<!-- import jquery for ajax calls -->
 
 
+  <!-- // <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
+  <!-- // <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script> -->
+
+  <!-- // <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
+  // <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
+  // <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/html.js"></script>
+  // <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script> -->
+  <!-- // <script src="{{ url_for('static', filename='assets/app.js') }}"></script> -->
+  <!-- // <script src="{{ url_for('static', filename='assets/app_bs3.js') }}"></script> -->
 
 {% endblock %}
 {% block title %}Upload Articles{% endblock %}
@@ -44,8 +55,10 @@
       </div>
       <div class="form-group">
         <label for="exampleReferences">References</label>
-        <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea>
-        <!-- <input type="text" class="form-control" id="exampleReferences" placeholder="Referencse" name="references"> -->
+        <div class="form-group">
+        <button onclick="searchForReference();">Add Reference</button>
+      </div>
+        <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
       </div>
 
 
@@ -56,32 +69,25 @@
       </div>
       <button type="submit" class="btn btn-default">Upload</button>
     </form>
+    <button onclick="searchForReference();">Add Reference</button>
   </div>
 </div>
 
-<!-- <div class="row">
-  <div class="col-lg-4 col-lg-offset-4">
-    <h1>Uploaded Files:</h1>
-    <ul>
-    {% for result in results %}
-    	<li>
-    		<a href={{"/uploads/" + result['uniqueID']}}>{{ result['filename'] }}</a>
-    	</li>
-    {% endfor %}
-    </ul>
-  </div>
-</div> -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
-  <script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='dist/bootstrap-tagsinput/bootstrap-tagsinput-angular.min.js') }}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/html.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
-  <script src="{{ url_for('static', filename='assets/app.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/app_bs3.js') }}"></script>
+<script>
+function searchForReference() {
+  console.log("Searching for reference...");
+  $.ajax({
+    type : "POST",
+    url : "/asyncPaperSearch",
+    data: {title : "cheeseburgers",
+           authors : ["bob marley", "clint eastwood"],
+           start : 0,
+           end : 5},
+    
+    success: function(result) {
+        console.log(result);
+    }
+});
+}
+</script>
 {% endblock %}

@@ -108,10 +108,11 @@ def upload_page():
             print 'datePublished:',datePublished
             datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
-            references = request.form['references']
+            # references = request.form['references']
+            references = []
 
             authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
-
+            
             # print 'title:',title
             # print 'authornames:',authorNames
             # print 'authorIDs:',authorIDs
@@ -123,12 +124,13 @@ def upload_page():
 
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
-
+            
             # png:
             # thumbnail = png_converter.convert(upload_file)
             # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
             docStore.storeDocument(upload_file, uniqueID)
+            
             # png:
             # docStore.storeThumbnail(thumbnail, uniqueID)
 
@@ -287,9 +289,18 @@ def search_endpoint(byWhat):
     return render_template('search.html', results=results)
 
 
-@app.route('/asynchronousSearch', methods=['GET', 'POST'])
-def asynchronous_search_endpoint():
-    print 'user ' + get_user_id() + ' is searching'
+
+
+@app.route('/asyncPaperSearch', methods=['GET', 'POST'])
+def async_paper_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous search'
+    print "Title:", request.values['title'], "Authors:", request.values.getlist('authors[]'), "Start:", request.values['start'], "End:", request.values['end']
+    return "Those search results though..."
+
+
+
+
 
 
 

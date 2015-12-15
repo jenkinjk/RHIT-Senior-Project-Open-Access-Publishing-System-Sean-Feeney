@@ -463,10 +463,6 @@ class RedisDatabase():
       tags = []
     facebookID = self.redisDB.get("User:"+id+":FacebookID")
     return User(id, userName, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID)
-	
-  def getUserByFacebookID(self, facebookID):
-    id = self.redisDB.get("FacebookID:"+facebookID+":id")
-    return self.getUserByID(id)
 
   def facebookToRegularID(self, facebookID):
       return self.redisDB.get("FacebookID:"+facebookID+":id")
