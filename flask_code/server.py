@@ -21,8 +21,8 @@ sys.setdefaultencoding("utf-8")
 # import PDF_To_PNG_Converter
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
-MODE = "Test" 
-# MODE = "Development" 
+# MODE = "Test" 
+MODE = "Development" 
 # MODE = "Production"
 
 
@@ -94,7 +94,7 @@ def upload_page():
             # Parse out the entered information
             title = request.form['title']
 
-            authorNames = request.form['authorName'].split(',')
+            authorNames = request.form['authors'].split(',')
             authorNames = [authorName.strip() for authorName in authorNames]
             # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
             # to resolve same-name conflicts, then passing in the correct authorID
@@ -104,23 +104,26 @@ def upload_page():
 
             abstract = request.form['abstract']
 
-            datePublished = request.form['datePublished']
-            print 'datePublished:',datePublished
-            datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+            datePublished = request.form['date']
+            if datePublished == "":
+                print "missing datepublished field, using default value"
+                datePublished = datetime(1,1,1)
+            else:
+                datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             # references = request.form['references']
             references = []
 
             authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
             
-            # print 'title:',title
-            # print 'authornames:',authorNames
-            # print 'authorIDs:',authorIDs
-            # print 'tags:',tags
-            # print 'abstract:', abstract
-            # print 'submittedBy:',get_user_id()
-            # print 'datePublished:',datePublished
-            # print 'references:',references
+            print 'title:',title
+            print 'authornames:',authorNames
+            print 'authorIDs:',authorIDs
+            print 'tags:',tags
+            print 'abstract:', abstract
+            print 'submittedBy:',get_user_id()
+            print 'datePublished:',datePublished
+            print 'references:',references
 
             # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
@@ -134,7 +137,8 @@ def upload_page():
             # png:
             # docStore.storeThumbnail(thumbnail, uniqueID)
 
-        return render_template('upload.html')
+        return "Upload successful!"
+        # return render_template('upload.html')
     # else it is a GET request
     else:
         return render_template('upload.html')
@@ -294,12 +298,20 @@ def search_endpoint(byWhat):
 
 
 
-@app.route('/asyncPaperSearch', methods=['GET', 'POST'])
+@app.route('/asyncPaperSearch', methods=['POST'])
 def async_paper_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     print 'user ' + get_user_id() + ' posted to asynchronous search'
-    print "Title:", request.values['title'], "Authors:", request.values.getlist('authors[]'), "Start:", request.values['start'], "End:", request.values['end']
-    return "Those search results though..."
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Start:", request.values['start'], "End:", request.values['end']
+    
+    title = request.form['title']
+
+    authorNames = request.form['authors'].split(',')
+    authorNames = [authorName.strip() for authorName in authorNames]
+
+    results = db.getPapersAdvancedSearch([title], [], authorNames)
+
+    return render_template('referenceSearch.html', results=results)
 
 
 
