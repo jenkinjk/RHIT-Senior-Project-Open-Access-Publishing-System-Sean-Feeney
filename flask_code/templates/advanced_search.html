@@ -1,43 +1,54 @@
 {% extends "base.html" %}
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
+<!-- grab tokenfield functionality and styling (tags input)-->
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tokenfield.css') }}">
+<script src="{{ url_for('static', filename='dist/bootstrap-tokenfield.js') }}"></script>
+
+
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
 {% endblock %}
 {% block title %}Advanced Search{% endblock %}
 {% block pageTitle %}Advanced Search{% endblock %}
 {% block content %}
 <div class="container"> <!-- container for whole page -->
 	<div class="row">
-		
-		<div class="col-lg-4 col-lg-offset-4 form-container">
-			<form action="advancedSearch" method=post enctype=multipart/form-data>
-				<label>Title words</label>
-				<p><input type=string name=title class=mimic-tagsinput></p>
-				<label>Author names</label>
-				<p><input type=string name=authors class=mimic-tagsinput></p>
-				<label>Tags</label>
-				<p><input type=string name=tags data-role="tagsinput"></p>
-				<input type=submit value=search>
-			</form>
-		</div>
+	  <div class="col-lg-4 col-lg-offset-4 form-container">
+
+	      <div class="form-group">
+	        <label for="titleInput">Title</label>
+	        <input type="text" class="form-control" id="titleInput" placeholder="Title" name="title">
+	      </div>
+
+	      <div class="form-group">
+	        <label for="authorInput">Author Names</label>
+	        <input type="text" class="form-control" id="authorInput" placeholder="Author Name" name="authors">
+	      </div>
+
+	      <div class="form-group">
+	        <label for="dateInput">Date Published (YYYY-MM-DD if not specified)</label>
+	        <input type="date" class="form-control" id="dateInput" placeholder="Date Published" name="date">
+	      </div>
+
+
+
+
+	      <div class="form-group full-width">
+	        <label for="tagsInput">Tags</label>
+	        <input type="text" class="form-control full-width" id="tagsInput" name="tags">
+	      </div>
+      <button onclick="submitForm();">Search</button>
+<!--     </form> -->
+	  </div>
 	</div>
 
-	<!--<div class="row">
-		<div class="col-lg-4 col-lg-offset-4">
-			<h2>Results:</h2>
-			<ul>
-			{% for result in results %}
-				<li>
-					<a href={{"/viewer/" + result.id}}>{{ result.title }}</a>
-					<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
-				</li>
-			{% endfor %}
-		</div>
-	</div> -->
+
+
+
+
+
 
 	<hr class="col-md-12"> <!-- divider line -->
 
@@ -47,7 +58,8 @@
             <div class="panel-heading"> <!-- start of panel heading -->
               <h2 id="sec0">Results</h2>
             </div> <!-- end of panel heading -->
-            <div class="panel-body"> <!-- start of search results panel body -->
+            <div class="panel-body" id="searchResults"> <!-- start of search results panel body -->
+            	<p class="form-group" id="searchLoading" style="display: none;">Loading...</p>
 
             	{% for result in results %}
 					<!-- <li>
@@ -83,6 +95,52 @@
     </div> <!-- end of search results row -->
 
 </div> <!-- end of container -->
+
+<script>
+function submitForm() {
+  console.log("Searching...");
+  // "loading..." appears
+  document.getElementById("searchLoading").style.display = "";
+
+  var title = document.getElementById("titleInput").value
+  var authors = document.getElementById("authorInput").value
+  // var date = document.getElementById("dateInput").value
+  var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
+  console.log(title);
+  console.log(authors);
+  // console.log(date);
+  console.log(tags);
+
+  // create a form with a couple of values
+  var formData = new FormData();
+  formData.append("title", title);
+  formData.append("authors", authors);
+  //placeholder:
+  formData.append("date", null); 
+  formData.append("tags", tags);
+  formData.append("start", 0);
+  formData.append("end", 5);
+
+  $.ajax({
+    type : "POST",
+    url : "/asyncPaperSearch",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(result) {
+        // hide the "loading..." widget
+        document.getElementById("searchLoading").style.display = "none";
+        // insert the returned html code after the references element
+        $(result).insertAfter("#searchResults");
+    }
+  });
+}
+
+$("#tagsInput").tokenfield();
+</script>
+
+
+<!--   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
@@ -95,4 +153,5 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
   <script src="{{ url_for('static', filename='assets/app.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/app_bs3.js') }}"></script>
+  -->
 {% endblock %}

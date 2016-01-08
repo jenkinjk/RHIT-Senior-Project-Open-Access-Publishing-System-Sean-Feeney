@@ -2,8 +2,12 @@
 {% block head %}
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css"> -->
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
-<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
-<script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
+
+<!-- grab tokenfield functionality and styling (tags input)-->
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tokenfield.css') }}">
+<script src="{{ url_for('static', filename='dist/bootstrap-tokenfield.js') }}"></script>
+
+
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css"> -->
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
 
@@ -39,13 +43,13 @@
         <input type="text" class="form-control" id="titleInput" placeholder="Title" name="title">
       </div>
       <div class="form-group">
-        <label for="authorInput">Author Name</label>
+        <label for="authorInput">Author Names</label>
         <input type="text" class="form-control" id="authorInput" placeholder="Author Name" name="authors">
       </div>
 
 
       <div class="form-group">
-        <label for="dateInput">Date Published (YYYY-MM-DD format if browser doesn't specify)</label>
+        <label for="dateInput">Date Published (YYYY-MM-DD if not specified)</label>
         <input type="date" class="form-control" id="dateInput" placeholder="Date Published" name="date">
       </div>
       <div class="form-group">
@@ -71,15 +75,17 @@
 
       <div class="form-group full-width">
         <label for="tagsInput">Tags</label>
-        <input type="text" class="form-control full-width" id="tagsInput" data-role="tagsinput" name="tags">
-        <button onclick="submitForm();">Upload</button>
+        <input type="text" class="form-control full-width" id="tagsInput" name="tags">
       </div>
-      
+      <button onclick="submitForm();">Upload</button>
 <!--     </form> -->
     </div>
 </div>
 
 <script>
+// should make jQuery more compatible with other libraries by removing $ alias for jQuery variable
+// jQuery.noConflict();
+
 function searchForReference() {
   console.log("Searching for reference...");
   // make the text boxes dissapear and the "loading.." widget appear
@@ -100,8 +106,10 @@ function searchForReference() {
   formData.append("title", title);
   formData.append("authors", authors);
   formData.append("date", date);
+  formData.append("tags",[]);
   formData.append("start", 0);
   formData.append("end", 5);
+
 
   $.ajax({
     type : "POST",
@@ -116,19 +124,6 @@ function searchForReference() {
         $(result).insertAfter("#referenceSearch");
     }
   });
-
-  // // send via XHR - look ma, no headers being set!
-  // var xhr = new XMLHttpRequest();
-  // xhr.onload = function(response) {
-  //     console.log("Reference check complete.");
-  //     console.log(response);
-  //     // hide elements
-  //     document.getElementById("referenceSearchLoading").style.display = "none";
-      
-  // };
-  // xhr.open("post", "/asyncPaperSearch", true);
-  // xhr.send(form);
-
 }
 
 function submitForm() {
@@ -138,7 +133,8 @@ function submitForm() {
   var authors = document.getElementById("authorInput").value
   var date = document.getElementById("dateInput").value
   var abstract = document.getElementById("abstractInput").value
-  var tags = document.getElementById("tagsInput").value
+  // var tags = document.getElementById("tagsInput").value
+  var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
   console.log(file);
   console.log(title);
   console.log(authors);
@@ -163,16 +159,18 @@ function submitForm() {
     processData: false,
     success: function(result) {
         console.log(result);
+        // document.getElementById("titleInput").value = "";
+        $("#fileInput").val("");
+        $("#titleInput").val("");
+        $("#authorInput").val("");
+        $("#dateInput").val("");
+        $("#abstractInput").val("");
+        $("#tagsInput").tokenfield('setTokens', []);
+        $("#tagsInput").val("");
     }
   });
-
-  // // send via XHR - look ma, no headers being set!
-  // var xhr = new XMLHttpRequest();
-  // xhr.onload = function() {
-  //     console.log("Upload complete.");
-  // };
-  // xhr.open("post", "/upload", true);
-  // xhr.send(form);
 }
+
+$("#tagsInput").tokenfield();
 </script>
 {% endblock %}

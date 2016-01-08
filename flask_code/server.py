@@ -99,6 +99,8 @@ def upload_page():
             # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
             # to resolve same-name conflicts, then passing in the correct authorID
 
+            print "raw tags:", request.form['tags'], "type:", type(request.form['tags'])
+
             tags = request.form['tags'].split(',')
             tags = [tag.strip() for tag in tags]
 
@@ -197,7 +199,8 @@ def uploaded_file(uniqueID):
 def get_thumbnail(uniqueID):
     print 'user ' + get_user_id() + ' is retrieving a thumbnail'
     print 'for file', uniqueID 
-    viewing_file = docStore.retrieveThumbnail(uniqueID)
+    # png:
+    # viewing_file = docStore.retrieveThumbnail(uniqueID)
     print 'content length:', viewing_file['Body']._content_length
 
     response = make_response(viewing_file['Body'].read())
@@ -302,14 +305,22 @@ def search_endpoint(byWhat):
 def async_paper_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     print 'user ' + get_user_id() + ' posted to asynchronous search'
-    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Start:", request.values['start'], "End:", request.values['end']
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
     
     title = request.form['title']
 
     authorNames = request.form['authors'].split(',')
     authorNames = [authorName.strip() for authorName in authorNames]
 
-    results = db.getPapersAdvancedSearch([title], [], authorNames)
+    date = request.form['date']
+
+    tags = request.form['tags'].split(',')
+    tags = [tag.strip() for tag in tags]
+
+    start = request.form['start']
+    end = request.form['end']
+
+    results = db.getPapersAdvancedSearch([title], tags, authorNames)
 
     return render_template('referenceSearch.html', results=results)
 
@@ -415,6 +426,7 @@ def shutdown_server():
 def get_id_for_author_name(author_name):
     # get a list of author objects similar to the given author name
     possibleAuthors = db.getAuthorsMatchingAuthorNames([author_name])
+
     print "matching author:", author_name
     for possibleAuthor in possibleAuthors:
         print "possible author match:", possibleAuthor.name

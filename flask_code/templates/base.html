@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <!-- grab Jquery from a CDN, so we don't have to save and serve it.  Load order seems to matter.  this should be loaded first (or at least before tokenfield)-->
     <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap.min.css') }}">
@@ -77,9 +78,9 @@
                   <li>
                     <a href="/profile" method="get">My Profile</a>
                   </li>
-                  <li>
+<!--                   <li>
                     <a href="/search" method="get">Search Articles</a>
-                  </li>
+                  </li> -->
                   <li>
                     <a href="/advancedSearch" method="get">Advanced Search</a>
                   </li>
