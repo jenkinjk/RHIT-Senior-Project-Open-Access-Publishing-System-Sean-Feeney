@@ -73,7 +73,7 @@ class RedisDatabase():
     #  - a list of strings of other papers that cite it:  FORMAT UNDECIDED SO FAR
     #  - a list of references to other papers :  FORMAT UNDECIDED SO FAR 
     #Returns a string paperID
-  def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, citedBys, references):
+  def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
     datePosted = datetime.now()
     print "putting paper with timestamp", datePosted
     id = self.redisDB.get("Papers:IDCounter")
@@ -84,6 +84,9 @@ class RedisDatabase():
     self.redisDB.set("Paper:"+id+":ViewCount", 0)
     self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
+	#TODO dbl check how the boolean is passed in
+	self.redisDB.set("Paper:"+id+":IsUploaded", isUploaded)
+	#TODO add to diff list?
     self.redisDB.zadd("Papers",0, id)
     for author in authors:
       self.redisDB.sadd("Author:"+author+":Papers", id)
@@ -94,6 +97,7 @@ class RedisDatabase():
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
     self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
     words = self.getSearchWords(title)
+	#TODO don't add unless uploaded? encapsulate this code into its own method, add it to word lists when uploading it 
     for word in words:
       self.redisDB.zadd("PaperWord:"+word,0, id)
     self.redisDB.incr("Papers:IDCounter")
@@ -149,8 +153,9 @@ class RedisDatabase():
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
-    references = []
-    citedBys = []
+    references = list(self.redisDB.smembers("Paper:"+paperID+":References"))
+    citedBys = list(self.redisDB.smembers("Paper:"+paperID+":CitedBys"))
+    isUploaded = self.redisDB.get("Paper:"+paperID+":IsUploaded")
     authorNames = []
     for authorID in authorIDs:
       authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
@@ -547,6 +552,22 @@ class RedisDatabase():
 
   def isStalking(self, stalkerID, userIDToCheck):
     return self.redisDB.sismember("User:"+stalkerID+":FollowingUserIDs", userIDToCheck)
+
+  def addReference(self, paperCitingID, paperCitedID):
+    self.redisDB.sadd("Paper:"+paperCitingID+":References", paperCitedID)
+    self.redisDB.sadd("Paper:"+paperCitedID+":CitedBys", paperCitingID)
+
+  def markPaperUploaded(self, paperToMarkID):
+    #TODO double check.  This is probably broken.
+    self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)
+	score = self.redisDB.zscore("NotUploadedPapers", paperToMarkID)
+	self.redisDB.zrem("NotUploadedPapers", paperToMarkID)
+	self.redisDB.zadd("Papers", paperToMarkID, score)
+	
+  def isPaperUploaded(self, paperToCheckID):
+    return self.redisDB.get("Paper:"+paperToCheckID+":IsUploaded")
+	
+	#TODO adjust or add search algorithms as needed
 
 
 
