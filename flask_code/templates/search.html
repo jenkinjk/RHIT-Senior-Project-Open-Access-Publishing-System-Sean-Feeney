@@ -42,6 +42,36 @@
 	      	</div>
 	      -->
 		</div>
+		<div class="col-lg-4 col-lg-offset-4 form-container">
+			<p id="blah1"></p>
+			<p id="blah2"></p>
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+			  Launch demo modal
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+			      </div>
+			      <div class="modal-body">
+			        <p><input id="ALASKA1" type=string>
+			        <input id="ALASKA2" type=string></p>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-primary" id="save-btn" 
+			        onclick="myFunction('ALASKA1', 'ALASKA2')" data-dismiss="modal">Save changes</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+		</div>
+
 	</div>
 
 	<!--<div class="row">
@@ -108,4 +138,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
   <script src="{{ url_for('static', filename='assets/app.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/app_bs3.js') }}"></script>
+  <script type="text/javascript">
+  	$('#openBtn').click(function(){
+  
+	  	$('.modal-body').load('/render/62805',function(result){
+		    $('#myModal').modal({show:true});
+		});	
+	});
+  </script>
+  <script>
+  	function myFunction(elmnt1,elmnt2) {
+  		document.getElementById('blah1').innerHTML=document.getElementById(elmnt1).value;
+  		document.getElementById('blah2').innerHTML=document.getElementById(elmnt2).value;
+  	}
+  </script>
 {% endblock %}
