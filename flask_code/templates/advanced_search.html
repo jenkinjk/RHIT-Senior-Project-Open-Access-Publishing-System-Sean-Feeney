@@ -104,11 +104,11 @@ function submitForm() {
 
   var title = document.getElementById("titleInput").value
   var authors = document.getElementById("authorInput").value
-  // var date = document.getElementById("dateInput").value
+  var date = document.getElementById("dateInput").value
   var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
   console.log(title);
   console.log(authors);
-  // console.log(date);
+  console.log(date);
   console.log(tags);
 
   // create a form with a couple of values
@@ -116,7 +116,7 @@ function submitForm() {
   formData.append("title", title);
   formData.append("authors", authors);
   //placeholder:
-  formData.append("date", null); 
+  formData.append("date", date); 
   formData.append("tags", tags);
   formData.append("start", 0);
   formData.append("end", 5);
