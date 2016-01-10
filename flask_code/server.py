@@ -271,6 +271,7 @@ def search_page():
     print 'user ' + get_user_id() + ' is searching'
     return render_template('search.html')
 
+# TODO: Unused, delete this
 @app.route('/search-<byWhat>', methods=['GET', 'POST'])
 def search_endpoint(byWhat):
     print 'user ' + get_user_id() + ' is searching'
@@ -317,19 +318,19 @@ def async_paper_search_endpoint():
     tags = request.form['tags'].split(',')
     tags = [tag.strip() for tag in tags]
 
-    start = request.form['start']
-    end = request.form['end']
+    start = int(request.form['start'])
+    end = int(request.form['end'])
 
-    results = db.getPapersAdvancedSearch([title], tags, authorNames)
+    results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
 
-    return render_template('referenceSearch.html', results=results)
-
-
+    return render_template('referenceSearch.html', results=results[start:end])
 
 
 
 
 
+
+# TODO: Unused, delete this as a post method
 @app.route('/advancedSearch', methods=['GET', 'POST'])
 def advanced_search_page():
     print 'user ' + get_user_id() + ' is searching'
