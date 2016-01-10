@@ -2,8 +2,12 @@
 {% block head %}
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css"> -->
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
-<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
-<script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
+
+<!-- grab tokenfield functionality and styling (tags input)-->
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tokenfield.css') }}">
+<script src="{{ url_for('static', filename='dist/bootstrap-tokenfield.js') }}"></script>
+
+
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css"> -->
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
 
@@ -27,67 +31,146 @@
 
 <div class="row">
   <div class="col-lg-4 col-lg-offset-4 form-container">
-    <form action="" method=post enctype=multipart/form-data>
+    <!-- <form action="" method=post enctype=multipart/form-data> -->
       <div class="form-group">
-        <label for="exampleInputFile">File input</label>
-        <input class="full-width" type="file" name="file" id="exampleInputFile">
+        <label for="fileInput">File input</label>
+        <input class="full-width" type="file" name="file" id="fileInput">
         <!-- helper text if user needs extra explanation within form -->
         <!-- <p class="help-block">Example block-level help text here.</p> -->
       </div>
       <div class="form-group">
-        <label for="exampleTitle">Title</label>
-        <input type="text" class="form-control" id="exampleTitle" placeholder="Title" name="title">
+        <label for="titleInput">Title</label>
+        <input type="text" class="form-control" id="titleInput" placeholder="Title" name="title">
       </div>
       <div class="form-group">
-        <label for="exampleAuthorName">Author Name</label>
-        <input type="text" class="form-control" id="exampleAuthorName" placeholder="Author Name" name="authorName">
+        <label for="authorInput">Author Names</label>
+        <input type="text" class="form-control" id="authorInput" placeholder="Author Name" name="authors">
       </div>
 
 
       <div class="form-group">
-        <label for="exampleDatePublished">Date Published (YYYY-MM-DD format if browser doesn't specify)</label>
-        <input type="date" class="form-control" id="exampleDatePublished" placeholder="Date Published" name="datePublished">
+        <label for="dateInput">Date Published (YYYY-MM-DD if not specified)</label>
+        <input type="date" class="form-control" id="dateInput" placeholder="Date Published" name="date">
       </div>
       <div class="form-group">
-        <label for="exampleAbstract">Abstract</label>
-        <textarea class="form-control" rows="4" id="exampleAbstract" placeholder="Abstract" name="abstract"></textarea>
+        <label for="abstractInput">Abstract</label>
+        <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract"></textarea>
         <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
       </div>
       <div class="form-group">
         <label for="exampleReferences">References</label>
-        <div class="form-group">
-        <button onclick="searchForReference();">Add Reference</button>
+        <div class="form-group" id="referenceSearch">
+
+        <input type="text" id="referenceTitleInput" placeholder="Title">
+        <input type="text" id="referenceAuthorsInput" placeholder="Authors">
+        <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
+        <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
+        <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
       </div>
         <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
       </div>
 
 
 
+
       <div class="form-group full-width">
-        <label for="exampleTags">Tags</label>
-        <input type="text" class="form-control full-width" id="exampleTags" data-role="tagsinput" name="tags">
+        <label for="tagsInput">Tags</label>
+        <input type="text" class="form-control full-width" id="tagsInput" name="tags">
       </div>
-      <button type="submit" class="btn btn-default">Upload</button>
-    </form>
-    <button onclick="searchForReference();">Add Reference</button>
-  </div>
+      <button onclick="submitForm();">Upload</button>
+<!--     </form> -->
+    </div>
 </div>
 
 <script>
+// should make jQuery more compatible with other libraries by removing $ alias for jQuery variable
+// jQuery.noConflict();
+
 function searchForReference() {
   console.log("Searching for reference...");
+  // make the text boxes dissapear and the "loading.." widget appear
+  document.getElementById("referenceSearchLoading").style.display = "";
+  document.getElementById("referenceTitleInput").style.display = "none";
+  document.getElementById("referenceAuthorsInput").style.display = "none";
+  document.getElementById("referenceDateInput").style.display = "none";
+  document.getElementById("referenceSearchButton").style.display = "none";
+
+  var title = document.getElementById("referenceTitleInput").value
+  var authors = document.getElementById("referenceAuthorsInput").value
+  var date = document.getElementById("referenceDateInput").value
+  console.log(title);
+  console.log(authors);
+  console.log(date);
+
+  var formData = new FormData();
+  formData.append("title", title);
+  formData.append("authors", authors);
+  formData.append("date", date);
+  formData.append("tags",[]);
+  formData.append("start", 0);
+  formData.append("end", 5);
+
+
   $.ajax({
     type : "POST",
     url : "/asyncPaperSearch",
-    data: {title : "cheeseburgers",
-           authors : ["bob marley", "clint eastwood"],
-           start : 0,
-           end : 5},
-    
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(result) {
+        // hide the "loading..." widget
+        document.getElementById("referenceSearchLoading").style.display = "none";
+        // insert the returned html code after the references element
+        $(result).insertAfter("#referenceSearch");
+    }
+  });
+}
+
+function submitForm() {
+  console.log("Submitting form...");
+  var file = document.getElementById("fileInput").files[0]
+  var title = document.getElementById("titleInput").value
+  var authors = document.getElementById("authorInput").value
+  var date = document.getElementById("dateInput").value
+  var abstract = document.getElementById("abstractInput").value
+  // var tags = document.getElementById("tagsInput").value
+  var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
+  console.log(file);
+  console.log(title);
+  console.log(authors);
+  console.log(date);
+  console.log(abstract);
+  console.log(tags);
+
+  // create a form with a couple of values
+  var formData = new FormData();
+  formData.append("file", file);
+  formData.append("title", title);
+  formData.append("authors", authors);
+  formData.append("date", date);
+  formData.append("abstract", abstract);
+  formData.append("tags", tags);
+
+  $.ajax({
+    type : "POST",
+    url : "/upload",
+    data: formData,
+    contentType: false,
+    processData: false,
     success: function(result) {
         console.log(result);
+        // document.getElementById("titleInput").value = "";
+        $("#fileInput").val("");
+        $("#titleInput").val("");
+        $("#authorInput").val("");
+        $("#dateInput").val("");
+        $("#abstractInput").val("");
+        $("#tagsInput").tokenfield('setTokens', []);
+        $("#tagsInput").val("");
     }
-});
+  });
 }
+
+$("#tagsInput").tokenfield();
 </script>
 {% endblock %}

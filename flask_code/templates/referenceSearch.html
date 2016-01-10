@@ -1,0 +1,43 @@
+
+<div class="row">
+	<div class="paperBlock">
+      <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+      <div class="col-md-3">
+        <strong>Paper Title:</strong></br>
+        <a href={{"/viewer/"}}>View Paper</a>
+      </div>
+    </div> <!-- end of paper block -->
+
+    <hr class="col-md-11"> <!-- divider line -->
+{% for result in results %}
+	<!-- <li>
+		<a href={{"/viewer/" + result.id}}>{{ result.title }}</a>
+		<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
+	</li> -->
+	<div class="paperBlock">
+      <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+      <div class="col-md-3">
+        <strong>Paper Title:</strong> {{ result.title }}</br>
+        <a href={{"/viewer/" + result.id}}>View Paper</a>
+      </div>
+      <div class="col-md-3">
+        <strong>Paper Author(s):</strong> {% for author in result.authorNames %} {{author}}, {% endfor %}
+      </div>
+      <div class="col-md-3">
+        <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
+      </div>
+    </div> <!-- end of paper block -->
+
+    <hr class="col-md-11"> <!-- divider line -->
+{% endfor %}
+
+	<div class="paperBlock">
+      <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+      <div class="col-md-3">
+        <strong>Load more results</strong></br>
+        <a href={{"/viewer/"}}>View Paper</a>
+      </div>
+    </div> <!-- end of paper block -->
+
+    <hr class="col-md-11"> <!-- divider line -->
+</div>
