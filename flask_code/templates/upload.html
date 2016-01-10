@@ -57,27 +57,30 @@
         <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract"></textarea>
         <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
       </div>
-      <div class="form-group">
-        <label for="exampleReferences">References</label>
-        <div class="form-group" id="referenceSearch">
-
-        <input type="text" id="referenceTitleInput" placeholder="Title">
-        <input type="text" id="referenceAuthorsInput" placeholder="Authors">
-        <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
-        <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
-        <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
-      </div>
-        <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
-      </div>
-
-
-
 
       <div class="form-group full-width">
         <label for="tagsInput">Tags</label>
         <input type="text" class="form-control full-width" id="tagsInput" name="tags">
       </div>
+
+      <div class="form-group">
+        <label for="exampleReferences">References</label>
+        <div class="form-group" id="referenceSearch">
+          <input type="text" class="form-control full-width" id="currentRefs" placeholder="Current References">
+        </div>
+
+        <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
+        <input type="text" id="referenceTitleInput" placeholder="Title">
+        <input type="text" id="referenceAuthorsInput" placeholder="Authors">
+        <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
+        <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
+        
+        
+        <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
+      </div>
+
       <button onclick="submitForm();">Upload</button>
+      <p class="form-group" id="failedUpload" style="display: none;">Paper Not Uploaded</p>
 <!--     </form> -->
     </div>
 </div>
@@ -90,10 +93,10 @@ function searchForReference() {
   console.log("Searching for reference...");
   // make the text boxes dissapear and the "loading.." widget appear
   document.getElementById("referenceSearchLoading").style.display = "";
-  document.getElementById("referenceTitleInput").style.display = "none";
-  document.getElementById("referenceAuthorsInput").style.display = "none";
-  document.getElementById("referenceDateInput").style.display = "none";
-  document.getElementById("referenceSearchButton").style.display = "none";
+  // document.getElementById("referenceTitleInput").style.display = "none";
+  // document.getElementById("referenceAuthorsInput").style.display = "none";
+  // document.getElementById("referenceDateInput").style.display = "none";
+  // document.getElementById("referenceSearchButton").style.display = "none";
 
   var title = document.getElementById("referenceTitleInput").value
   var authors = document.getElementById("referenceAuthorsInput").value
@@ -135,12 +138,15 @@ function submitForm() {
   var abstract = document.getElementById("abstractInput").value
   // var tags = document.getElementById("tagsInput").value
   var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
+  var references = $("#currentRefs").tokenfield('getTokensList', ',', false, false);
+
   console.log(file);
   console.log(title);
   console.log(authors);
   console.log(date);
   console.log(abstract);
   console.log(tags);
+  console.log(references);
 
   // create a form with a couple of values
   var formData = new FormData();
@@ -150,6 +156,7 @@ function submitForm() {
   formData.append("date", date);
   formData.append("abstract", abstract);
   formData.append("tags", tags);
+  formData.append("references", references);
 
   $.ajax({
     type : "POST",
@@ -167,10 +174,29 @@ function submitForm() {
         $("#abstractInput").val("");
         $("#tagsInput").tokenfield('setTokens', []);
         $("#tagsInput").val("");
+        $("#currentRefs").tokenfield('setTokens', []);
+        $("#currentRefs").val("");
+        $("#referenceTitleInput").val("");
+        $("#referenceAuthorsInput").val("");
+        $("#referenceDateInput").val("");
+        document.getElementById("failedUpload").style.display = "none";
+    },
+    error: function(result) {
+      document.getElementById("failedUpload").style.display = "";
+      document.getElementById("failedUpload").style.color = "red";
     }
   });
 }
 
+function addReference(paperID, paperTitle) {
+  //$('#currentRefs').html("paperTitle");
+  console.log(paperID);
+  console.log(paperTitle);
+  $("#currentRefs").tokenfield('createToken', { value:paperID, label:paperTitle});
+  $("#referenceContainer").remove();
+}
+
 $("#tagsInput").tokenfield();
+$("#currentRefs").tokenfield();
 </script>
 {% endblock %}
