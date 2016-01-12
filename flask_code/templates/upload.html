@@ -47,14 +47,14 @@
 
         <!-- display current authors added for paper -->
         <div class="form-group" id="authorSearch">
-          <input type="text" class="form-control full-width" id="currentAuthors" placeholder="Current Authors">
+          <input type="text" class="form-control full-width" id="currentAuthors">
         </div>
 
         <!-- loading feedback -->
         <p class="form-group" id="authorSearchLoading" style="display: none;">Loading...</p>
 
         <!-- text area to enter author names to search for -->
-        <input type="text" class="form-control" id="authorInput" placeholder="Author Name" name="authors">
+        <input type="text" id="authorInput" placeholder="Author Name" name="authors">
         <button onclick="searchForAuthor();" id="authorSearchButton">Search for Author</button>
 
       </div>
@@ -78,7 +78,7 @@
       <div class="form-group">
         <label for="exampleReferences">References</label>
         <div class="form-group" id="referenceSearch">
-          <input type="text" class="form-control full-width" id="currentRefs" placeholder="Referenced Papers"> <!-- find way to make this readonly but still delete entries -->
+          <input type="text" class="form-control full-width" id="currentRefs"> <!-- find way to make this readonly but still delete entries -->
         </div>
 
         <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
@@ -103,6 +103,7 @@
 
 function searchForReference() {
   console.log("Searching for reference...");
+  $("#referenceContainer").remove();
   // make the text boxes dissapear and the "loading.." widget appear
   document.getElementById("referenceSearchLoading").style.display = "";
   // document.getElementById("referenceTitleInput").style.display = "none";
@@ -143,7 +144,7 @@ function searchForReference() {
 
 function searchForAuthor() {
   console.log("Searching for author...");
-
+  $("#authorContainer").remove();
   // make the "loading.." widget appear
   document.getElementById("authorSearchLoading").style.display = "";
 
@@ -154,7 +155,7 @@ function searchForAuthor() {
   formData.append("name", name);
   formData.append("start", 0);
   formData.append("end", 5);
-
+  formData.append("mode", "reference");
 
   $.ajax({
     type : "POST",
@@ -235,23 +236,62 @@ function submitForm() {
 
 function addReference(paperID, paperTitle) {
   //$('#currentRefs').html("paperTitle");
-  console.log(paperID);
-  console.log(paperTitle);
+  // console.log(paperID);
+  // console.log(paperTitle);
   $("#currentRefs").tokenfield('createToken', { value:paperID, label:paperTitle});
   $("#referenceContainer").remove();
 }
 
 function addAuthor(authorID, authorName) {
-  console.log(authorID);
-  console.log(authorName);
+  // console.log(authorID);
+  // console.log(authorName);
   $("#currentAuthors").tokenfield('createToken', { value:authorID, label:authorName});
   $("#authorContainer").remove();
 }
 
+
+//initialize tags input
 $("#tagsInput").tokenfield();
+
+//initialize current authors input
 $("#currentAuthors").tokenfield();
-// $("#currentAuthors").tokenfield('readonly');
+//remove the textbox-looking border, so users don't try to type in here
+$("#currentAuthors").parent().addClass("no-border");
+//make the mouse cursor not change when you pass over the area
+document.getElementById("currentAuthors-tokenfield").style.height = '0px';
+// prevent duplicates and prevent user from inputing manually
+$("#currentAuthors").on('tokenfield:createtoken', function (event) {
+    if(event.attrs.value == event.attrs.label) {
+      event.preventDefault();
+      $("#currentAuthors-tokenfield").val("");
+    }
+    var existingTokens = $(this).tokenfield('getTokens');
+    $.each(existingTokens, function(index, token) {
+        if (token.value === event.attrs.value)
+            event.preventDefault();
+    });
+});
+
+//initialize the current references input
 $("#currentRefs").tokenfield();
+//remove the textbox-looking border, so users don't try to type in here
+$("#currentRefs").parent().addClass("no-border");
+//make the mouse cursor not change when you pass over the area
+document.getElementById("currentRefs-tokenfield").style.height = '0px';
+// prevent duplicates and prevent user from inputing manually
+$('#currentRefs').on('tokenfield:createtoken', function (event) {
+    // console.log("value:" + event.attrs.value);
+    // console.log("label:" + event.attrs.label);
+    if(event.attrs.value == event.attrs.label) {
+      event.preventDefault();
+      $("#currentRefs-tokenfield").val("");
+    }
+    var existingTokens = $(this).tokenfield('getTokens');
+    $.each(existingTokens, function(index, token) {
+        if (token.value === event.attrs.value)
+            event.preventDefault();
+    });
+});
 
 </script>
 {% endblock %}

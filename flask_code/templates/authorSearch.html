@@ -9,7 +9,7 @@
         <strong>Author Paper(s):</strong> {% for paper in result.paperTitles %} {{paper}}, {% endfor %}
       </div>
       <div class="col-md-1">
-        <button type="button" class="btn btn-success btn-xs" onclick="addAuthor({{ result.id }}, '{{ result.name }}');">Author<span class="glyphicon glyphicon-plus"></span></button>
+        <button type="button" class="btn btn-success btn-xs" onclick="addAuthor({{ result.id }}, '{{ result.name }}');">Author <span class="glyphicon glyphicon-plus"></span></button>
       </div>
     </div> <!-- end of author block -->
 
