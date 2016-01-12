@@ -1,0 +1,36 @@
+<div class="row" id="authorContainer">
+{% for result in results %}
+	<div class="authorBlock">
+      <div class="col-md-4">
+        <strong>Author Name:</strong> {{ result.name }}</br>
+        <a href={{"/viewer/" + result.id}}>View Paper</a>
+      </div>
+      <div class="col-md-6">
+        <strong>Author Paper(s):</strong> {% for paper in result.paperTitles %} {{paper}}, {% endfor %}
+      </div>
+      <div class="col-md-1">
+        <button type="button" class="btn btn-success btn-xs" onclick="addAuthor({{ result.id }}, '{{ result.name }}');">Author<span class="glyphicon glyphicon-plus"></span></button>
+      </div>
+    </div> <!-- end of author block -->
+
+    <hr class="col-md-11"> <!-- divider line -->
+{% endfor %}
+
+	<div class="authorBlock">
+      <div class="col-md-3">
+        <strong>Load more results</strong></br>
+      </div>
+    </div> <!-- end of author block -->
+
+    <hr class="col-md-11"> <!-- divider line -->
+
+
+  <div class="paperBlock">
+      <div class="col-md-3">
+        <strong>I Don't See My Author Here (Enter Manually)</strong></br>
+      </div>
+    </div> <!-- end of author block -->
+
+    <hr class="col-md-11"> <!-- divider line -->
+
+</div>

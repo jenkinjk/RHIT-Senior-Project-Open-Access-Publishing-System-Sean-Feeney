@@ -13,11 +13,11 @@
       <div class="col-md-3">
         <strong>Paper Author(s):</strong> {% for author in result.authorNames %} {{author}}, {% endfor %}
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
       </div>
-      <div class="col-md-1">
-        <button type="button" class="btn btn-success btn-xs" onclick="addReference({{ result.id }}, '{{ result.title }}');">Add<span class="glyphicon glyphicon-plus"></span></button>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-success btn-xs" onclick="addReference({{ result.id }}, '{{ result.title }}');">Reference<span class="glyphicon glyphicon-plus"></span></button>
       </div>
     </div> <!-- end of paper block -->
 

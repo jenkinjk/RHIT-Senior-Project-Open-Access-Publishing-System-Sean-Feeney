@@ -44,7 +44,19 @@
       </div>
       <div class="form-group">
         <label for="authorInput">Author Names</label>
+
+        <!-- display current authors added for paper -->
+        <div class="form-group" id="authorSearch">
+          <input type="text" class="form-control full-width" id="currentAuthors" placeholder="Current Authors">
+        </div>
+
+        <!-- loading feedback -->
+        <p class="form-group" id="authorSearchLoading" style="display: none;">Loading...</p>
+
+        <!-- text area to enter author names to search for -->
         <input type="text" class="form-control" id="authorInput" placeholder="Author Name" name="authors">
+        <button onclick="searchForAuthor();" id="authorSearchButton">Search for Author</button>
+
       </div>
 
 
@@ -66,7 +78,7 @@
       <div class="form-group">
         <label for="exampleReferences">References</label>
         <div class="form-group" id="referenceSearch">
-          <input type="text" class="form-control full-width" id="currentRefs" placeholder="Current References">
+          <input type="text" class="form-control full-width" id="currentRefs" placeholder="Referenced Papers"> <!-- find way to make this readonly but still delete entries -->
         </div>
 
         <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
@@ -129,11 +141,42 @@ function searchForReference() {
   });
 }
 
+function searchForAuthor() {
+  console.log("Searching for author...");
+
+  // make the "loading.." widget appear
+  document.getElementById("authorSearchLoading").style.display = "";
+
+  var name = document.getElementById("authorInput").value
+  console.log(name);
+
+  var formData = new FormData();
+  formData.append("name", name);
+  formData.append("start", 0);
+  formData.append("end", 5);
+
+
+  $.ajax({
+    type : "POST",
+    url : "/asyncAuthorSearch",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(result) {
+        // hide the "loading..." widget
+        document.getElementById("authorSearchLoading").style.display = "none";
+        // insert the returned html code after the references element
+        $(result).insertAfter("#authorSearch");
+    }
+  });
+}
+
 function submitForm() {
   console.log("Submitting form...");
   var file = document.getElementById("fileInput").files[0]
   var title = document.getElementById("titleInput").value
-  var authors = document.getElementById("authorInput").value
+  //var authors = document.getElementById("authorInput").value
+  var authors = $("#currentAuthors").tokenfield('getTokensList', ',', false, false);
   var date = document.getElementById("dateInput").value
   var abstract = document.getElementById("abstractInput").value
   // var tags = document.getElementById("tagsInput").value
@@ -169,6 +212,8 @@ function submitForm() {
         // document.getElementById("titleInput").value = "";
         $("#fileInput").val("");
         $("#titleInput").val("");
+        $("#currentAuthors").tokenfield('setTokens', []);
+        $("#currentAuthors").val("");
         $("#authorInput").val("");
         $("#dateInput").val("");
         $("#abstractInput").val("");
@@ -196,7 +241,17 @@ function addReference(paperID, paperTitle) {
   $("#referenceContainer").remove();
 }
 
+function addAuthor(authorID, authorName) {
+  console.log(authorID);
+  console.log(authorName);
+  $("#currentAuthors").tokenfield('createToken', { value:authorID, label:authorName});
+  $("#authorContainer").remove();
+}
+
 $("#tagsInput").tokenfield();
+$("#currentAuthors").tokenfield();
+// $("#currentAuthors").tokenfield('readonly');
 $("#currentRefs").tokenfield();
+
 </script>
 {% endblock %}

@@ -94,7 +94,8 @@ def upload_page():
             # Parse out the entered information
             title = request.form['title']
 
-            authorNames = request.form['authors'].split(',')
+            # authorNames = request.form['authors'].split(',')
+            authorNames = request.form['authors']
             authorNames = [authorName.strip() for authorName in authorNames]
             # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
             # to resolve same-name conflicts, then passing in the correct authorID
@@ -326,7 +327,19 @@ def async_paper_search_endpoint():
     return render_template('referenceSearch.html', results=results[start:end])
 
 
+@app.route('/asyncAuthorSearch', methods=['POST'])
+def async_author_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous search'
+    
+    name = request.form['name']
 
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getAuthorsMatchingAuthorNames([name])
+
+    return render_template('authorSearch.html', results=results[start:end])
 
 
 
