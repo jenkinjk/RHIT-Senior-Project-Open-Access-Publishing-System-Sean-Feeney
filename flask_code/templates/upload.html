@@ -125,7 +125,7 @@ function searchForReference() {
   formData.append("tags",[]);
   formData.append("start", 0);
   formData.append("end", 5);
-
+  formData.append("mode", "reference");
 
   $.ajax({
     type : "POST",
@@ -155,7 +155,6 @@ function searchForAuthor() {
   formData.append("name", name);
   formData.append("start", 0);
   formData.append("end", 5);
-  formData.append("mode", "reference");
 
   $.ajax({
     type : "POST",
