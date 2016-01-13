@@ -125,6 +125,7 @@ function submitForm() {
   formData.append("tags", tags);
   formData.append("start", 0);
   formData.append("end", 5);
+  formData.append("mode", "search");
 
   $.ajax({
     type : "POST",
