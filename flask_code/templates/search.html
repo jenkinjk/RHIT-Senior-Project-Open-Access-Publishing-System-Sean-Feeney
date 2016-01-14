@@ -1,11 +1,18 @@
 {% extends "base.html" %}
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- grab Jquery from a CDN, so we don't have to save and serve it.  Load order seems to matter.  this should be loaded first (or at least before tokenfield)-->
+<script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+
+<!-- grab tokenfield functionality and styling (tags input)-->
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tokenfield.css') }}">
+<script src="{{ url_for('static', filename='dist/bootstrap-tokenfield.js') }}"></script>
+
+
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
 {% endblock %}
 {% block title %}Search Articles{% endblock %}
 {% block pageTitle %}Search Articles{% endblock %}
@@ -16,7 +23,7 @@
 		<div class="col-lg-4 col-lg-offset-4 form-container">
 			<h3>Search by Title</h3>
 			<form action="search-byTitle" method=post enctype=multipart/form-data>
-				<p><input type=string name=title class=mimic-tagsinput>
+				<p><input type="text" class="form-control" id="titleInput" placeholder="Title" name="title">
 				   <input type=submit value=search></p>
 			</form>
 		</div>
@@ -42,6 +49,36 @@
 	      	</div>
 	      -->
 		</div>
+		<div class="col-lg-4 col-lg-offset-4 form-container">
+			<p id="blah1"></p>
+			<p id="blah2"></p>
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+			  Launch demo modal
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+			      </div>
+			      <div class="modal-body">
+			        <p><input id="ALASKA1" type=string>
+			        <input id="ALASKA2" type=string></p>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-primary" id="save-btn" 
+			        onclick="myFunction('ALASKA1', 'ALASKA2')" data-dismiss="modal">Save changes</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+		</div>
+
 	</div>
 
 	<!--<div class="row">
@@ -96,16 +133,4 @@
     </div> <!-- end of search results row -->
 
 </div> <!-- end of container -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
-  <script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='dist/bootstrap-tagsinput/bootstrap-tagsinput-angular.min.js') }}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/html.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
-  <script src="{{ url_for('static', filename='assets/app.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/app_bs3.js') }}"></script>
 {% endblock %}

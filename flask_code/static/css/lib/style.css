@@ -1,3 +1,9 @@
+.no-border {
+	border: 0px;
+    box-shadow: 0 0px;
+    border-radius: 0px;
+}
+
 .form-container {
 	padding: 10px;
 	box-shadow: 3px 3px 15px #888888;

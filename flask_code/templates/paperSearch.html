@@ -16,9 +16,6 @@
       <div class="col-md-2">
         <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
       </div>
-      <div class="col-md-2">
-        <button type="button" class="btn btn-success btn-xs" onclick="addReference({{ result.id }}, '{{ result.title }}');">Referenced <span class="glyphicon glyphicon-plus"></span></button>
-      </div>
     </div> <!-- end of paper block -->
 
     <hr class="col-md-11"> <!-- divider line -->

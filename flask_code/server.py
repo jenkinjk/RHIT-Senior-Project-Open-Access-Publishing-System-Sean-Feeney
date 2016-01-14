@@ -94,12 +94,14 @@ def upload_page():
             # Parse out the entered information
             title = request.form['title']
 
-            authorNames = request.form['authors'].split(',')
-            authorNames = [authorName.strip() for authorName in authorNames]
+            authorIDs = request.form['authors'].split(',')
+            print("raw authors:", authorIDs)
+            authorIDs = [authorID.strip() for authorID in authorIDs]
             # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
             # to resolve same-name conflicts, then passing in the correct authorID
 
             tags = request.form['tags'].split(',')
+            print("raw tags:", tags)
             tags = [tag.strip() for tag in tags]
 
             abstract = request.form['abstract']
@@ -112,12 +114,13 @@ def upload_page():
                 datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             # references = request.form['references']
-            references = []
+            references = request.form['references']
+            print("raw references:", references)
+            references = [reference.strip() for reference in references]
 
-            authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
+            # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
             
             print 'title:',title
-            print 'authornames:',authorNames
             print 'authorIDs:',authorIDs
             print 'tags:',tags
             print 'abstract:', abstract
@@ -197,7 +200,8 @@ def uploaded_file(uniqueID):
 def get_thumbnail(uniqueID):
     print 'user ' + get_user_id() + ' is retrieving a thumbnail'
     print 'for file', uniqueID 
-    viewing_file = docStore.retrieveThumbnail(uniqueID)
+    # png:
+    # viewing_file = docStore.retrieveThumbnail(uniqueID)
     print 'content length:', viewing_file['Body']._content_length
 
     response = make_response(viewing_file['Body'].read())
@@ -268,6 +272,7 @@ def search_page():
     print 'user ' + get_user_id() + ' is searching'
     return render_template('search.html')
 
+# TODO: Unused, delete this
 @app.route('/search-<byWhat>', methods=['GET', 'POST'])
 def search_endpoint(byWhat):
     print 'user ' + get_user_id() + ' is searching'
@@ -302,23 +307,46 @@ def search_endpoint(byWhat):
 def async_paper_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     print 'user ' + get_user_id() + ' posted to asynchronous search'
-    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Start:", request.values['start'], "End:", request.values['end']
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
     
     title = request.form['title']
 
     authorNames = request.form['authors'].split(',')
     authorNames = [authorName.strip() for authorName in authorNames]
 
-    results = db.getPapersAdvancedSearch([title], [], authorNames)
+    date = request.form['date']
 
-    return render_template('referenceSearch.html', results=results)
+    tags = request.form['tags'].split(',')
+    tags = [tag.strip() for tag in tags]
+
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
+
+    if(request.form['mode'] == 'reference'):
+        return render_template('referenceSearch.html', results=results[start:end])
+    else:
+        return render_template('paperSearch.html', results=results[start:end])
+
+
+@app.route('/asyncAuthorSearch', methods=['POST'])
+def async_author_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous search'
+    
+    name = request.form['name']
+
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getAuthorsMatchingAuthorNames([name])
+
+    return render_template('authorSearch.html', results=results[start:end])
 
 
 
-
-
-
-
+# TODO: Unused, delete this as a post method
 @app.route('/advancedSearch', methods=['GET', 'POST'])
 def advanced_search_page():
     print 'user ' + get_user_id() + ' is searching'
@@ -415,6 +443,7 @@ def shutdown_server():
 def get_id_for_author_name(author_name):
     # get a list of author objects similar to the given author name
     possibleAuthors = db.getAuthorsMatchingAuthorNames([author_name])
+
     print "matching author:", author_name
     for possibleAuthor in possibleAuthors:
         print "possible author match:", possibleAuthor.name

@@ -2,8 +2,12 @@
 {% block head %}
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css"> -->
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
-<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tagsinput.css') }}">
-<script src="{{ url_for('static', filename='dist/bootstrap-tagsinput.min.js') }}"></script>
+
+<!-- grab tokenfield functionality and styling (tags input)-->
+<link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tokenfield.css') }}">
+<script src="{{ url_for('static', filename='dist/bootstrap-tokenfield.js') }}"></script>
+
+
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css"> -->
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
 
@@ -39,13 +43,25 @@
         <input type="text" class="form-control" id="titleInput" placeholder="Title" name="title">
       </div>
       <div class="form-group">
-        <label for="authorInput">Author Name</label>
-        <input type="text" class="form-control" id="authorInput" placeholder="Author Name" name="authors">
+        <label for="authorInput">Author Names</label>
+
+        <!-- display current authors added for paper -->
+        <div class="form-group" id="authorSearch">
+          <input type="text" class="form-control full-width" id="currentAuthors">
+        </div>
+
+        <!-- loading feedback -->
+        <p class="form-group" id="authorSearchLoading" style="display: none;">Loading...</p>
+
+        <!-- text area to enter author names to search for -->
+        <input type="text" id="authorInput" placeholder="Author Name" name="authors">
+        <button onclick="searchForAuthor();" id="authorSearchButton">Search for Author</button>
+
       </div>
 
 
       <div class="form-group">
-        <label for="dateInput">Date Published (YYYY-MM-DD format if browser doesn't specify)</label>
+        <label for="dateInput">Date Published (YYYY-MM-DD if not specified)</label>
         <input type="date" class="form-control" id="dateInput" placeholder="Date Published" name="date">
       </div>
       <div class="form-group">
@@ -53,41 +69,49 @@
         <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract"></textarea>
         <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
       </div>
+
+      <div class="form-group full-width">
+        <label for="tagsInput">Tags</label>
+        <input type="text" class="form-control full-width" id="tagsInput" name="tags">
+      </div>
+
       <div class="form-group">
         <label for="exampleReferences">References</label>
         <div class="form-group" id="referenceSearch">
+          <input type="text" class="form-control full-width" id="currentRefs"> <!-- find way to make this readonly but still delete entries -->
+        </div>
 
+        <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
         <input type="text" id="referenceTitleInput" placeholder="Title">
         <input type="text" id="referenceAuthorsInput" placeholder="Authors">
         <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
         <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
-        <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
-      </div>
+        
+        
         <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
       </div>
 
-
-
-
-      <div class="form-group full-width">
-        <label for="tagsInput">Tags</label>
-        <input type="text" class="form-control full-width" id="tagsInput" data-role="tagsinput" name="tags">
-        <button onclick="submitForm();">Upload</button>
-      </div>
-      
+      <button onclick="submitForm();">Upload</button>
+      <p class="form-group" id="uploadLoading" style="display: none;">Uploading...</p>
+      <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
+      <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
 <!--     </form> -->
     </div>
 </div>
 
 <script>
+// should make jQuery more compatible with other libraries by removing $ alias for jQuery variable
+// jQuery.noConflict();
+
 function searchForReference() {
   console.log("Searching for reference...");
+  $("#referenceContainer").remove();
   // make the text boxes dissapear and the "loading.." widget appear
   document.getElementById("referenceSearchLoading").style.display = "";
-  document.getElementById("referenceTitleInput").style.display = "none";
-  document.getElementById("referenceAuthorsInput").style.display = "none";
-  document.getElementById("referenceDateInput").style.display = "none";
-  document.getElementById("referenceSearchButton").style.display = "none";
+  // document.getElementById("referenceTitleInput").style.display = "none";
+  // document.getElementById("referenceAuthorsInput").style.display = "none";
+  // document.getElementById("referenceDateInput").style.display = "none";
+  // document.getElementById("referenceSearchButton").style.display = "none";
 
   var title = document.getElementById("referenceTitleInput").value
   var authors = document.getElementById("referenceAuthorsInput").value
@@ -100,8 +124,10 @@ function searchForReference() {
   formData.append("title", title);
   formData.append("authors", authors);
   formData.append("date", date);
+  formData.append("tags",[]);
   formData.append("start", 0);
   formData.append("end", 5);
+  formData.append("mode", "reference");
 
   $.ajax({
     type : "POST",
@@ -116,35 +142,63 @@ function searchForReference() {
         $(result).insertAfter("#referenceSearch");
     }
   });
+}
 
-  // // send via XHR - look ma, no headers being set!
-  // var xhr = new XMLHttpRequest();
-  // xhr.onload = function(response) {
-  //     console.log("Reference check complete.");
-  //     console.log(response);
-  //     // hide elements
-  //     document.getElementById("referenceSearchLoading").style.display = "none";
-      
-  // };
-  // xhr.open("post", "/asyncPaperSearch", true);
-  // xhr.send(form);
+function searchForAuthor() {
+  console.log("Searching for author...");
+  $("#authorContainer").remove();
+  // make the "loading.." widget appear
+  document.getElementById("authorSearchLoading").style.display = "";
 
+  var name = document.getElementById("authorInput").value
+  console.log(name);
+
+  var formData = new FormData();
+  formData.append("name", name);
+  formData.append("start", 0);
+  formData.append("end", 5);
+
+  $.ajax({
+    type : "POST",
+    url : "/asyncAuthorSearch",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(result) {
+        // hide the "loading..." widget
+        document.getElementById("authorSearchLoading").style.display = "none";
+        // insert the returned html code after the references element
+        $(result).insertAfter("#authorSearch");
+    }
+  });
 }
 
 function submitForm() {
   console.log("Submitting form...");
+  document.getElementById("uploadLoading").style.display = "";
+  document.getElementById("failedUpload").style.display = "none";
+  document.getElementById("successfulUpload").style.display = "none";
+
+  $("#authorContainer").remove();
+  $("#referenceContainer").remove();
+
   var file = document.getElementById("fileInput").files[0]
   var title = document.getElementById("titleInput").value
-  var authors = document.getElementById("authorInput").value
+  //var authors = document.getElementById("authorInput").value
+  var authors = $("#currentAuthors").tokenfield('getTokensList', ',', false, false);
   var date = document.getElementById("dateInput").value
   var abstract = document.getElementById("abstractInput").value
-  var tags = document.getElementById("tagsInput").value
+  // var tags = document.getElementById("tagsInput").value
+  var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
+  var references = $("#currentRefs").tokenfield('getTokensList', ',', false, false);
+
   console.log(file);
   console.log(title);
   console.log(authors);
   console.log(date);
   console.log(abstract);
   console.log(tags);
+  console.log(references);
 
   // create a form with a couple of values
   var formData = new FormData();
@@ -154,6 +208,7 @@ function submitForm() {
   formData.append("date", date);
   formData.append("abstract", abstract);
   formData.append("tags", tags);
+  formData.append("references", references);
 
   $.ajax({
     type : "POST",
@@ -163,16 +218,92 @@ function submitForm() {
     processData: false,
     success: function(result) {
         console.log(result);
+        // document.getElementById("titleInput").value = "";
+        $("#fileInput").val("");
+        $("#titleInput").val("");
+        $("#currentAuthors").tokenfield('setTokens', []);
+        $("#currentAuthors").val("");
+        $("#authorInput").val("");
+        $("#dateInput").val("");
+        $("#abstractInput").val("");
+        $("#tagsInput").tokenfield('setTokens', []);
+        $("#tagsInput").val("");
+        $("#currentRefs").tokenfield('setTokens', []);
+        $("#currentRefs").val("");
+        $("#referenceTitleInput").val("");
+        $("#referenceAuthorsInput").val("");
+        $("#referenceDateInput").val("");
+        document.getElementById("uploadLoading").style.display = "none";
+        document.getElementById("failedUpload").style.display = "none";
+        document.getElementById("successfulUpload").style.display = "";
+    },
+    error: function(result) {
+      document.getElementById("uploadLoading").style.display = "none";
+      document.getElementById("failedUpload").style.display = "";
+      document.getElementById("successfulUpload").style.display = "none";
+      // document.getElementById("failedUpload").style.color = "red";
     }
   });
-
-  // // send via XHR - look ma, no headers being set!
-  // var xhr = new XMLHttpRequest();
-  // xhr.onload = function() {
-  //     console.log("Upload complete.");
-  // };
-  // xhr.open("post", "/upload", true);
-  // xhr.send(form);
 }
+
+function addReference(paperID, paperTitle) {
+  //$('#currentRefs').html("paperTitle");
+  // console.log(paperID);
+  // console.log(paperTitle);
+  $("#currentRefs").tokenfield('createToken', { value:paperID, label:paperTitle});
+  $("#referenceContainer").remove();
+}
+
+function addAuthor(authorID, authorName) {
+  // console.log(authorID);
+  // console.log(authorName);
+  $("#currentAuthors").tokenfield('createToken', { value:authorID, label:authorName});
+  $("#authorContainer").remove();
+}
+
+
+//initialize tags input
+$("#tagsInput").tokenfield({createTokensOnBlur: true});
+
+//initialize current authors input
+$("#currentAuthors").tokenfield();
+//remove the textbox-looking border, so users don't try to type in here
+$("#currentAuthors").parent().addClass("no-border");
+//make the mouse cursor not change when you pass over the area
+document.getElementById("currentAuthors-tokenfield").style.height = '0px';
+// prevent duplicates and prevent user from inputing manually
+$("#currentAuthors").on('tokenfield:createtoken', function (event) {
+    if(event.attrs.value == event.attrs.label) {
+      event.preventDefault();
+      $("#currentAuthors-tokenfield").val("");
+    }
+    var existingTokens = $(this).tokenfield('getTokens');
+    $.each(existingTokens, function(index, token) {
+        if (token.value === event.attrs.value)
+            event.preventDefault();
+    });
+});
+
+//initialize the current references input
+$("#currentRefs").tokenfield();
+//remove the textbox-looking border, so users don't try to type in here
+$("#currentRefs").parent().addClass("no-border");
+//make the mouse cursor not change when you pass over the area
+document.getElementById("currentRefs-tokenfield").style.height = '0px';
+// prevent duplicates and prevent user from inputing manually
+$('#currentRefs').on('tokenfield:createtoken', function (event) {
+    // console.log("value:" + event.attrs.value);
+    // console.log("label:" + event.attrs.label);
+    if(event.attrs.value == event.attrs.label) {
+      event.preventDefault();
+      $("#currentRefs-tokenfield").val("");
+    }
+    var existingTokens = $(this).tokenfield('getTokens');
+    $.each(existingTokens, function(index, token) {
+        if (token.value === event.attrs.value)
+            event.preventDefault();
+    });
+});
+
 </script>
 {% endblock %}

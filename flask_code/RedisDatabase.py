@@ -75,7 +75,7 @@ class RedisDatabase():
     #Returns a string paperID
   def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
     datePosted = datetime.now()
-    print "putting paper with timestamp", datePosted
+    #print "putting paper with timestamp", datePosted
     id = self.redisDB.get("Papers:IDCounter")
     self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract", abstract)
@@ -84,9 +84,7 @@ class RedisDatabase():
     self.redisDB.set("Paper:"+id+":ViewCount", 0)
     self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
-	#TODO dbl check how the boolean is passed in
-	self.redisDB.set("Paper:"+id+":IsUploaded", isUploaded)
-	#TODO add to diff list?
+    self.redisDB.set("Paper:"+id+":IsUploaded", isUploaded)
     self.redisDB.zadd("Papers",0, id)
     for author in authors:
       self.redisDB.sadd("Author:"+author+":Papers", id)
@@ -97,7 +95,6 @@ class RedisDatabase():
       self.redisDB.sadd("Paper:"+id+":Tags", tag)
     self.redisDB.zadd("YearPublished:"+str(datePublished.year), 0, id)
     words = self.getSearchWords(title)
-	#TODO don't add unless uploaded? encapsulate this code into its own method, add it to word lists when uploading it 
     for word in words:
       self.redisDB.zadd("PaperWord:"+word,0, id)
     self.redisDB.incr("Papers:IDCounter")
@@ -155,7 +152,7 @@ class RedisDatabase():
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = list(self.redisDB.smembers("Paper:"+paperID+":References"))
     citedBys = list(self.redisDB.smembers("Paper:"+paperID+":CitedBys"))
-    isUploaded = self.redisDB.get("Paper:"+paperID+":IsUploaded")
+    isUploaded = self.redisDB.get("Paper:"+paperID+":IsUploaded") =='True'
     authorNames = []
     for authorID in authorIDs:
       authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
@@ -164,7 +161,7 @@ class RedisDatabase():
       publisherName = "No Publisher Name"
     else:
       publisherName = publisherGuy.name
-    return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
+    return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames, isUploaded)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
@@ -328,7 +325,6 @@ class RedisDatabase():
     for titleWord in titleWords:
       titleKeys.append("PaperWord:"+titleWord)
     paperIDs = self.getMergedSearchResults(titleKeys)
-    #print 'paperIDs:', paperIDs
     papers = []
     for paperID in paperIDs:
       paper = self.getPaper(paperID)
@@ -338,6 +334,25 @@ class RedisDatabase():
   def getPapersAdvancedSearch(self, titles, tags, authorNamesToSearch):
     authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
     return self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+	
+  def getPapersAdvancedSearchRealOnly(self, titles, tags, authorNamesToSearch):
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
+    papers = self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+    papersToReturn = []
+    for paper in papers:
+      if paper.isUploaded:
+        papersToReturn.append(paper)
+    return papersToReturn
+	
+  def getPapersAdvancedSearchFakeOnly(self, titles, tags, authorNamesToSearch):
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
+    papers = self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+    papersToReturn = []
+
+    for paper in papers:
+      if not paper.isUploaded:
+        papersToReturn.append(paper)
+    return papersToReturn
   
   def getPapersAdvancedAuthorIDSearch(self, titles, tags, authorIDs):
     searchKeys = []
@@ -560,16 +575,9 @@ class RedisDatabase():
   def markPaperUploaded(self, paperToMarkID):
     #TODO double check.  This is probably broken.
     self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)
-	score = self.redisDB.zscore("NotUploadedPapers", paperToMarkID)
-	self.redisDB.zrem("NotUploadedPapers", paperToMarkID)
-	self.redisDB.zadd("Papers", paperToMarkID, score)
 	
   def isPaperUploaded(self, paperToCheckID):
     return self.redisDB.get("Paper:"+paperToCheckID+":IsUploaded")
-	
-	#TODO adjust or add search algorithms as needed
-
-
 
 
 

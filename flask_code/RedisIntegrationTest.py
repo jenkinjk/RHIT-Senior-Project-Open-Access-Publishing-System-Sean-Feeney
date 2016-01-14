@@ -69,8 +69,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.tags.append("Distributed Computing")
     self.tags.append("Big Data")
 
-    self.paperIDs.append(self.redisDB.putPaper("MY TITLE IS IN CAPS", [self.authorIDs[0], self.authorIDs[5]], [self.tags[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("cheese bacon", [self.authorIDs[2], self.authorIDs[3]], [self.tags[1], self.tags[2]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("MY TITLE IS IN CAPS", [self.authorIDs[0], self.authorIDs[5]], [self.tags[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], True))
+    self.paperIDs.append(self.redisDB.putPaper("cheese bacon", [self.authorIDs[2], self.authorIDs[3]], [self.tags[1], self.tags[2]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
 
   def loadMoreTestData(self):
     self.redisDB.putTag("Pirates")
@@ -79,14 +79,14 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.tags.append("Pirates")
     self.tags.append("Dieting")
 
-    self.paperIDs.append(self.redisDB.putPaper("Foo foo fOo Bar Bar bAR", [self.authorIDs[0], self.authorIDs[5]], [self.tags[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("Foo foo fOo Bar Bar bAR", [self.authorIDs[0], self.authorIDs[5]], [self.tags[0]], "This is an abstract", -1, datetime.datetime(2003, 8, 4), self.publisherIDs[0], True))
     self.authorIDs.append(self.redisDB.putAuthor("Jimmy Fallon"))
-    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[4], self.tags[3],self.tags[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3],self.tags[4]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Hungry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
-    self.paperIDs.append(self.redisDB.putPaper("The Happy Planet of the Apes", [self.authorIDs[0], self.authorIDs[6]], [self.tags[4],self.tags[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], [], []))
+    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[4], self.tags[3],self.tags[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
+    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3],self.tags[4]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
+    self.paperIDs.append(self.redisDB.putPaper("The Friendly Pirates of the Carribean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
+    self.paperIDs.append(self.redisDB.putPaper("The Angry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
+    self.paperIDs.append(self.redisDB.putPaper("The Hungry Pirates of the Mediterranean", [self.authorIDs[0], self.authorIDs[6]], [self.tags[3]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
+    self.paperIDs.append(self.redisDB.putPaper("The Happy Planet of the Apes", [self.authorIDs[0], self.authorIDs[6]], [self.tags[4],self.tags[5]], "This is another abstract", -1, datetime.datetime(2004, 8, 4), self.publisherIDs[1], True))
 
   def viewPiratePapers(self):
     for i in range(0,15):
@@ -307,31 +307,31 @@ class RedisIntegrationTestCase(unittest.TestCase):
   #24
   def test_PutPaper(self):
     self.redisDB.putAuthor("Author one")
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
 
   #25
   def test_PutPaperAuthors(self):
     self.redisDB.putAuthor("Author one")
     self.redisDB.putAuthor("Author two")
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0","1"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0","1"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
 
   #26
   def test_PutPaperTags(self):
     self.redisDB.putAuthor("Author one")
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["Tag one", "Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["Tag one", "Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
 
   #27
   def test_PutPaperTagsAuthors(self):
     self.redisDB.putAuthor("Author one")
     self.redisDB.putAuthor("Author two")
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0", "1"],["Tag one", "Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0", "1"],["Tag one", "Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
 
   #28
   def test_GetPaper(self):
     self.redisDB.putAuthor("Author one")
     self.redisDB.putAuthor("Author two")
     self.redisDB.putPublisher("RHIT")
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0", "1"],["Tag one", "Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0", "1"],["Tag one", "Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
     actual = self.redisDB.getPaper('0')
     expected = Paper('0', "Paper One's Title", ["1", "0"], ["Tag two", "Tag one"], "This is an abstract", "0", datetime.datetime(2003, 8, 4), None, "0", [], '0', [], "RHIT", ["Author two","Author one"])
     self.assertEqual(actual, expected)
@@ -340,9 +340,9 @@ class RedisIntegrationTestCase(unittest.TestCase):
   def test_PutPapersAuthors(self):
     self.redisDB.putAuthor("Author one")
     self.redisDB.putAuthor("Author two")
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
-    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["1"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
-    self.assertEqual('2', self.redisDB.putPaper("Paper One's Title", ["0","1"],["Tag one","Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
+    self.assertEqual('1', self.redisDB.putPaper("Paper Two's Title", ["1"],["Tag one"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
+    self.assertEqual('2', self.redisDB.putPaper("Paper One's Title", ["0","1"],["Tag one","Tag two"],"This is an abstract", "0", datetime.datetime(2003, 8, 4), "0", True))
 
   #30
   def test_GetAuthor(self):
@@ -383,7 +383,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
   #35
   def test_GetTagsPapers(self):
-    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, [], []))
+    self.assertEqual('0', self.redisDB.putPaper("Paper One's Title", ["0"],["TagOne"],"This is an abstract", -1, datetime.datetime(2003, 8, 4), -1, True))
     tag = self.redisDB.getTag('TagOne')
     self.assertEqual(tag, Tag("TagOne",'0', ['0']))
 
@@ -642,7 +642,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadMoreTestData()
     self.viewPiratePapers()
  
-    self.redisDB.putPaper("The Friendly Friendlier Pirates of the Carribean", ['2', '3'], ['Pirates', 'Big Data'], "This is another abstract", -1, datetime.datetime(2003, 8, 4),self.publisherIDs[1], [], [])
+    self.redisDB.putPaper("The Friendly Friendlier Pirates of the Carribean", ['2', '3'], ['Pirates', 'Big Data'], "This is another abstract", -1, datetime.datetime(2003, 8, 4),self.publisherIDs[1], True)
     ffpmPaper = Paper("9", "The Friendly Friendlier Pirates of the Carribean",['2', '3'],['Pirates', 'Big Data'],"This is another abstract","1",datetime.datetime(2003, 8, 4),None,"-1",[],"0",[],"McGraw-Hill",["James Dean", "Dean Thomas"])
 
     actuals = self.redisDB.getPapersAdvancedSearch(["The Friendly Pirates of the Carribean"],["Dieting"],["Jimmy Fulton"])
@@ -768,7 +768,57 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.assertTrue(False)'''
 
+  #44
+  def testAdvancedSearchBoth(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+ 
+    self.redisDB.putPaper("The Friendly Friendlier Pirates of the Carribean", ['2', '3'], ['Pirates', 'Big Data'], "This is another abstract", -1, datetime.datetime(2003, 8, 4),self.publisherIDs[1], False)
+    ffpmPaper = Paper("9", "The Friendly Friendlier Pirates of the Carribean",['2', '3'],['Pirates', 'Big Data'],"This is another abstract","1",datetime.datetime(2003, 8, 4),None,"-1",[],"0",[],"McGraw-Hill",["James Dean", "Dean Thomas"])
 
+    actuals = self.redisDB.getPapersAdvancedSearch(["The Friendly Pirates of the Carribean"],["Dieting"],["Jimmy Fulton"])  
+
+    actuals0123456 = [actuals[0],actuals[1],actuals[2],actuals[3],actuals[4],actuals[5],actuals[6]]
+    expecteds0123456 = [self.apcViewedPaper, self.fpcViewedPaper, self.fpmViewedPaper, self.hpaViewedPaper, self.apmViewedPaper, self.hpmViewedPaper, ffpmPaper]
+    self.assertEqual(actuals0123456,expecteds0123456)
+
+    actuals78 = set([actuals[7],actuals[8]])
+    expecteds78 = set([self.fooBarPaper, self.allCapsPaper])
+    self.assertEqual(actuals78,expecteds78)
+
+  #45
+  def testAdvancedSearchFake(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+ 
+    self.redisDB.putPaper("The Friendly Friendlier Pirates of the Carribean", ['2', '3'], ['Pirates', 'Big Data'], "This is another abstract", -1, datetime.datetime(2003, 8, 4),self.publisherIDs[1], False)
+    ffpmPaper = Paper("9", "The Friendly Friendlier Pirates of the Carribean",['2', '3'],['Pirates', 'Big Data'],"This is another abstract","1",datetime.datetime(2003, 8, 4),None,"-1",[],"0",[],"McGraw-Hill",["James Dean", "Dean Thomas"])
+
+    actuals = self.redisDB.getPapersAdvancedSearchFakeOnly(["The Friendly Pirates of the Carribean"],["Dieting"],["Jimmy Fulton"])
+
+    self.assertEqual(len(actuals),1)
+    self.assertEqual(actuals[0],ffpmPaper)
+
+  #46
+  def testAdvancedSearchReal(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+ 
+    self.redisDB.putPaper("The Friendly Friendlier Pirates of the Carribean", ['2', '3'], ['Pirates', 'Big Data'], "This is another abstract", -1, datetime.datetime(2003, 8, 4),self.publisherIDs[1], False)
+    ffpmPaper = Paper("9", "The Friendly Friendlier Pirates of the Carribean",['2', '3'],['Pirates', 'Big Data'],"This is another abstract","1",datetime.datetime(2003, 8, 4),None,"-1",[],"0",[],"McGraw-Hill",["James Dean", "Dean Thomas"])
+
+    actuals = self.redisDB.getPapersAdvancedSearchRealOnly(["The Friendly Pirates of the Carribean"],["Dieting"],["Jimmy Fulton"])
+
+    actuals012345 = [actuals[0],actuals[1],actuals[2],actuals[3],actuals[4],actuals[5]]
+    expecteds012345 = [self.apcViewedPaper, self.fpcViewedPaper, self.fpmViewedPaper, self.hpaViewedPaper, self.apmViewedPaper, self.hpmViewedPaper]
+    self.assertEqual(actuals012345,expecteds012345)
+
+    actuals67 = set([actuals[6],actuals[7]])
+    expecteds67 = set([self.fooBarPaper, self.allCapsPaper])
+    self.assertEqual(actuals67,expecteds67)
 
 if __name__ == '__main__':
   unittest.main()
