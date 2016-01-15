@@ -169,6 +169,7 @@ def upload_fake_paper_endpoint():
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
     viewingPaper = db.getPaper(uniqueID)
+    references = viewingPaper.references
     userID = get_user_id()
     favorited = db.hasFavoritePaper(userID, uniqueID)
     favoritedTags = []
@@ -183,7 +184,7 @@ def view_file(uniqueID):
             favoritedTags.append(True)
         else:
             favoritedTags.append(False)
-    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags)
+    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references)
 
 
 @app.route('/uploads/<uniqueID>')
