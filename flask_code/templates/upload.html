@@ -92,7 +92,9 @@
       </div>
 
       <button onclick="submitForm();">Upload</button>
-      <p class="form-group" id="failedUpload" style="display: none;">Paper Not Uploaded</p>
+      <p class="form-group" id="uploadLoading" style="display: none;">Uploading...</p>
+      <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
+      <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
 <!--     </form> -->
     </div>
 </div>
@@ -173,6 +175,13 @@ function searchForAuthor() {
 
 function submitForm() {
   console.log("Submitting form...");
+  document.getElementById("uploadLoading").style.display = "";
+  document.getElementById("failedUpload").style.display = "none";
+  document.getElementById("successfulUpload").style.display = "none";
+
+  $("#authorContainer").remove();
+  $("#referenceContainer").remove();
+
   var file = document.getElementById("fileInput").files[0]
   var title = document.getElementById("titleInput").value
   //var authors = document.getElementById("authorInput").value
@@ -224,11 +233,15 @@ function submitForm() {
         $("#referenceTitleInput").val("");
         $("#referenceAuthorsInput").val("");
         $("#referenceDateInput").val("");
+        document.getElementById("uploadLoading").style.display = "none";
         document.getElementById("failedUpload").style.display = "none";
+        document.getElementById("successfulUpload").style.display = "";
     },
     error: function(result) {
+      document.getElementById("uploadLoading").style.display = "none";
       document.getElementById("failedUpload").style.display = "";
-      document.getElementById("failedUpload").style.color = "red";
+      document.getElementById("successfulUpload").style.display = "none";
+      // document.getElementById("failedUpload").style.color = "red";
     }
   });
 }
@@ -250,7 +263,7 @@ function addAuthor(authorID, authorName) {
 
 
 //initialize tags input
-$("#tagsInput").tokenfield();
+$("#tagsInput").tokenfield({createTokensOnBlur: true});
 
 //initialize current authors input
 $("#currentAuthors").tokenfield();

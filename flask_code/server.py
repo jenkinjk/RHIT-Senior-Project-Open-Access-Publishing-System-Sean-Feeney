@@ -94,14 +94,14 @@ def upload_page():
             # Parse out the entered information
             title = request.form['title']
 
-            authorNames = request.form['authors'].split(',')
-            authorNames = [authorName.strip() for authorName in authorNames]
+            authorIDs = request.form['authors'].split(',')
+            print("raw authors:", authorIDs)
+            authorIDs = [authorID.strip() for authorID in authorIDs]
             # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
             # to resolve same-name conflicts, then passing in the correct authorID
 
-            print "raw tags:", request.form['tags'], "type:", type(request.form['tags'])
-
             tags = request.form['tags'].split(',')
+            print("raw tags:", tags)
             tags = [tag.strip() for tag in tags]
 
             abstract = request.form['abstract']
@@ -114,12 +114,13 @@ def upload_page():
                 datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             # references = request.form['references']
-            references = []
+            references = request.form['references']
+            print("raw references:", references)
+            references = [reference.strip() for reference in references]
 
-            authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
+            # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
             
             print 'title:',title
-            print 'authornames:',authorNames
             print 'authorIDs:',authorIDs
             print 'tags:',tags
             print 'abstract:', abstract

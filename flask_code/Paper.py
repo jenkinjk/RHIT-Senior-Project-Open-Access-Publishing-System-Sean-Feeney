@@ -6,7 +6,8 @@ Created on Oct 1, 2015
 
 class Paper:
 
-  def __init__(self, id, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames):
+  #TODO made isUploaded a not optional parameter?
+  def __init__(self, id, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames, isUploaded = True):
     self.id = id
     self.title = title
     self.authorIDs = authorIDs
@@ -22,12 +23,13 @@ class Paper:
     self.publisherName = publisherName
     self.authorNames = authorNames
     self.thumbnail = None
+    self.isUploaded = isUploaded
     
   def __str__(self):
-    return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisherID:'+self.publisherID+'   publisherName:'+self.publisherName+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedByUserID:'+self.postedByUserID+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
+    return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   authorNames:'+str(self.authorNames)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisherID:'+self.publisherID+'   publisherName:'+self.publisherName+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedByUserID:'+self.postedByUserID+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount+'      isUploaded:'+ str(self.isUploaded)
   
   def __repr__(self):
-    return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisherID+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedByUserID:'+self.postedByUserID+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount
+    return 'id:'+self.id+'    title:'+self.title+'   authorIDs:'+str(self.authorIDs)+'   tags:'+str(self.tags)+'   abstract:'+self.abstract+'   publisher:'+self.publisherID+'   datePublished:'+str(self.datePublished)+'   datePosted:'+str(self.datePosted)+'   postedByUserID:'+self.postedByUserID+'   references:'+str(self.references)+'   citedBys:'+str(self.citedBys)+'      viewCount:'+self.viewCount+'      isUploaded:'+ str(self.isUploaded)
 
 
   def __eq__(self, other):

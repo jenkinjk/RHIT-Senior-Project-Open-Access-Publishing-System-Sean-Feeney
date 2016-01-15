@@ -73,9 +73,9 @@ class RedisDatabase():
     #  - a list of strings of other papers that cite it:  FORMAT UNDECIDED SO FAR
     #  - a list of references to other papers :  FORMAT UNDECIDED SO FAR 
     #Returns a string paperID
-  def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, citedBys, references):
+  def putPaper(self, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
     datePosted = datetime.now()
-    print "putting paper with timestamp", datePosted
+    #print "putting paper with timestamp", datePosted
     id = self.redisDB.get("Papers:IDCounter")
     self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
     self.redisDB.set("Paper:"+id+":Abstract", abstract)
@@ -84,6 +84,7 @@ class RedisDatabase():
     self.redisDB.set("Paper:"+id+":ViewCount", 0)
     self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
     self.redisDB.set("Paper:"+id+":DatePosted", str(datePosted))
+    self.redisDB.set("Paper:"+id+":IsUploaded", isUploaded)
     self.redisDB.zadd("Papers",0, id)
     for author in authors:
       self.redisDB.sadd("Author:"+author+":Papers", id)
@@ -149,8 +150,9 @@ class RedisDatabase():
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
-    references = []
-    citedBys = []
+    references = list(self.redisDB.smembers("Paper:"+paperID+":References"))
+    citedBys = list(self.redisDB.smembers("Paper:"+paperID+":CitedBys"))
+    isUploaded = self.redisDB.get("Paper:"+paperID+":IsUploaded") =='True'
     authorNames = []
     for authorID in authorIDs:
       authorNames.append(self.redisDB.get("Author:"+authorID+":Name"))
@@ -159,7 +161,7 @@ class RedisDatabase():
       publisherName = "No Publisher Name"
     else:
       publisherName = publisherGuy.name
-    return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames)
+    return Paper(paperID, title, authorIDs, tags, abstract, publisherID, datePublished, datePosted, postedByUserID, references, viewCount, citedBys, publisherName, authorNames, isUploaded)
 
     #THIS METHOD CAN EASILY BE IMPLEMENTED OUTSIDE OF THIS CLASS.  CONSIDER REMOVING TO REMOVE COMPLEXITY FROM CODEBASE
     # Takes in an integer authorID
@@ -323,7 +325,6 @@ class RedisDatabase():
     for titleWord in titleWords:
       titleKeys.append("PaperWord:"+titleWord)
     paperIDs = self.getMergedSearchResults(titleKeys)
-    #print 'paperIDs:', paperIDs
     papers = []
     for paperID in paperIDs:
       paper = self.getPaper(paperID)
@@ -333,6 +334,25 @@ class RedisDatabase():
   def getPapersAdvancedSearch(self, titles, tags, authorNamesToSearch):
     authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
     return self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+	
+  def getPapersAdvancedSearchRealOnly(self, titles, tags, authorNamesToSearch):
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
+    papers = self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+    papersToReturn = []
+    for paper in papers:
+      if paper.isUploaded:
+        papersToReturn.append(paper)
+    return papersToReturn
+	
+  def getPapersAdvancedSearchFakeOnly(self, titles, tags, authorNamesToSearch):
+    authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
+    papers = self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
+    papersToReturn = []
+
+    for paper in papers:
+      if not paper.isUploaded:
+        papersToReturn.append(paper)
+    return papersToReturn
   
   def getPapersAdvancedAuthorIDSearch(self, titles, tags, authorIDs):
     searchKeys = []
@@ -548,7 +568,16 @@ class RedisDatabase():
   def isStalking(self, stalkerID, userIDToCheck):
     return self.redisDB.sismember("User:"+stalkerID+":FollowingUserIDs", userIDToCheck)
 
+  def addReference(self, paperCitingID, paperCitedID):
+    self.redisDB.sadd("Paper:"+paperCitingID+":References", paperCitedID)
+    self.redisDB.sadd("Paper:"+paperCitedID+":CitedBys", paperCitingID)
 
+  def markPaperUploaded(self, paperToMarkID):
+    #TODO double check.  This is probably broken.
+    self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)
+	
+  def isPaperUploaded(self, paperToCheckID):
+    return self.redisDB.get("Paper:"+paperToCheckID+":IsUploaded")
 
 
 
