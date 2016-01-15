@@ -78,11 +78,6 @@ def home_page():
     return render_template('home.html')
 	
 
-
-
-#########################################
-# TODO: this version of upload is just for demo purposes.  for the real thing we wanna do javascript and ajax
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
     print 'user ' + get_user_id() + ' is uploading'
@@ -120,16 +115,14 @@ def upload_page():
 
             # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
             
-            print 'title:',title
-            print 'authorIDs:',authorIDs
-            print 'tags:',tags
-            print 'abstract:', abstract
-            print 'submittedBy:',get_user_id()
-            print 'datePublished:',datePublished
-            print 'references:',references
+            print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
 
-            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
+            # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
+            uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+
+            # add references
+            for reference in references:
+                db.addReference(uniqueID, reference)
             
             # png:
             # thumbnail = png_converter.convert(upload_file)
@@ -146,6 +139,31 @@ def upload_page():
     else:
         return render_template('upload.html')
 
+
+@app.route('/uploadFakePaper', methods=['POST'])
+def upload_fake_paper_endpoint():
+    # title, at least one author, publication date
+
+    title = request.form['title']
+
+    authorIDs = request.form['authors'].split(',')
+    print("raw authors:", authorIDs)
+    authorIDs = [authorID.strip() for authorID in authorIDs]
+    authorIDs = [get_id_for_author_name(authorID) for authorID in authorIDs]
+    # TODO: get this the right way ^
+
+    datePublished = request.form['date']
+    datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+    # if datePublished == "":
+    #     print "missing datepublished field, using default value"
+    #     datePublished = datetime(1,1,1)
+    # else:
+    #     datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+
+    # put fake paper
+    uniqueID = db.putPaper(title, authorIDs, [], "", get_user_id(), datePublished, None, False)
+
+    return uniqueID
 
 
 @app.route('/viewer/<uniqueID>')
@@ -322,11 +340,11 @@ def async_paper_search_endpoint():
     start = int(request.form['start'])
     end = int(request.form['end'])
 
-    results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
-
     if(request.form['mode'] == 'reference'):
+        results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
         return render_template('referenceSearch.html', results=results[start:end])
     else:
+        results = db.getPapersAdvancedSearchRealOnly([title], tags, authorNames) # date)
         return render_template('paperSearch.html', results=results[start:end])
 
 

@@ -144,6 +144,43 @@ function searchForReference() {
   });
 }
 
+
+function addFakePaper() {
+  console.log("Adding fake paper...");
+  $("#referenceContainer").remove();
+  // make the text boxes dissapear and the "loading.." widget appear
+  document.getElementById("referenceSearchLoading").style.display = "";
+  // document.getElementById("referenceTitleInput").style.display = "none";
+  // document.getElementById("referenceAuthorsInput").style.display = "none";
+  // document.getElementById("referenceDateInput").style.display = "none";
+  // document.getElementById("referenceSearchButton").style.display = "none";
+
+  var title = document.getElementById("referenceTitleInput").value
+  var authors = document.getElementById("referenceAuthorsInput").value
+  var date = document.getElementById("referenceDateInput").value
+  console.log(title);
+  console.log(authors);
+  console.log(date);
+
+  var formData = new FormData();
+  formData.append("title", title);
+  formData.append("authors", authors);
+  formData.append("date", date);
+
+  $.ajax({
+    type : "POST",
+    url : "/uploadFakePaper",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(result) {
+        // hide the "loading..." widget
+        document.getElementById("referenceSearchLoading").style.display = "none";
+        addReference(result, document.getElementById("referenceTitleInput").value);
+    }
+  });
+}
+
 function searchForAuthor() {
   console.log("Searching for author...");
   $("#authorContainer").remove();
