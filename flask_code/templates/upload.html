@@ -31,7 +31,9 @@
 
 <div class="row">
   <div class="col-lg-4 col-lg-offset-4 form-container">
-    <!-- <form action="" method=post enctype=multipart/form-data> -->
+      <div class="form-group">
+          <p>Input paper information below, then press upload.  If your paper is already in our system as a stub, you will be asked to confirm and then your input will replace that stub.</p>
+      </div>
       <div class="form-group">
         <label for="fileInput">File input</label>
         <input class="full-width" type="file" name="file" id="fileInput">
@@ -91,7 +93,9 @@
         <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
       </div>
 
-      <button onclick="submitForm();">Upload</button>
+      <button onclick="preUploadCheck();">Pre-upload Sanity Check</button>
+
+      <button onclick="submitForm();" id="uploadPaperButton" style="display: none">Upload</button>
       <p class="form-group" id="uploadLoading" style="display: none;">Uploading...</p>
       <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
       <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
@@ -127,11 +131,10 @@ function searchForReference() {
   formData.append("tags",[]);
   formData.append("start", 0);
   formData.append("end", 5);
-  formData.append("mode", "reference");
 
   $.ajax({
     type : "POST",
-    url : "/asyncPaperSearch",
+    url : "/asyncReferenceSearch",
     data: formData,
     contentType: false,
     processData: false,
@@ -210,6 +213,14 @@ function searchForAuthor() {
   });
 }
 
+function preUploadCheck() {
+
+
+
+  
+  document.getElementById("uploadPaperButton").style.display = "";
+}
+
 function submitForm() {
   console.log("Submitting form...");
   document.getElementById("uploadLoading").style.display = "";
@@ -247,40 +258,26 @@ function submitForm() {
   formData.append("tags", tags);
   formData.append("references", references);
 
+
   $.ajax({
-    type : "POST",
-    url : "/upload",
-    data: formData,
-    contentType: false,
-    processData: false,
-    success: function(result) {
-        console.log(result);
-        // document.getElementById("titleInput").value = "";
-        $("#fileInput").val("");
-        $("#titleInput").val("");
-        $("#currentAuthors").tokenfield('setTokens', []);
-        $("#currentAuthors").val("");
-        $("#authorInput").val("");
-        $("#dateInput").val("");
-        $("#abstractInput").val("");
-        $("#tagsInput").tokenfield('setTokens', []);
-        $("#tagsInput").val("");
-        $("#currentRefs").tokenfield('setTokens', []);
-        $("#currentRefs").val("");
-        $("#referenceTitleInput").val("");
-        $("#referenceAuthorsInput").val("");
-        $("#referenceDateInput").val("");
-        document.getElementById("uploadLoading").style.display = "none";
-        document.getElementById("failedUpload").style.display = "none";
-        document.getElementById("successfulUpload").style.display = "";
-    },
-    error: function(result) {
-      document.getElementById("uploadLoading").style.display = "none";
-      document.getElementById("failedUpload").style.display = "";
-      document.getElementById("successfulUpload").style.display = "none";
-      // document.getElementById("failedUpload").style.color = "red";
-    }
-  });
+      type : "POST",
+      url : "/upload",
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: resetInputPrintSuccess,
+      error: printFail});
+
+  // $.ajax({
+  //   type : "POST",
+  //   url : "/asyncStubSearch",
+  //   data: formData,
+  //   contentType: false,
+  //   processData: false,
+  //   success: function(result) {
+  //   }
+  //   });
+            
 }
 
 function addReference(paperID, paperTitle) {
@@ -296,6 +293,34 @@ function addAuthor(authorID, authorName) {
   // console.log(authorName);
   $("#currentAuthors").tokenfield('createToken', { value:authorID, label:authorName});
   $("#authorContainer").remove();
+}
+
+function resetInputPrintSuccess() {
+  $("#fileInput").val("");
+  $("#titleInput").val("");
+  $("#currentAuthors").tokenfield('setTokens', []);
+  $("#currentAuthors").val("");
+  $("#authorInput").val("");
+  $("#dateInput").val("");
+  $("#abstractInput").val("");
+  $("#tagsInput").tokenfield('setTokens', []);
+  $("#tagsInput").val("");
+  $("#currentRefs").tokenfield('setTokens', []);
+  $("#currentRefs").val("");
+  $("#referenceTitleInput").val("");
+  $("#referenceAuthorsInput").val("");
+  $("#referenceDateInput").val("");
+  document.getElementById("uploadLoading").style.display = "none";
+  document.getElementById("failedUpload").style.display = "none";
+  document.getElementById("successfulUpload").style.display = "";
+  document.getElementById("uploadPaperButton").style.display = "none";
+
+}
+
+function printFail() {
+  document.getElementById("uploadLoading").style.display = "none";
+  document.getElementById("failedUpload").style.display = "";
+  document.getElementById("successfulUpload").style.display = "none";
 }
 
 

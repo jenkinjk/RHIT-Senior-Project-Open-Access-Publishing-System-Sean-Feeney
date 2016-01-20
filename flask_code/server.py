@@ -109,7 +109,7 @@ def upload_page():
                 datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             # references = request.form['references']
-            references = request.form['references']
+            references = request.form['references'].split(',')
             print("raw references:", references)
             references = [reference.strip() for reference in references]
 
@@ -170,6 +170,7 @@ def upload_fake_paper_endpoint():
 def view_file(uniqueID):
     viewingPaper = db.getPaper(uniqueID)
     references = viewingPaper.references
+    citedBys = viewingPaper.citedBys
     userID = get_user_id()
     favorited = db.hasFavoritePaper(userID, uniqueID)
     favoritedTags = []
@@ -184,7 +185,9 @@ def view_file(uniqueID):
             favoritedTags.append(True)
         else:
             favoritedTags.append(False)
-    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references)
+    references = [db.getPaper(reference) for reference in references]
+    citedBys = [db.getPaper(citedBy) for citedBy in citedBys]
+    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys)
 
 
 @app.route('/uploads/<uniqueID>')
@@ -325,7 +328,7 @@ def search_endpoint(byWhat):
 @app.route('/asyncPaperSearch', methods=['POST'])
 def async_paper_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
-    print 'user ' + get_user_id() + ' posted to asynchronous search'
+    print 'user ' + get_user_id() + ' posted to asynchronous paper search'
     print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
     
     title = request.form['title']
@@ -341,12 +344,31 @@ def async_paper_search_endpoint():
     start = int(request.form['start'])
     end = int(request.form['end'])
 
-    if(request.form['mode'] == 'reference'):
-        results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
-        return render_template('referenceSearch.html', results=results[start:end])
-    else:
-        results = db.getPapersAdvancedSearchRealOnly([title], tags, authorNames) # date)
-        return render_template('paperSearch.html', results=results[start:end])
+    results = db.getPapersAdvancedSearchRealOnly([title], tags, authorNames) # date)
+    return render_template('paperSearch.html', results=results[start:end])
+
+
+@app.route('/asyncReferenceSearch', methods=['POST'])
+def async_reference_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous reference search'
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
+    
+    title = request.form['title']
+
+    authorNames = request.form['authors'].split(',')
+    authorNames = [authorName.strip() for authorName in authorNames]
+
+    date = request.form['date']
+
+    tags = request.form['tags'].split(',')
+    tags = [tag.strip() for tag in tags]
+
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
+    return render_template('referenceSearch.html', results=results[start:end])
 
 
 @app.route('/asyncAuthorSearch', methods=['POST'])
