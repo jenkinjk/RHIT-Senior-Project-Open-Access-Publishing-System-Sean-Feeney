@@ -195,6 +195,10 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                               {% endif %}
                             {% endfor %}
                           </div>
+
+                          <div class="col-md-2">
+                            <strong>Published:</strong> {{refPaper.datePublished}}
+                          </div>
                         
                           <div class="col-md-5">
                           <!-- fake papers don't have tags -->

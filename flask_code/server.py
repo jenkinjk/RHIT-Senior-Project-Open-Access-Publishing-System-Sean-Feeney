@@ -115,7 +115,14 @@ def upload_page():
 
             # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
             
+            stubID = request.form['stubID']
+            isStub = request.form['isStub']
+
             print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
+            if isStub:
+                print "Filling stub paper with id:", stubID
+
+            # TODO: if isStub, paper is filling a stub.  need to upload it as such, replacing everything but paper views, cited bys, etc.
 
             # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
             uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
@@ -378,6 +385,25 @@ def async_reference_search_endpoint():
 
     results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
     return render_template('referenceSearch.html', results=results[start:end])
+
+@app.route('/asyncStubSearch', methods=['POST'])
+def async_stub_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous stub search'
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Start:", request.values['start'], "End:", request.values['end']
+    
+    title = request.form['title']
+
+    authorNames = request.form['authors'].split(',')
+    authorNames = [authorName.strip() for authorName in authorNames]
+
+    date = request.form['date']
+
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getPapersAdvancedSearchFakeOnly([title], [], authorNames) # date)
+    return render_template('stubSearch.html', results=results[start:end])
 
 
 @app.route('/asyncAuthorSearch', methods=['POST'])

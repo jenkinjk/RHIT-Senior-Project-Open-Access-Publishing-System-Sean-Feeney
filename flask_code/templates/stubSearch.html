@@ -1,4 +1,4 @@
-<div class="row" id="referenceContainer">
+<div class="row" id="stubSearchContainer">
 {% for result in results %}
 	<!-- <li>
 		<a href={{"/viewer/" + result.id}}>{{ result.title }}</a>
@@ -26,12 +26,10 @@
       <div class="col-md-2">
         {% if result.isUploaded %}
           <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
-        {% else %}
-          <strong>Not Uploaded</strong>
         {% endif %}
       </div>
       <div class="col-md-2">
-        <button type="button" class="btn btn-success btn-xs" onclick="addReference({{ result.id }}, '{{ result.title }}');">Referenced <span class="glyphicon glyphicon-plus"></span></button>
+        <button type="button" class="btn btn-success btn-xs" onclick="submitForm({{ result.id }}, True);">Fill this stub</button>
       </div>
     </div> <!-- end of paper block -->
 
@@ -49,10 +47,10 @@
 
   <div class="paperBlock">
       <div class="col-md-3">
-        <strong>I Don't See My Paper Here (Add anyway with info in boxes below)</strong></br>
+        <strong>I Don't See My Paper Here (Upload as new paper)</strong></br>
       </div>
       <div class="col-md-3">
-        <button onclick="addFakePaper();">Add anyway</button>
+        <button onclick="submitForm('', False);">Upload</button>
       </div>
     </div> <!-- end of paper block -->
 
