@@ -166,6 +166,15 @@ def upload_fake_paper_endpoint():
     return uniqueID
 
 
+@app.route('/addNewAuthor', methods=['POST'])
+def add_new_author_endpoint():
+    
+    authorName = request.form['authorName']
+    uniqueID = db.putAuthor(authorName)
+
+    return uniqueID
+
+
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
     viewingPaper = db.getPaper(uniqueID)
@@ -224,14 +233,14 @@ def get_thumbnail(uniqueID):
     print 'for file', uniqueID 
     # png:
     # viewing_file = docStore.retrieveThumbnail(uniqueID)
-    print 'content length:', viewing_file['Body']._content_length
+    # print 'content length:', viewing_file['Body']._content_length
 
-    response = make_response(viewing_file['Body'].read())
-    response.headers['Content-Type'] = 'image/png'
+    # response = make_response(viewing_file['Body'].read())
+    # response.headers['Content-Type'] = 'image/png'
     
     # uncomment this line to download as attachment instead of view
     #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
-    return response
+    # return response
     
 
 def allowed_file(filename):

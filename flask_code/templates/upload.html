@@ -184,6 +184,33 @@ function addFakePaper() {
   });
 }
 
+function addNewAuthor() {
+  console.log("Adding new author...");
+  $("#authorContainer").remove();
+  // make the text boxes dissapear and the "loading.." widget appear
+  document.getElementById("authorSearchLoading").style.display = "";
+
+  var name = document.getElementById("authorInput").value
+  console.log(name);
+
+  var formData = new FormData();
+  formData.append("authorName", name);
+
+  $.ajax({
+    type : "POST",
+    url : "/addNewAuthor",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(result) {
+        // hide the "loading..." widget
+        document.getElementById("authorSearchLoading").style.display = "none";
+        // insert the returned html code after the references element
+        addAuthor(result, document.getElementById("authorInput").value);
+    }
+  });
+}
+
 function searchForAuthor() {
   console.log("Searching for author...");
   $("#authorContainer").remove();
