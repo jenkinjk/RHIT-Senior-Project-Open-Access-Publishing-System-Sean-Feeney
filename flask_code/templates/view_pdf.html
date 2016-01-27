@@ -115,25 +115,13 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                         {% for refPaper in references %}
                         <div class="paperBlock">
                           <!-- <img class="pdf_thumbnail col-lg-2 col-md-2" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb"> -->
-                          <img class="pdf_thumbnail col-lg-2 col-md-2 col-sm-2" src="{{"/thumbnails/" + favPaper.id}}" alt="No Thumb">
+                          <img class="pdf_thumbnail col-lg-2 col-md-2 col-sm-2" src="{{"/thumbnails/" + refPaper.id}}" alt="No Thumb">
                           <div class="col-md-5">
                             <strong>Paper Title:</strong> {{ refPaper.title }}
                             <a href={{"/viewer/" + refPaper.id}}>View Paper</a>
                           </div>
                           <div class="col-md-5">
                             <strong> Paper Author(s):</strong> 
-                            <!-- get all the authors from the paper
-                            {% for author in favPaper.authorNames %}
-                            <!-- get all the author objects from the user's favorite authors
-                              {% for authorObj in user.authors %}
-                              <!-- check if paper author is in user's favorite authors
-                                {% if author in authorObj.name %}
-                                  <button class="favorited">{{author}}</button>
-                                {% else %}
-                                  <button class="favorite">{{author}}</button>
-                                {% endif %}
-                              {% endfor %}
-                            {% endfor %} -->
                             {% for author in refPaper.authorNames %}
                               {% if author in authorGuys %}
                                 <button class="favorited">{{author}}</button>
@@ -146,12 +134,7 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                             <strong>Tag(s):</strong>
                             <!-- grab all tags from paper -->
                             {% for tag in refPaper.tags %}
-                            <!-- check if given tag is in the user's favorite tags -->
-                              <!-- {% if tag in user.tags %}
-                                <button class="favorited">{{tag}}</button>
-                              {% else %} -->
                                 <button class="favorite">{{tag}}</button>
-                              <!-- {% endif %} -->
                             {% endfor %}
                           </div>
                         </div> <!-- end of paper block -->

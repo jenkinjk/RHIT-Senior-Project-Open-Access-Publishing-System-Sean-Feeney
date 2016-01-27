@@ -151,7 +151,11 @@ def upload_page():
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
     viewingPaper = db.getPaper(uniqueID)
-    references = viewingPaper.references
+    references = []
+    references.append(viewingPaper)
+    print (viewingPaper.references)
+    # for paper in references:
+    #     print '' + paper
     userID = get_user_id()
     favorited = db.hasFavoritePaper(userID, uniqueID)
     favoritedTags = []
