@@ -102,7 +102,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     for i in range(0,18):
       self.redisDB.incrementPaperViews("8")
 
-  #1
+  '''#1
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     self.assertEqual(self.jimmyFallonEmpty, self.redisDB.getAuthor(id))
@@ -157,9 +157,9 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     actuals = set(self.redisDB.getTopAuthors())
     expecteds = set([self.jimmyFallon,self.jimmyDean,self.jamesDean, self.deanThomas, self.thomasJefferson, self.jeffersonDavis])
-    self.assertEqual(expecteds, actuals)
+    self.assertEqual(expecteds, actuals)'''
 
-  #10
+  '''#10
   def testGetUnviewedPapersByYearValid(self):
     self.loadTestData()
     actuals = self.redisDB.getPapersPublishedInYear("2003")
@@ -668,7 +668,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     expecteds78 = set([self.fooBarPaper, self.allCapsPaper])
     self.assertEqual(actuals78,expecteds78)
 
-  '''#44
+  #44
   def testPaperRecsForUserID(self):
     self.loadTestData()
     self.loadMoreTestData()
@@ -692,9 +692,9 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
     actuals5678 = set([actuals[5],actuals[6],actuals[7],actuals[8]])
     expecteds5678 = set([self.apmViewedPaper,self.hpmViewedPaper, self.fpmViewedPaper,self.fpcViewedPaper])
-    self.assertEqual(actuals5678, expecteds5678)'''
+    self.assertEqual(actuals5678, expecteds5678)
 
-  '''#Stress testing for performance
+  #Stress testing for performance
   def testSearchStress(self):
     self.loadTestData()
     self.redisDB.putUser("Andrew Davidson")
@@ -732,9 +732,8 @@ class RedisIntegrationTestCase(unittest.TestCase):
     print "total time for both steps: ", endSearch - startInsert
     print "rslt:"
     print rslt'''
-	
 
-  def checkPaperViewCountUpdated(self, views, id):
+  '''def checkPaperViewCountUpdated(self, views, id):
     paper = self.redisDB.getPaper(id)
     self.assertEqual(paper.viewCount, str(views))
     self.assertEqual(views, self.redisDB.redisDB.zscore("Papers",id))
@@ -753,7 +752,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
       tag = self.redisDB.getTag(rawTag)
       self.assertEqual(tag.viewCount, str(views))
       self.assertEqual(views, self.redisDB.redisDB.zscore("Tags",rawTag))
-      self.assertEqual(views, self.redisDB.redisDB.zscore("Tag:"+rawTag+":Papers",id))
+      self.assertEqual(views, self.redisDB.redisDB.zscore("Tag:"+rawTag+":Papers",id))'''
 
   #TODO test getAll methods after viewing papers
   #TODO test putting in a duplicate author name
@@ -768,7 +767,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.assertTrue(False)'''
 
-  #44
+  '''#44
   def testAdvancedSearchBoth(self):
     self.loadTestData()
     self.loadMoreTestData()
@@ -818,7 +817,51 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
     actuals67 = set([actuals[6],actuals[7]])
     expecteds67 = set([self.fooBarPaper, self.allCapsPaper])
-    self.assertEqual(actuals67,expecteds67)
+    self.assertEqual(actuals67,expecteds67)'''
+
+  #47
+  def testUpdatePaper(self):
+    self.loadTestData()
+    self.loadMoreTestData()
+    self.viewPiratePapers()
+
+    date = datetime.datetime(2003, 8, 4)
+    self.redisDB.updatePaper("3", "The Red Hot Chili Peppers",['1', '6'],['Dieting', 'Biology'],"This is not another abstract","-1",date,"0", False)
+
+    expected = Paper("3", "The Red Hot Chili Peppers",['1', '6'],['Dieting', 'Biology'],"This is not another abstract","0",date,None,"-1",[],"15",[],"RHIT",["Jimmy Dean", "Jimmy Fallon"], False)
+    actual = self.redisDB.getPaper("3")
+    self.assertEqual(expected, actual)
+
+    yearNew = self.redisDB.getPapersPublishedInYear("2003")
+    valid1 = False
+    for paper in yearNew:
+      if paper.id == "3":
+        valid1 = True
+
+    yearOld = self.redisDB.getPapersPublishedInYear("2004")
+    valid2 = True
+    for paper in yearOld:
+      if paper.id == "3":
+        valid2 = False
+
+    tagOld1 = self.redisDB.getTag("Pirates").paperIDs
+    valid3 = "3" not in tagOld1
+    tagOld2 = self.redisDB.getTag("Big Data").paperIDs
+    valid4 = "3" not in tagOld2
+
+    titleOld = self.redisDB.getPapersMatchingTitle("The Angry Pirates of the Carribean")
+    valid5 = True
+    for paper in titleOld:
+      if paper.id == "3":
+        valid5 = False
+
+    authorOld = self.redisDB.getPapersForAuthorID("0")
+    valid6 = True
+    for paper in authorOld:
+      if paper.id == "3":
+        valid6 = False
+
+    self.assertTrue(valid1 and valid2 and valid3 and valid4 and valid5 and valid6)
 
 if __name__ == '__main__':
   unittest.main()

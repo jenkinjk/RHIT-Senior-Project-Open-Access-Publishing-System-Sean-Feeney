@@ -100,6 +100,74 @@ class RedisDatabase():
     self.redisDB.incr("Papers:IDCounter")
     return id
 
+  def updatePaper(self, id, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
+    paper = self.getPaper(id)
+    self.redisDB.set("Paper:"+id+":PublisherID", publisherID)
+    self.redisDB.set("Paper:"+id+":Abstract", abstract)
+    self.redisDB.set("Paper:"+id+":Title", title)
+    self.redisDB.set("Paper:"+id+":PostedByUserID", postedByUserID)
+    self.redisDB.set("Paper:"+id+":DatePublished", str(datePublished))
+    self.redisDB.set("Paper:"+id+":IsUploaded", isUploaded)
+
+    authorsToRem = set([])
+    authorsToAdd = set([])
+
+    for author in authors:
+      authorsToAdd.add(author)
+    for author in paper.authorIDs:
+      if author in authorsToAdd:
+        authorsToAdd.remove(author)
+      else:
+        authorsToRem.add(author)
+
+    for author in authorsToRem:
+      self.redisDB.srem("Author:"+author+":Papers", id)
+      self.redisDB.srem("Paper:"+id+":Authors", author)
+    for author in authorsToAdd:
+      self.redisDB.sadd("Author:"+author+":Papers", id)
+      self.redisDB.sadd("Paper:"+id+":Authors", author)
+
+    tagsToRem = set([])
+    tagsToAdd = set([])
+
+    for tag in tags:
+      self.putTag(tag)
+      tagsToAdd.add(tag)
+    for tag in paper.tags:
+      if tag in tagsToAdd:
+        tagsToAdd.remove(tag)
+      else:
+        tagsToRem.add(tag)
+    for tag in tagsToAdd:
+      self.redisDB.zadd("Tag:"+tag+":Papers", paper.viewCount, id)
+      self.redisDB.sadd("Paper:"+id+":Tags", tag)
+    for tag in tagsToRem:
+      self.redisDB.zrem("Tag:"+tag+":Papers", id)
+      self.redisDB.srem("Paper:"+id+":Tags", tag)
+
+    if not datePublished.year == paper.datePublished.year:
+      self.redisDB.zadd("YearPublished:"+str(datePublished.year), paper.viewCount, id)
+      self.redisDB.zrem("YearPublished:"+str(paper.datePublished.year), id)
+
+    newWords = self.getSearchWords(title)
+    oldWords = self.getSearchWords(paper.title)
+
+    wordsToRem = set([])
+    wordsToAdd = set([])
+
+    for word in newWords:
+      wordsToAdd.add(word)
+    for word in oldWords:
+      if word in wordsToAdd:
+        wordsToAdd.remove(word)
+      else:
+        wordsToRem.add(word)
+
+    for word in wordsToAdd:
+      self.redisDB.zadd("PaperWord:"+word,paper.viewCount, id)
+    for word in wordsToRem:
+      self.redisDB.zrem("PaperWord:"+word, id)
+
     # Takes in an integer authorID
     # Returns an author object
   def getAuthor(self, authorID):
@@ -170,7 +238,7 @@ class RedisDatabase():
     rawPapers = list(self.redisDB.smembers("Author:"+authorID+":Papers"))
     papers=[]
     for rawPaper in rawPapers:
-      paper = self.getPaper(rawPaper.paperID)
+      paper = self.getPaper(rawPaper)
       papers.append(paper) 
     return papers
 
