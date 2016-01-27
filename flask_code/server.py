@@ -78,11 +78,6 @@ def home_page():
     return render_template('home.html')
 	
 
-
-
-#########################################
-# TODO: this version of upload is just for demo purposes.  for the real thing we wanna do javascript and ajax
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
     print 'user ' + get_user_id() + ' is uploading'
@@ -114,22 +109,27 @@ def upload_page():
                 datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             # references = request.form['references']
-            references = request.form['references']
+            references = request.form['references'].split(',')
             print("raw references:", references)
             references = [reference.strip() for reference in references]
 
             # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
             
-            print 'title:',title
-            print 'authorIDs:',authorIDs
-            print 'tags:',tags
-            print 'abstract:', abstract
-            print 'submittedBy:',get_user_id()
-            print 'datePublished:',datePublished
-            print 'references:',references
+            stubID = request.form['stubID']
+            isStub = request.form['isStub']
 
-            # putPaper(title, authorIDs, tagNames, abstract, userID, datePublished, publisherID, citedBys, references)
-            uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, [], references) 
+            print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
+            if isStub:
+                print "Filling stub paper with id:", stubID
+
+            # TODO: if isStub, paper is filling a stub.  need to upload it as such, replacing everything but paper views, cited bys, etc.
+
+            # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
+            uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+
+            # add references
+            for reference in references:
+                db.addReference(uniqueID, reference)
             
             # png:
             # thumbnail = png_converter.convert(upload_file)
@@ -147,15 +147,46 @@ def upload_page():
         return render_template('upload.html')
 
 
+@app.route('/uploadFakePaper', methods=['POST'])
+def upload_fake_paper_endpoint():
+    # title, at least one author, publication date
+
+    title = request.form['title']
+
+    authorIDs = request.form['authors'].split(',')
+    print("raw authors:", authorIDs)
+    authorIDs = [authorID.strip() for authorID in authorIDs]
+    authorIDs = [get_id_for_author_name(authorID) for authorID in authorIDs]
+    # TODO: get this the right way ^
+
+    datePublished = request.form['date']
+    datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+    # if datePublished == "":
+    #     print "missing datepublished field, using default value"
+    #     datePublished = datetime(1,1,1)
+    # else:
+    #     datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+
+    # put fake paper
+    uniqueID = db.putPaper(title, authorIDs, [], "", get_user_id(), datePublished, None, False)
+
+    return uniqueID
+
+
+@app.route('/addNewAuthor', methods=['POST'])
+def add_new_author_endpoint():
+    
+    authorName = request.form['authorName']
+    uniqueID = db.putAuthor(authorName)
+
+    return uniqueID
+
 
 @app.route('/viewer/<uniqueID>')
 def view_file(uniqueID):
     viewingPaper = db.getPaper(uniqueID)
-    references = []
-    references.append(viewingPaper)
-    print (viewingPaper.references)
-    # for paper in references:
-    #     print '' + paper
+    references = viewingPaper.references
+    citedBys = viewingPaper.citedBys
     userID = get_user_id()
     favorited = db.hasFavoritePaper(userID, uniqueID)
     favoritedTags = []
@@ -170,7 +201,9 @@ def view_file(uniqueID):
             favoritedTags.append(True)
         else:
             favoritedTags.append(False)
-    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references)
+    references = [db.getPaper(reference) for reference in references]
+    citedBys = [db.getPaper(citedBy) for citedBy in citedBys]
+    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys)
 
 
 @app.route('/uploads/<uniqueID>')
@@ -207,14 +240,14 @@ def get_thumbnail(uniqueID):
     print 'for file', uniqueID 
     # png:
     # viewing_file = docStore.retrieveThumbnail(uniqueID)
-    print 'content length:', viewing_file['Body']._content_length
+    # print 'content length:', viewing_file['Body']._content_length
 
-    response = make_response(viewing_file['Body'].read())
-    response.headers['Content-Type'] = 'image/png'
+    # response = make_response(viewing_file['Body'].read())
+    # response.headers['Content-Type'] = 'image/png'
     
     # uncomment this line to download as attachment instead of view
     #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
-    return response
+    # return response
     
 
 def allowed_file(filename):
@@ -311,7 +344,30 @@ def search_endpoint(byWhat):
 @app.route('/asyncPaperSearch', methods=['POST'])
 def async_paper_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
-    print 'user ' + get_user_id() + ' posted to asynchronous search'
+    print 'user ' + get_user_id() + ' posted to asynchronous paper search'
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
+    
+    title = request.form['title']
+
+    authorNames = request.form['authors'].split(',')
+    authorNames = [authorName.strip() for authorName in authorNames]
+
+    date = request.form['date']
+
+    tags = request.form['tags'].split(',')
+    tags = [tag.strip() for tag in tags]
+
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getPapersAdvancedSearchRealOnly([title], tags, authorNames) # date)
+    return render_template('paperSearch.html', results=results[start:end])
+
+
+@app.route('/asyncReferenceSearch', methods=['POST'])
+def async_reference_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous reference search'
     print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
     
     title = request.form['title']
@@ -328,11 +384,26 @@ def async_paper_search_endpoint():
     end = int(request.form['end'])
 
     results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
+    return render_template('referenceSearch.html', results=results[start:end])
 
-    if(request.form['mode'] == 'reference'):
-        return render_template('referenceSearch.html', results=results[start:end])
-    else:
-        return render_template('paperSearch.html', results=results[start:end])
+@app.route('/asyncStubSearch', methods=['POST'])
+def async_stub_search_endpoint():
+    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    print 'user ' + get_user_id() + ' posted to asynchronous stub search'
+    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Start:", request.values['start'], "End:", request.values['end']
+    
+    title = request.form['title']
+
+    authorNames = request.form['authors'].split(',')
+    authorNames = [authorName.strip() for authorName in authorNames]
+
+    date = request.form['date']
+
+    start = int(request.form['start'])
+    end = int(request.form['end'])
+
+    results = db.getPapersAdvancedSearchFakeOnly([title], [], authorNames) # date)
+    return render_template('stubSearch.html', results=results[start:end])
 
 
 @app.route('/asyncAuthorSearch', methods=['POST'])

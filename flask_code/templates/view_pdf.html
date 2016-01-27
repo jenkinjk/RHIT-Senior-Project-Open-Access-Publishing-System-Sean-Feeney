@@ -118,7 +118,12 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                           <img class="pdf_thumbnail col-lg-2 col-md-2 col-sm-2" src="{{"/thumbnails/" + refPaper.id}}" alt="No Thumb">
                           <div class="col-md-5">
                             <strong>Paper Title:</strong> {{ refPaper.title }}
-                            <a href={{"/viewer/" + refPaper.id}}>View Paper</a>
+                            <!-- fake papers don't have a link to view them -->
+                            {% if refPaper.isUploaded %}
+                                <a href={{"/viewer/" + refPaper.id}}>View Paper</a>
+                            {% else %}
+                                <a href={{"/viewer/" + refPaper.id}}>Search External Links</a>
+                            {% endif %}
                           </div>
                           <div class="col-md-5">
                             <strong> Paper Author(s):</strong> 
@@ -131,11 +136,17 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                             {% endfor %}
                           </div>
                           <div class="col-md-5">
-                            <strong>Tag(s):</strong>
-                            <!-- grab all tags from paper -->
-                            {% for tag in refPaper.tags %}
-                                <button class="favorite">{{tag}}</button>
-                            {% endfor %}
+                            <!-- fake papers don't have tags -->
+                            {% if refPaper.isUploaded %}
+                                <strong>Tag(s):</strong>
+                                <!-- grab all tags from paper -->
+                                {% for tag in refPaper.tags %}
+
+                                    <button class="favorite">{{tag}}</button>
+                                {% endfor %}
+                            {% else %}
+                                <strong>Not Uploaded</strong>
+                            {% endif %}
                           </div>
                         </div> <!-- end of paper block -->
 
@@ -147,6 +158,77 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                     </div> <!-- end of favorite papers panel body -->
                   </div> <!-- end of favorite papers subsection panel -->
                 </div> <!-- end of favorite papers column -->
+
+
+
+
+            <hr class="col-md-11"> <!-- divider line -->
+
+            <div class="row"> <!-- start of cited-bys row -->
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> <!-- start of favorite papers column -->
+                  <div class="panel panel-default"> <!-- start of favorite papers subsection panel -->
+                    <div class="panel-heading"> <!-- start of panel heading -->
+                      <h2 id="sec0">Cited By</h2>
+                    </div> <!-- end of panel heading -->
+                    <div class="panel-body"> <!-- start of favorite papers panel body -->
+
+                        {% for refPaper in citedBys %}
+                        <div class="paperBlock">
+                          <!-- <img class="pdf_thumbnail col-lg-2 col-md-2" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb"> -->
+                          <img class="pdf_thumbnail col-lg-2 col-md-2 col-sm-2" src="{{"/thumbnails/" + refPaper.id}}" alt="No Thumb">
+                          <div class="col-md-5">
+                            <strong>Paper Title:</strong> {{ refPaper.title }}
+                            <!-- fake papers don't have a link to view them -->
+                            {% if refPaper.isUploaded %}
+                                <a href={{"/viewer/" + refPaper.id}}>View Paper</a>
+                            {% else %}
+                                <a href={{"/viewer/" + refPaper.id}}>Search External Links</a>
+                            {% endif %}
+                          </div>
+                          <div class="col-md-5">
+                            <strong> Paper Author(s):</strong> 
+                            {% for author in refPaper.authorNames %}
+                              {% if author in authorGuys %}
+                                <button class="favorited">{{author}}</button>
+                              {% else %}
+                                <button class="favorite">{{author}}</button>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+
+                          <div class="col-md-2">
+                            <strong>Published:</strong> {{refPaper.datePublished}}
+                          </div>
+                        
+                          <div class="col-md-5">
+                          <!-- fake papers don't have tags -->
+                            {% if refPaper.isUploaded %}
+                                <strong>Tag(s):</strong>
+                                <!-- grab all tags from paper -->
+                                {% for tag in refPaper.tags %}
+
+                                    <button class="favorite">{{tag}}</button>
+                                {% endfor %}
+                            {% else %}
+                                <strong>Not Uploaded</strong>
+                            {% endif %}
+                          </div>
+                        
+
+
+
+                        </div> <!-- end of paper block -->
+
+                        <hr class="col-md-11"> <!-- divider line -->
+                        {% endfor %}
+
+                        <hr class="col-md-11"> <!-- divider line -->
+
+                    </div> <!-- end of cited-bys panel body -->
+                  </div> <!-- end of cited-bys subsection panel -->
+                </div> <!-- end of cited-bys row -->
+            </div>
+
             </div>
 		</div>
 	</div>

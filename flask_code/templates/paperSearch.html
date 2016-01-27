@@ -14,6 +14,9 @@
         <strong>Paper Author(s):</strong> {% for author in result.authorNames %} {{author}}, {% endfor %}
       </div>
       <div class="col-md-2">
+        <strong>Published:</strong> {{result.datePublished}}
+      </div>
+      <div class="col-md-2">
         <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
       </div>
     </div> <!-- end of paper block -->
@@ -28,14 +31,4 @@
     </div> <!-- end of paper block -->
 
     <hr class="col-md-11"> <!-- divider line -->
-
-
-  <div class="paperBlock">
-      <div class="col-md-3">
-        <strong>I Don't See My Paper Here (Enter Manually)</strong></br>
-      </div>
-    </div> <!-- end of paper block -->
-
-    <hr class="col-md-11"> <!-- divider line -->
-
 </div>

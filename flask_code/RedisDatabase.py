@@ -148,7 +148,7 @@ class RedisDatabase():
     publisherID = self.redisDB.get("Paper:"+paperID+":PublisherID")
     viewCount = self.redisDB.get("Paper:"+paperID+":ViewCount")
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
-    datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d %H:%M:%S")
+    datePublished = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePublished"), "%Y-%m-%d")
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = list(self.redisDB.smembers("Paper:"+paperID+":References"))
     citedBys = list(self.redisDB.smembers("Paper:"+paperID+":CitedBys"))
