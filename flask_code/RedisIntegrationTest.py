@@ -102,7 +102,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     for i in range(0,18):
       self.redisDB.incrementPaperViews("8")
 
-  '''#1
+  #1
   def testClearDatabase(self):
     id = self.redisDB.putAuthor("Jimmy Fallon")
     self.assertEqual(self.jimmyFallonEmpty, self.redisDB.getAuthor(id))
@@ -157,9 +157,9 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     actuals = set(self.redisDB.getTopAuthors())
     expecteds = set([self.jimmyFallon,self.jimmyDean,self.jamesDean, self.deanThomas, self.thomasJefferson, self.jeffersonDavis])
-    self.assertEqual(expecteds, actuals)'''
+    self.assertEqual(expecteds, actuals)
 
-  '''#10
+  #10
   def testGetUnviewedPapersByYearValid(self):
     self.loadTestData()
     actuals = self.redisDB.getPapersPublishedInYear("2003")
@@ -283,7 +283,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     expecteds = [self.apcViewedPaper,self.hpaViewedPaper, self.fpmViewedPaper, self.apmViewedPaper, self.hpmViewedPaper, self.fpcViewedPaper]
     self.assertEqual(expecteds,actuals)
 
-#TODO make this not a set	  
+  #TODO make this not a set	  
   #21	  
   def testGetViewedPapersMatchingAuthorNames(self):
     self.loadTestData()
@@ -668,7 +668,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     expecteds78 = set([self.fooBarPaper, self.allCapsPaper])
     self.assertEqual(actuals78,expecteds78)
 
-  #44
+  '''#44
   def testPaperRecsForUserID(self):
     self.loadTestData()
     self.loadMoreTestData()
@@ -693,7 +693,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     actuals5678 = set([actuals[5],actuals[6],actuals[7],actuals[8]])
     expecteds5678 = set([self.apmViewedPaper,self.hpmViewedPaper, self.fpmViewedPaper,self.fpcViewedPaper])
     self.assertEqual(actuals5678, expecteds5678)
-
+  
   #Stress testing for performance
   def testSearchStress(self):
     self.loadTestData()
@@ -733,7 +733,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     print "rslt:"
     print rslt'''
 
-  '''def checkPaperViewCountUpdated(self, views, id):
+  def checkPaperViewCountUpdated(self, views, id):
     paper = self.redisDB.getPaper(id)
     self.assertEqual(paper.viewCount, str(views))
     self.assertEqual(views, self.redisDB.redisDB.zscore("Papers",id))
@@ -752,7 +752,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
       tag = self.redisDB.getTag(rawTag)
       self.assertEqual(tag.viewCount, str(views))
       self.assertEqual(views, self.redisDB.redisDB.zscore("Tags",rawTag))
-      self.assertEqual(views, self.redisDB.redisDB.zscore("Tag:"+rawTag+":Papers",id))'''
+      self.assertEqual(views, self.redisDB.redisDB.zscore("Tag:"+rawTag+":Papers",id))
 
   #TODO test getAll methods after viewing papers
   #TODO test putting in a duplicate author name
@@ -767,7 +767,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
     self.loadTestData()
     self.assertTrue(False)'''
 
-  '''#44
+  #44
   def testAdvancedSearchBoth(self):
     self.loadTestData()
     self.loadMoreTestData()
@@ -817,7 +817,7 @@ class RedisIntegrationTestCase(unittest.TestCase):
 
     actuals67 = set([actuals[6],actuals[7]])
     expecteds67 = set([self.fooBarPaper, self.allCapsPaper])
-    self.assertEqual(actuals67,expecteds67)'''
+    self.assertEqual(actuals67,expecteds67)
 
   #47
   def testUpdatePaper(self):
