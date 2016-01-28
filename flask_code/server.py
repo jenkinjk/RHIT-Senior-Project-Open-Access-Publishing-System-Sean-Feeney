@@ -76,7 +76,6 @@ def welcome_page():
 def home_page():
     print 'user ' + get_user_id() + ' is viewing the home page'
     return render_template('home.html')
-	
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
@@ -172,6 +171,12 @@ def upload_fake_paper_endpoint():
 
     return uniqueID
 
+
+@app.route('/upload_redirect', methods=['POST'])
+def upload_redirect():
+    title = request.form['title']
+    print (title)
+    return "Redirect Successful!"
 
 @app.route('/addNewAuthor', methods=['POST'])
 def add_new_author_endpoint():

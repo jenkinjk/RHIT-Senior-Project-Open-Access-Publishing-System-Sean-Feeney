@@ -145,7 +145,8 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                                     <button class="favorite">{{tag}}</button>
                                 {% endfor %}
                             {% else %}
-                                <strong>Not Uploaded</strong>
+                                <!-- <strong>Not Uploaded</strong> -->
+                                <button onclick="redirect();">Upload</button>
                             {% endif %}
                           </div>
                         </div> <!-- end of paper block -->
@@ -326,6 +327,22 @@ function rmFavoriteAuthor(authorArg) {
     }
 });
 }
+
+function redirect() {
+    console.log("redirecting...");
+    $.ajax({
+        type : "POST",
+        url : "/upload_redirect",
+        data: {title : 'hello, world!'},
+
+        success: function(result) {
+            console.log(result);
+            console.log('ALASKA');
+            window.location.href = '../upload';
+        }
+});
+}
+
 </script>
 
 {% endblock %}
