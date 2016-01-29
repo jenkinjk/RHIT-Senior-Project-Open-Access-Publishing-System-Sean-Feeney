@@ -10,7 +10,7 @@
 //
 // Fetch the PDF document from the URL using promises
 //
-PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
+PDFJS.getDocument('/uploads/{{paper.id}}').then(function(pdf) {
   // Using promise to fetch the page
   pdf.getPage(1).then(function(page) {
     var scale = 0.25;
@@ -41,7 +41,7 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
 {% block title %}PDF Viewer{% endblock %}
 {% block pageTitle %}{{paper.title}}{% endblock %}
 {% block content %}
-<!-- <iframe src="/uploads/{{uniqueID}}" width="800" height="800"></iframe> -->
+<!-- <iframe src="/uploads/{{paper.id}}" width="800" height="800"></iframe> -->
 
 <div class="container">
 	<div class="row">
@@ -146,7 +146,7 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                                 {% endfor %}
                             {% else %}
                                 <!-- <strong>Not Uploaded</strong> -->
-                                <button onclick="redirect('{{ refPaper.title }}', {{ refPaper.tags }}, {{ refPaper.authorNames }}, {{ refPaper.authorIDs }});">Upload</button>
+                                <button onclick="redirect('{{ refPaper.title }}', {{ refPaper.tags }}, {{ refPaper.authorNames }}, {{ refPaper.authorIDs }}, '{{ refPaper.datePublished}}');">Upload</button>
                             {% endif %}
                           </div>
                         </div> <!-- end of paper block -->
@@ -243,7 +243,7 @@ function addFavorite() {
 	$.ajax({
     type : "POST",
     url : "/addFavorite",
-    data: {paperID : {{uniqueID}}},
+    data: {paperID : {{paper.id}}},
     
     success: function(result) {
         console.log(result);
@@ -258,7 +258,7 @@ function rmFavorite() {
 	$.ajax({
     type : "POST",
     url : "/removeFavorite",
-    data: {paperID : {{uniqueID}}},
+    data: {paperID : {{paper.id}}},
     
     success: function(result) {
         console.log(result);
@@ -328,9 +328,9 @@ function rmFavoriteAuthor(authorArg) {
 });
 }
 
-function redirect(title, tags, authorNames, authorIDs) {
+function redirect(title, tags, authorNames, authorIDs, datePublished) {
     console.log("redirecting...");
-    location.href = "/upload?title=" + title +"&tags=" + tags + "&authorNames=" + authorNames + "&authorIDs=" + authorIDs;
+    location.href = "/upload?title=" + title +"&tags=" + tags + "&authorNames=" + authorNames + "&authorIDs=" + authorIDs + "&datePublished=" + datePublished;
 }
 
 </script>

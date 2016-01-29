@@ -63,8 +63,8 @@
 
 
       <div class="form-group">
-        <label for="dateInput">Date Published (YYYY-MM-DD if not specified)</label>
-        <input type="date" class="form-control" id="dateInput" placeholder="Date Published" name="date">
+        <label for="dateInput">Date Published (ex: YYYY-MM-DD)</label>
+        <input type="date" class="form-control" id="dateInput" placeholder="Date Published" value="{{ datePublished }}" name="date">
       </div>
       <div class="form-group">
         <label for="abstractInput">Abstract</label>
@@ -388,15 +388,16 @@ function printFail() {
 $("#tagsInput").tokenfield({createTokensOnBlur: true});
 
 $('#currentAuthors').on('tokenfield:initialize', function (event) {
-  console.log("{{ authorNames }}");
-  var author_names = "{{ authorNames }}";
-  var author_IDs = "{{ authorIDs }}";
+  console.log({{ authorNames|tojson }});
+  var author_names = {{ authorNames|tojson }};
+  var author_IDs = {{ authorIDs|tojson }};
   if (author_names == "") {
     author_names = [];
     author_IDs = [];
   } else {
     author_names = author_names.split(",");
     author_IDs = author_IDs.split(",");
+    console.log(author_names);
   }
   for (var i = 0; i < author_names.length; i++) {
     $("#currentAuthors").tokenfield('createToken', { value:author_IDs[i], label:author_names[i]});

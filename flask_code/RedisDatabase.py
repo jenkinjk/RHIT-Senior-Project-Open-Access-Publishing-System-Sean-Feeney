@@ -5,7 +5,7 @@ Created on Oct 6, 2015
 
 import redis
 import re
-from datetime import datetime
+from datetime import datetime, date
 from Author import Author
 from Tag import Tag
 from Paper import Paper
@@ -219,7 +219,8 @@ class RedisDatabase():
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     # TODO: fix this later
     datePublished = self.redisDB.get("Paper:"+paperID+":DatePublished")
-    datePublished = datetime.strptime(datePublished.split(' ')[0], "%Y-%m-%d")
+    print "datePublished for paper ", paperID, title, ":", datePublished
+    datePublished = date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = list(self.redisDB.smembers("Paper:"+paperID+":References"))
     citedBys = list(self.redisDB.smembers("Paper:"+paperID+":CitedBys"))

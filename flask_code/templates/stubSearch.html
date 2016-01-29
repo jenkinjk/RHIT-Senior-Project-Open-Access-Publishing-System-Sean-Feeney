@@ -29,7 +29,7 @@
         {% endif %}
       </div>
       <div class="col-md-2">
-        <button type="button" class="btn btn-success btn-xs" onclick="submitForm('{{ result.id }}');">Fill this stub</button>
+        <button type="button" class="btn btn-success btn-xs" onclick='submitForm({{ result.id|tojson }});'>Fill this stub</button>
       </div>
     </div> <!-- end of paper block -->
 

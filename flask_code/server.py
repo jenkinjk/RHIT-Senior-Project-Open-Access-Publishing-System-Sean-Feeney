@@ -7,7 +7,7 @@ import pprint
 from RedisDatabase import RedisDatabase
 import Paper
 import User
-from datetime import datetime
+from datetime import datetime, date
 import base64
 import json
 
@@ -91,8 +91,6 @@ def upload_page():
             authorIDs = request.form['authors'].split(',')
             print("raw authors:", authorIDs)
             authorIDs = [authorID.strip() for authorID in authorIDs]
-            # TODO: Do this right, this is just a workaround.  we should be prompting users which author exactly they mean
-            # to resolve same-name conflicts, then passing in the correct authorID
 
             tags = request.form['tags'].split(',')
             print("raw tags:", tags)
@@ -103,9 +101,9 @@ def upload_page():
             datePublished = request.form['date']
             if datePublished == "":
                 print "missing datepublished field, using default value"
-                datePublished = datetime(1,1,1)
+                datePublished = parse_date(datePublished)
             else:
-                datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+                datePublished = parse_date(datePublished)
 
             # references = request.form['references']
             references = [] if request.form['references'] == "" else request.form['references'].split(",")
@@ -147,7 +145,8 @@ def upload_page():
         tags = "" if request.args.get("tags") is None else request.args.get("tags")
         authorNames = "" if request.args.get("authorNames") is None else request.args.get("authorNames")
         authorIDs = "" if request.args.get("authorIDs") is None else request.args.get("authorIDs")
-        return render_template('upload.html', title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs)
+        datePublished = "" if request.args.get("datePublished") is None else request.args.get("datePublished").split(" ")[0]
+        return render_template('upload.html', title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs, datePublished=datePublished)
 
 
 @app.route('/uploadFakePaper', methods=['POST'])
@@ -163,13 +162,12 @@ def upload_fake_paper_endpoint():
     # TODO: get this the right way ^
 
     datePublished = request.form['date']
-    datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
+    datePublished = date()
     # if datePublished == "":
     #     print "missing datepublished field, using default value"
     #     datePublished = datetime(1,1,1)
     # else:
-    #     datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
-
+    #     datePublished = date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
     # put fake paper
     uniqueID = db.putPaper(title, authorIDs, [], "", get_user_id(), datePublished, None, False)
 
@@ -205,7 +203,7 @@ def view_file(uniqueID):
             favoritedTags.append(False)
     references = [db.getPaper(reference) for reference in references]
     citedBys = [db.getPaper(citedBy) for citedBy in citedBys]
-    return render_template('view_pdf.html', uniqueID=uniqueID, paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys)
+    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys)
 
 
 @app.route('/uploads/<uniqueID>')
@@ -547,6 +545,10 @@ def get_user_id():
         return db.facebookToRegularID(str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id']))
     else:
         return "Anonymous"
+
+def parse_date(datestring):
+    # TODO: beef this up
+    return date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
 
 if __name__ == '__main__':
 	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
