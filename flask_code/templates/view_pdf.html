@@ -146,7 +146,7 @@ PDFJS.getDocument('/uploads/{{uniqueID}}').then(function(pdf) {
                                 {% endfor %}
                             {% else %}
                                 <!-- <strong>Not Uploaded</strong> -->
-                                <button onclick="redirect();">Upload</button>
+                                <button onclick="redirect('{{ refPaper.title }}', {{ refPaper.tags }}, {{ refPaper.authorNames }}, {{ refPaper.authorIDs }});">Upload</button>
                             {% endif %}
                           </div>
                         </div> <!-- end of paper block -->
@@ -328,23 +328,11 @@ function rmFavoriteAuthor(authorArg) {
 });
 }
 
-function redirect() {
+function redirect(title, tags, authorNames, authorIDs) {
     console.log("redirecting...");
-    $.ajax({
-        type : "POST",
-        url : "/upload_redirect",
-        data: {title : 'hello, world!'},
-
-        success: function(result) {
-            console.log(result);
-            console.log('ALASKA');
-            window.location.href = '../upload';
-        }
-});
+    location.href = "/upload?title=" + title +"&tags=" + tags + "&authorNames=" + authorNames + "&authorIDs=" + authorIDs;
 }
 
 </script>
 
 {% endblock %}
-
-

@@ -42,7 +42,7 @@
       </div>
       <div class="form-group">
         <label for="titleInput">Title</label>
-        <input type="text" class="form-control" id="titleInput" placeholder="Title" name="title">
+        <input type="text" class="form-control" id="titleInput" placeholder="Title" value="{{ title }}" name="title">
       </div>
       <div class="form-group">
         <label for="authorInput">Author Names</label>
@@ -74,7 +74,7 @@
 
       <div class="form-group full-width">
         <label for="tagsInput">Tags</label>
-        <input type="text" class="form-control full-width" id="tagsInput" name="tags">
+        <input type="text" class="form-control full-width" id="tagsInput" value="{{ tags }}" name="tags">
       </div>
 
       <div class="form-group">
@@ -387,6 +387,22 @@ function printFail() {
 
 //initialize tags input
 $("#tagsInput").tokenfield({createTokensOnBlur: true});
+
+$('#currentAuthors').on('tokenfield:initialize', function (event) {
+  console.log("{{ authorNames }}");
+  var author_names = "{{ authorNames }}";
+  var author_IDs = "{{ authorIDs }}";
+  if (author_names == "") {
+    author_names = [];
+    author_IDs = [];
+  } else {
+    author_names = author_names.split(",");
+    author_IDs = author_IDs.split(",");
+  }
+  for (var i = 0; i < author_names.length; i++) {
+    $("#currentAuthors").tokenfield('createToken', { value:author_IDs[i], label:author_names[i]});
+  };
+})
 
 //initialize current authors input
 $("#currentAuthors").tokenfield();

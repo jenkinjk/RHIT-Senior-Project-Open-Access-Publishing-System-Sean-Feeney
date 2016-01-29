@@ -108,7 +108,7 @@ def upload_page():
                 datePublished = datetime.strptime(datePublished, '%Y-%m-%d')
 
             # references = request.form['references']
-            references = request.form['references'].split(',')
+            references = [] if request.form['references'] == "" else request.form['references'].split(",")
             print("raw references:", references)
             references = [reference.strip() for reference in references]
 
@@ -143,7 +143,12 @@ def upload_page():
         # return render_template('upload.html')
     # else it is a GET request
     else:
-        return render_template('upload.html')
+        title = "" if request.args.get("title") is None else request.args.get("title")
+        # authors = "" if request.args.get("authors") is None else request.args.get("authors")
+        tags = "" if request.args.get("tags") is None else request.args.get("tags")
+        authorNames = "" if request.args.get("authorNames") is None else request.args.get("authorNames")
+        authorIDs = "" if request.args.get("authorIDs") is None else request.args.get("authorIDs")
+        return render_template('upload.html', title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs)
 
 
 @app.route('/uploadFakePaper', methods=['POST'])
@@ -170,13 +175,6 @@ def upload_fake_paper_endpoint():
     uniqueID = db.putPaper(title, authorIDs, [], "", get_user_id(), datePublished, None, False)
 
     return uniqueID
-
-
-@app.route('/upload_redirect', methods=['POST'])
-def upload_redirect():
-    title = request.form['title']
-    print (title)
-    return "Redirect Successful!"
 
 @app.route('/addNewAuthor', methods=['POST'])
 def add_new_author_endpoint():
