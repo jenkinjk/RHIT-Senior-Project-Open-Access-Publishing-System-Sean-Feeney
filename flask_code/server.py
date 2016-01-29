@@ -113,35 +113,30 @@ def upload_page():
             references = [reference.strip() for reference in references]
 
             # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
-            isStub = request.form['isStub']
             stubID = request.form['stubID']
             
             print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
-            if isStub:
+            if stubID == "":
+                # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
+                uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+            else:
                 print "Filling stub paper with id:", stubID
                 # updatePaper(id, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
                 db.updatePaper(stubID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-                for reference in references:
-                    db.addReference(stubID, reference)
+                uniqueID = stubID
 
-                docStore.storeDocument(upload_file, stubID)
+            # add references
+            for reference in references:
+                db.addReference(uniqueID, reference)
+        
+            # png:
+            # thumbnail = png_converter.convert(upload_file)
+            # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
-            else:
-                # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
-                uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-
-                # add references
-                for reference in references:
-                    db.addReference(uniqueID, reference)
+            docStore.storeDocument(upload_file, uniqueID)
             
-                # png:
-                # thumbnail = png_converter.convert(upload_file)
-                # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
-
-                docStore.storeDocument(upload_file, uniqueID)
-                
-                # png:
-                # docStore.storeThumbnail(thumbnail, uniqueID)
+            # png:
+            # docStore.storeThumbnail(thumbnail, uniqueID)
 
         return "Upload successful!"
         # return render_template('upload.html')

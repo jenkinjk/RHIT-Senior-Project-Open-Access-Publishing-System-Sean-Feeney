@@ -98,7 +98,7 @@
           </div>
           <button onclick="preUploadCheck();">Pre-upload Check</button>
 
-          <button onclick="submitForm('', false);" id="uploadPaperButton" style="display: none">Upload</button>
+          <button onclick="submitForm('');" id="uploadPaperButton" style="display: none">Upload</button>
           <p class="form-group" id="uploadLoading" style="display: none;">Uploading...</p>
           <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
           <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
@@ -280,7 +280,7 @@ function preUploadCheck() {
   document.getElementById("uploadPaperButton").style.display = "";
 }
 
-function submitForm(stubID, isStub) {
+function submitForm(stubID) {
   console.log("Submitting form...");
   document.getElementById("uploadLoading").style.display = "";
   document.getElementById("failedUpload").style.display = "none";
@@ -306,7 +306,6 @@ function submitForm(stubID, isStub) {
   console.log(abstract);
   console.log(tags);
   console.log(references);
-  console.log(isStub);
   console.log(stubID);
 
   // create a form with a couple of values
@@ -318,7 +317,6 @@ function submitForm(stubID, isStub) {
   formData.append("abstract", abstract);
   formData.append("tags", tags);
   formData.append("references", references);
-  formData.append("isStub", isStub);
   formData.append("stubID", stubID);
 
   $.ajax({
