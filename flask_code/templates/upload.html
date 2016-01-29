@@ -306,6 +306,8 @@ function submitForm(stubID, isStub) {
   console.log(abstract);
   console.log(tags);
   console.log(references);
+  console.log(isStub);
+  console.log(stubID);
 
   // create a form with a couple of values
   var formData = new FormData();
@@ -316,9 +318,8 @@ function submitForm(stubID, isStub) {
   formData.append("abstract", abstract);
   formData.append("tags", tags);
   formData.append("references", references);
-  formData.append("stubID", stubID);
   formData.append("isStub", isStub);
-
+  formData.append("stubID", stubID);
 
   $.ajax({
       type : "POST",
