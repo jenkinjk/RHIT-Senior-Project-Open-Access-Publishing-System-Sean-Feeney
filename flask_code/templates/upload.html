@@ -68,7 +68,7 @@
       </div>
       <div class="form-group">
         <label for="abstractInput">Abstract</label>
-        <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract"></textarea>
+        <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" value="{{ abstract }}" name="abstract"></textarea>
         <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
       </div>
 
@@ -317,7 +317,7 @@ function submitForm(stubID) {
   formData.append("abstract", abstract);
   formData.append("tags", tags);
   formData.append("references", references);
-  formData.append("stubID", stubID);
+  formData.append("stubID", {{ stubID|safe }});
 
   $.ajax({
       type : "POST",
@@ -422,6 +422,23 @@ $("#currentAuthors").on('tokenfield:createtoken', function (event) {
             event.preventDefault();
     });
 });
+
+$('#currentRefs').on('tokenfield:initialize', function (event) {
+  console.log({{ referenceNames|tojson }});
+  var reference_names = {{ referenceNames|tojson }};
+  var reference_IDs = {{ referenceIDs|tojson }};
+  if (reference_names == "") {
+    reference_names = [];
+    reference_IDs = [];
+  } else {
+    reference_names = reference_names.split(",");
+    reference_IDs = reference_IDs.split(",");
+    console.log(reference_names);
+  }
+  for (var i = 0; i < reference_names.length; i++) {
+    $("#currentRefs").tokenfield('createToken', { value:reference_IDs[i], label:reference_names[i]});
+  };
+})
 
 //initialize the current references input
 $("#currentRefs").tokenfield();

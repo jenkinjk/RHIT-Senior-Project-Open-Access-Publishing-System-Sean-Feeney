@@ -119,10 +119,14 @@ def upload_page():
                 uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
             else:
                 print "Filling stub paper with id:", stubID
+                posted_by = db.getPaper(stubID).postedByUserID
+                if posted_by == "" or posted_by == str(get_user_id()):
                 # updatePaper(id, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
-                db.updatePaper(stubID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-                uniqueID = stubID
-
+                    db.updatePaper(stubID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                    uniqueID = stubID
+                else:
+                    print "ERROR: permission to update paper denied.  paper", stubID,"was uploaded by user:", posted_by, "but user", get_user_id(), "tried to update it"
+                    return "error: permission denied.  your user id does not match the one that uploaded this paper, so you may not edit it"
             # add references
             for reference in references:
                 db.addReference(uniqueID, reference)
@@ -131,6 +135,9 @@ def upload_page():
             # thumbnail = png_converter.convert(upload_file)
             # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
+            # this may not be necessary, depending on how S3 deals with duplicates/overwriting
+            if docStore.documentExists(uniqueID):
+                docStore.removeDocument(uniqueID)
             docStore.storeDocument(upload_file, uniqueID)
             
             # png:
@@ -140,13 +147,18 @@ def upload_page():
         # return render_template('upload.html')
     # else it is a GET request
     else:
+        # TODO: what about prepopulating the file input?
+        # how about add the following text to file input in this case: "(optional) replace uploaded file with new one"
+        stubID = "stubID" if request.args.get("editPaperID") is None else request.args.get("editPaperID")
         title = "" if request.args.get("title") is None else request.args.get("title")
-        # authors = "" if request.args.get("authors") is None else request.args.get("authors")
-        tags = "" if request.args.get("tags") is None else request.args.get("tags")
         authorNames = "" if request.args.get("authorNames") is None else request.args.get("authorNames")
         authorIDs = "" if request.args.get("authorIDs") is None else request.args.get("authorIDs")
         datePublished = "" if request.args.get("datePublished") is None else request.args.get("datePublished").split(" ")[0]
-        return render_template('upload.html', title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs, datePublished=datePublished)
+        abstract = "" if request.args.get("abstract") is None else request.args.get("abstract")
+        tags = "" if request.args.get("tags") is None else request.args.get("tags")
+        referenceNames = "" if request.args.get("referenceNames") is None else request.args.get("referenceNames")
+        referenceIDs = "" if request.args.get("referenceIDs") is None else request.args.get("referenceIDs")
+        return render_template('upload.html', stubID=stubID, title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs, datePublished=datePublished, abstract=abstract, referenceNames=referenceNames, referenceIDs=referenceIDs)
 
 
 @app.route('/uploadFakePaper', methods=['POST'])
@@ -169,7 +181,8 @@ def upload_fake_paper_endpoint():
     # else:
     #     datePublished = date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
     # put fake paper
-    uniqueID = db.putPaper(title, authorIDs, [], "", get_user_id(), datePublished, None, False)
+    # we put the empty string in instead of get_user_id().  hopefully it doesn't break stuff
+    uniqueID = db.putPaper(title, authorIDs, [], "", "", datePublished, None, False)
 
     return uniqueID
 
@@ -479,13 +492,6 @@ def rmFavoriteTag():
 def rmFavoriteAuthor():
     db.removeFavoriteAuthor(get_user_id(), request.values['author'])
     print(request.values['author'])
-    return "Added! :)"
-
-@app.route('/resolveAuthorName', methods=['POST'])
-def resolveAuthorName():
-    
-
-    print(request.values['paperID'])
     return "Added! :)"
         
 # REMOVE FOR PRODUCTION
