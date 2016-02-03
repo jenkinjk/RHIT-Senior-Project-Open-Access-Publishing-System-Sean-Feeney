@@ -203,7 +203,7 @@ def view_file(uniqueID):
             favoritedTags.append(False)
     references = [db.getPaper(reference) for reference in references]
     citedBys = [db.getPaper(citedBy) for citedBy in citedBys]
-    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys)
+    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys, userID=userID)
 
 
 @app.route('/uploads/<uniqueID>')
@@ -548,7 +548,7 @@ def get_user_id():
 
 def parse_date(datestring):
     # TODO: beef this up
-    return date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
+    return date(int(datestring[0:4]), int(datestring[5:7]), int(datestring[8:10]))
 
 if __name__ == '__main__':
 	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
