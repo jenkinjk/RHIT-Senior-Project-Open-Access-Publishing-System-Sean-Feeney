@@ -219,7 +219,7 @@ class RedisDatabase():
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     # TODO: fix this later
     datePublished = self.redisDB.get("Paper:"+paperID+":DatePublished")
-    print "datePublished for paper ", paperID, title, ":", datePublished
+    print "datePublished for paper", paperID, title, ":", datePublished
     datePublished = date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = list(self.redisDB.smembers("Paper:"+paperID+":References"))

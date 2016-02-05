@@ -56,15 +56,15 @@ PDFJS.getDocument('/uploads/{{paper.id}}').then(function(pdf) {
             			<button class="favorited" id="unfav" style="display: none" onclick="rmFavorite();">Favorited!</button>
         			{% endif %}
                     {% if paper.postedByUserID == userID %}
-                        <button>You Uploaded this Paper</button>
+                        <button onclick="getPage('/upload');">Edit this Paper</button>
                     {% endif %}
                 </div>
             </div>
 			<br>
             <div class="row">
                 <div class="col-lg-10">
-        			<object data="/uploads/{{uniqueID}}" type="application/pdf" height="850" width="100%">
-        				<embed src="/uploads/{{uniqueID}}" type="application/pdf"/>
+        			<object data="/uploads/{{paper.id}}" type="application/pdf" height="850" width="100%">
+        				<embed src="/uploads/{{paper.id}}" type="application/pdf"/>
         			</object>
                 </div>
                 <div class="col-lg-2">

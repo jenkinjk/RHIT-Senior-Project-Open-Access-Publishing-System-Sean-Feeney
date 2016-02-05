@@ -317,7 +317,7 @@ function submitForm(stubID) {
   formData.append("abstract", abstract);
   formData.append("tags", tags);
   formData.append("references", references);
-  formData.append("stubID", {{ stubID|safe }});
+  formData.append("paperID", {{ stubID|safe }});
 
   $.ajax({
       type : "POST",
