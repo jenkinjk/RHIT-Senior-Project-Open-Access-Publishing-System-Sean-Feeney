@@ -56,7 +56,7 @@ PDFJS.getDocument('/uploads/{{paper.id}}').then(function(pdf) {
             			<button class="favorited" id="unfav" style="display: none" onclick="rmFavorite();">Favorited!</button>
         			{% endif %}
                     {% if paper.postedByUserID == userID %}
-                        <button onclick="getPage('/upload');">Edit this Paper</button>
+                        <button onclick='redirect({{ paper.title|tojson }}, {{ paper.tags|tojson }}, {{ paper.authorNames|tojson }}, {{ paper.authorIDs|tojson }}, "{{ paper.datePublished}}", {{ paper.abstract|tojson }}, {{referenceTitles|tojson}}, {{ paper.references|tojson}}, {{ paper.id|tojson}});'>Edit this Paper</button>
                     {% endif %}
                 </div>
             </div>
@@ -149,7 +149,8 @@ PDFJS.getDocument('/uploads/{{paper.id}}').then(function(pdf) {
                                 {% endfor %}
                             {% else %}
                                 <!-- <strong>Not Uploaded</strong> -->
-                                <button onclick="redirect('{{ refPaper.title }}', {{ refPaper.tags }}, {{ refPaper.authorNames }}, {{ refPaper.authorIDs }}, '{{ refPaper.datePublished}}');">Upload</button>
+                                <button onclick='redirect({{ refPaper.title|tojson }}, {{ refPaper.tags|tojson }}, {{ refPaper.authorNames|tojson }}, {{ refPaper.authorIDs|tojson }}, "{{ refPaper.datePublished}}","","","","");'>Upload</button>
+                                <!-- <button onclick="redirect();">Upload</button> -->
                             {% endif %}
                           </div>
                         </div> <!-- end of paper block -->
@@ -331,9 +332,9 @@ function rmFavoriteAuthor(authorArg) {
 });
 }
 
-function redirect(title, tags, authorNames, authorIDs, datePublished) {
+function redirect(title, tags, authorNames, authorIDs, datePublished, abstract, referenceNames, referenceIDs, editPaperID) {
     console.log("redirecting...");
-    location.href = "/upload?title=" + title +"&tags=" + tags + "&authorNames=" + authorNames + "&authorIDs=" + authorIDs + "&datePublished=" + datePublished;
+    location.href = "/upload?title=" + title +"&tags=" + tags + "&authorNames=" + authorNames + "&authorIDs=" + authorIDs + "&datePublished=" + datePublished + "&abstract=" + abstract + "&referenceNames=" + referenceNames + "&referenceIDs=" + referenceIDs + "&editPaperID=" + editPaperID;
 }
 
 </script>

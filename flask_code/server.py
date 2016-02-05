@@ -104,8 +104,8 @@ def parse_paper_post_data():
 def upload_page():
     print 'user ' + get_user_id() + ' is uploading'
     if request.method == 'POST':
-        upload_file = request.files['file']
-        if upload_file and allowed_file(upload_file.filename):
+        upload_file = request.files.get('file', default=None)
+        if True: #upload_file and allowed_file(upload_file.filename):
             # TODO: we might should check our database to see if the file already exists 
             # title, authorIDs, tags, abstract, datePublished, references, paperID
             title, authorIDs, tags, abstract, datePublished, references, paperID = parse_paper_post_data()
@@ -157,6 +157,7 @@ def upload_page():
         tags = "" if request.args.get("tags") is None else request.args.get("tags")
         referenceNames = "" if request.args.get("referenceNames") is None else request.args.get("referenceNames")
         referenceIDs = "" if request.args.get("referenceIDs") is None else request.args.get("referenceIDs")
+        print "stubID:", stubID, "title:", title, "authorNames:", authorNames, "authorIDs:", authorIDs, "datePublished:", datePublished, "abstract:", abstract, "tags:", tags, "referenceNames:", referenceNames, "referenceIDs:", referenceIDs
         return render_template('upload.html', stubID=stubID, title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs, datePublished=datePublished, abstract=abstract, referenceNames=referenceNames, referenceIDs=referenceIDs)
 
 
@@ -199,8 +200,9 @@ def view_file(uniqueID):
         else:
             favoritedTags.append(False)
     references = [db.getPaper(reference) for reference in references]
+    referenceTitles = [reference.title for reference in references]
     citedBys = [db.getPaper(citedBy) for citedBy in citedBys]
-    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys, userID=userID)
+    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys, userID=userID, referenceTitles=referenceTitles)
 
 
 @app.route('/uploads/<uniqueID>')

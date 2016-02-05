@@ -68,7 +68,7 @@
       </div>
       <div class="form-group">
         <label for="abstractInput">Abstract</label>
-        <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" value="{{ abstract }}" name="abstract"></textarea>
+        <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract">{{ abstract }}</textarea>
         <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
       </div>
 
@@ -317,7 +317,7 @@ function submitForm(stubID) {
   formData.append("abstract", abstract);
   formData.append("tags", tags);
   formData.append("references", references);
-  formData.append("paperID", {{ stubID|safe }});
+  formData.append("paperID", {{ stubID|tojson|safe }});
 
   $.ajax({
       type : "POST",
@@ -391,6 +391,7 @@ $('#currentAuthors').on('tokenfield:initialize', function (event) {
   console.log({{ authorNames|tojson }});
   var author_names = {{ authorNames|tojson }};
   var author_IDs = {{ authorIDs|tojson }};
+  //TODO: needed?
   if (author_names == "") {
     author_names = [];
     author_IDs = [];
@@ -427,6 +428,7 @@ $('#currentRefs').on('tokenfield:initialize', function (event) {
   console.log({{ referenceNames|tojson }});
   var reference_names = {{ referenceNames|tojson }};
   var reference_IDs = {{ referenceIDs|tojson }};
+  //TODO: needed?
   if (reference_names == "") {
     reference_names = [];
     reference_IDs = [];
