@@ -644,6 +644,10 @@ class RedisDatabase():
     self.redisDB.sadd("Paper:"+paperCitingID+":References", paperCitedID)
     self.redisDB.sadd("Paper:"+paperCitedID+":CitedBys", paperCitingID)
 
+  def setReferences(self, paperCitingID, papersCitedIDs):
+    # TODO: this function should remove any existing references (if any) from paperCitingID (paperCitingID may not even exist as a key yet)
+    # then call addReference(paperCitingID, paperCitedID) for all paperCitedID in papersCitedIDs
+
   def markPaperUploaded(self, paperToMarkID):
     #TODO double check.  This is probably broken.
     self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)

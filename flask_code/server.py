@@ -104,41 +104,42 @@ def parse_paper_post_data():
 def upload_page():
     print 'user ' + get_user_id() + ' is uploading'
     if request.method == 'POST':
+        title, authorIDs, tags, abstract, datePublished, references, paperID = parse_paper_post_data()
+        print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
         upload_file = request.files.get('file', default=None)
-        if True: #upload_file and allowed_file(upload_file.filename):
-            # TODO: we might should check our database to see if the file already exists 
-            # title, authorIDs, tags, abstract, datePublished, references, paperID
-            title, authorIDs, tags, abstract, datePublished, references, paperID = parse_paper_post_data()
-
-            stubID = paperID
-            
-            print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
-            if stubID == "":
-                # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
-                uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+        if upload_file and allowed_file(upload_file.filename):
+            # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
+            if paperID == "":
+                # this is a new paper
+                paperID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                db.setReferences(uniqueID, references)
             else:
-                print "Filling stub paper with id:", stubID
-                posted_by = db.getPaper(stubID).postedByUserID
-                if posted_by == "" or posted_by == str(get_user_id()):
-                # updatePaper(id, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
-                    db.updatePaper(stubID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-                    uniqueID = stubID
-                else:
-                    print "ERROR: permission to update paper denied.  paper", stubID,"was uploaded by user:", posted_by, "but user", get_user_id(), "tried to update it"
-                    return "error: permission denied.  your user id does not match the one that uploaded this paper, so you may not edit it"
-            # add references
-            for reference in references:
-                db.addReference(uniqueID, reference)
-        
+                # this paper already exists
+                print "Updating paper with id:", paperID
+                posted_by = db.getPaper(paperID).postedByUserID
+                if posted_by != str(get_user_id()):
+                    # they are not allowed to update/overwrite it
+                    return "Permission denied, your used id did not upload this paper so you cannot modify it"
+                db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                db.setReferences(uniqueID, references)
+            # in either case, store the document
+            if docStore.documentExists(paperID):
+                docStore.removeDocument(paperID)
+            docStore.storeDocument(upload_file, paperID)
+
+        else:
+            # We are not uploading a physical paper, so either we are updating a paper's metadata without changing the pdf, or it is an invalid request
+            print "Updating paper with id:", paperID
+            posted_by = db.getPaper(paperID).postedByUserID
+            if posted_by != str(get_user_id()):
+                # they are not allowed to update/overwrite it
+                return "Permission denied, your used id did not upload this paper so you cannot modify it"
+            db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+            db.setReferences(uniqueID, references)
             # png:
             # thumbnail = png_converter.convert(upload_file)
             # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
-            # this may not be necessary, depending on how S3 deals with duplicates/overwriting
-            if docStore.documentExists(uniqueID):
-                docStore.removeDocument(uniqueID)
-            docStore.storeDocument(upload_file, uniqueID)
-            
             # png:
             # docStore.storeThumbnail(thumbnail, uniqueID)
 
