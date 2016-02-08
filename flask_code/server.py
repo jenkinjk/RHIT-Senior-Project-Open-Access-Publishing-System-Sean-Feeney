@@ -106,6 +106,8 @@ def upload_page():
     if request.method == 'POST':
         title, authorIDs, tags, abstract, datePublished, references, paperID = parse_paper_post_data()
         print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
+        if get_user_id() == "":
+            return "Sorry, you must be logged in to upload a paper"
         upload_file = request.files.get('file', default=None)
         if upload_file and allowed_file(upload_file.filename):
             # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
@@ -289,7 +291,7 @@ def profile_page():
 
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
     user_id = get_user_id()
-    if(user_id is "Anonymous"):
+    if(user_id is ""):
         #   def __init__(id, username, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID = None):
         user = User.User(0,"Anonymous User", [],[],[],[],[],0)
     else:
@@ -452,7 +454,7 @@ def get_user_id():
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
         return db.facebookToRegularID(str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id']))
     else:
-        return "Anonymous"
+        return ""
 
 def parse_date(datestring):
     # TODO: beef this up
