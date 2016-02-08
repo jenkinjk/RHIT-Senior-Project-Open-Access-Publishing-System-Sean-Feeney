@@ -655,6 +655,17 @@ class RedisDatabase():
 	
   def isPaperUploaded(self, paperToCheckID):
     return self.redisDB.get("Paper:"+paperToCheckID+":IsUploaded")
+	
+  def removeReference(self, paperCitingID, paperCitedID):
+    self.redisDB.srem("Paper:"+paperCitingID+":References", paperCitedID)
+    self.redisDB.srem("Paper:"+paperCitedID+":CitedBys", paperCitingID)
+	
+  def setReferences(self, paperCitingID, papersCitedIDs):
+    members = self.redisDB.smembers("Paper:"+paperCitingID+":References")
+    for referenceToRemove in members:
+      self.removeReference(paperCitingID, referenceToRemove)
+    for referenceToAdd in paperCitedIDs:
+      self.addReference(paperCitingID, referenceToAdd)
 
 
 
