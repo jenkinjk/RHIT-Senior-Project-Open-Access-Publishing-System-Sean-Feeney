@@ -29,84 +29,85 @@
 {% block pageTitle %}Upload Articles{% endblock %}
 {% block content %}
 
-<div class="row">
-  <div class="col-lg-4 col-lg-offset-4 form-container">
-      <div class="form-group">
-          <p>Input paper information below, then press upload.  If your paper is already in our system as a stub, you will be asked to confirm and then your input will replace that stub.</p>
-      </div>
-      <div class="form-group">
-        <label for="fileInput">File input</label>
-        <input class="full-width" type="file" name="file" id="fileInput">
-        <!-- helper text if user needs extra explanation within form -->
-        <!-- <p class="help-block">Example block-level help text here.</p> -->
-      </div>
-      <div class="form-group">
-        <label for="titleInput">Title</label>
-        <input type="text" class="form-control" id="titleInput" placeholder="Title" value="{{ title }}" name="title">
-      </div>
-      <div class="form-group">
-        <label for="authorInput">Author Names</label>
+<div class="container"> <!-- whole page container -->
+  <div class="row">
+    <div class="col-lg-4 col-lg-offset-4 form-container">
+        <div class="form-group">
+            <p>Input paper information below, then press upload.  If your paper is already in our system as a stub, you will be asked to confirm and then your input will replace that stub.</p>
+        </div>
+        <div class="form-group">
+          <label for="fileInput">File input</label>
+          <input class="full-width" type="file" name="file" id="fileInput">
+          <!-- helper text if user needs extra explanation within form -->
+          <!-- <p class="help-block">Example block-level help text here.</p> -->
+        </div>
+        <div class="form-group">
+          <label for="titleInput">Title</label>
+          <input type="text" class="form-control" id="titleInput" placeholder="Title" value="{{ title }}" name="title">
+        </div>
+        <div class="form-group">
+          <label for="authorInput">Author Names</label>
 
-        <!-- display current authors added for paper -->
-        <div class="form-group" id="authorSearch">
-          <input type="text" class="form-control full-width" id="currentAuthors">
+          <!-- display current authors added for paper -->
+          <div class="form-group" id="authorSearch">
+            <input type="text" class="form-control full-width" id="currentAuthors">
+          </div>
+
+          <!-- loading feedback -->
+          <p class="form-group" id="authorSearchLoading" style="display: none;">Loading...</p>
+
+          <!-- text area to enter author names to search for -->
+          <input type="text" id="authorInput" placeholder="Author Name" name="authors">
+          <button onclick="searchForAuthor();" id="authorSearchButton">Search for Author</button>
+
         </div>
 
-        <!-- loading feedback -->
-        <p class="form-group" id="authorSearchLoading" style="display: none;">Loading...</p>
-
-        <!-- text area to enter author names to search for -->
-        <input type="text" id="authorInput" placeholder="Author Name" name="authors">
-        <button onclick="searchForAuthor();" id="authorSearchButton">Search for Author</button>
-
-      </div>
-
-
-      <div class="form-group">
-        <label for="dateInput">Date Published (ex: YYYY-MM-DD)</label>
-        <input type="date" class="form-control" id="dateInput" placeholder="Date Published" value="{{ datePublished }}" name="date">
-      </div>
-      <div class="form-group">
-        <label for="abstractInput">Abstract</label>
-        <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract">{{ abstract }}</textarea>
-        <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
-      </div>
-
-      <div class="form-group full-width">
-        <label for="tagsInput">Tags</label>
-        <input type="text" class="form-control full-width" id="tagsInput" value="{{ tags }}" name="tags">
-      </div>
-
-      <div class="form-group">
-        <label for="exampleReferences">References</label>
-        <div class="form-group" id="referenceSearch">
-          <input type="text" class="form-control full-width" id="currentRefs"> <!-- find way to make this readonly but still delete entries -->
-        </div>
-
-        <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
-        <input type="text" id="referenceTitleInput" placeholder="Title">
-        <input type="text" id="referenceAuthorsInput" placeholder="Authors">
-        <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
-        <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
-        
-        
-        <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
-      </div>
 
         <div class="form-group">
-          <div class="form-group" id="fakePaperSearch">
-          </div>
-          <button onclick="preUploadCheck();">Pre-upload Check</button>
-
-          <button onclick="submitForm('');" id="uploadPaperButton" style="display: none">Upload</button>
-          <p class="form-group" id="uploadLoading" style="display: none;">Uploading...</p>
-          <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
-          <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
+          <label for="dateInput">Date Published (ex: YYYY-MM-DD)</label>
+          <input type="date" class="form-control" id="dateInput" placeholder="Date Published" value="{{ datePublished }}" name="date">
         </div>
-<!--     </form> -->
-    </div>
-</div>
+        <div class="form-group">
+          <label for="abstractInput">Abstract</label>
+          <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract">{{ abstract }}</textarea>
+          <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
+        </div>
 
+        <div class="form-group full-width">
+          <label for="tagsInput">Tags</label>
+          <input type="text" class="form-control full-width" id="tagsInput" value="{{ tags }}" name="tags">
+        </div>
+
+        <div class="form-group">
+          <label for="exampleReferences">References</label>
+          <div class="form-group" id="referenceSearch">
+            <input type="text" class="form-control full-width" id="currentRefs"> <!-- find way to make this readonly but still delete entries -->
+          </div>
+
+          <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
+          <input type="text" id="referenceTitleInput" placeholder="Title">
+          <input type="text" id="referenceAuthorsInput" placeholder="Authors">
+          <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
+          <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
+          
+          
+          <!-- <textarea class="form-control" rows="4" id="exampleReferences" placeholder="References" name="references"></textarea> -->
+        </div>
+
+          <div class="form-group">
+            <div class="form-group" id="fakePaperSearch">
+            </div>
+            <button onclick="preUploadCheck();">Pre-upload Check</button>
+
+            <button onclick="submitForm('');" id="uploadPaperButton" style="display: none">Upload</button>
+            <p class="form-group" id="uploadLoading" style="display: none;">Uploading...</p>
+            <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
+            <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
+          </div>
+  <!--     </form> -->
+      </div>
+  </div>
+</div> <!-- end of container -->
 <script>
 // should make jQuery more compatible with other libraries by removing $ alias for jQuery variable
 // jQuery.noConflict();
