@@ -23,7 +23,7 @@ class RedisDatabase():
     elif(mode == "Production"): #We can connect to a second database, which we can clean out without losing production data
       self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379, db=0)
       
-    self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])	
+    self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])  
     
   def clearDatabase(self):
     self.redisDB.flushdb()
@@ -346,7 +346,7 @@ class RedisDatabase():
       author = self.getAuthor(authorID)
       authors.append(author)
     return authors
-	
+  
   def getAuthorIDsMatchingAuthorNames(self, namesToSearch):
     words = []
     for name in namesToSearch:
@@ -356,7 +356,7 @@ class RedisDatabase():
       authorWordKeys.append("AuthorWord:"+word)  
     authorIDs = self.getMergedSearchResults(authorWordKeys)
     return authorIDs
-	
+  
   def getPapersMatchingAuthorNames(self, namesToSearch):
     authorIDs = self.getAuthorIDsMatchingAuthorNames(namesToSearch)
     return self.getPapersMatchingAuthorIDs(authorIDs)
@@ -402,11 +402,11 @@ class RedisDatabase():
       paper = self.getPaper(paperID)
       papers.append(paper)
     return papers
-	
+  
   def getPapersAdvancedSearch(self, titles, tags, authorNamesToSearch):
     authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
     return self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
-	
+  
   def getPapersAdvancedSearchRealOnly(self, titles, tags, authorNamesToSearch):
     authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
     papers = self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
@@ -415,7 +415,7 @@ class RedisDatabase():
       if paper.isUploaded:
         papersToReturn.append(paper)
     return papersToReturn
-	
+  
   def getPapersAdvancedSearchFakeOnly(self, titles, tags, authorNamesToSearch):
     authorIDs = self.getAuthorIDsMatchingAuthorNames(authorNamesToSearch)
     papers = self.getPapersAdvancedAuthorIDSearch(titles, tags, authorIDs)
@@ -512,7 +512,7 @@ class RedisDatabase():
     for word in wordSet:
       words.append(word)
     return words
-	
+  
   def putUser(self, Name, facebookID = None):
     id = self.redisDB.get("Users:IDCounter")
     self.redisDB.set("User:"+id+":UserName",Name)
@@ -526,7 +526,7 @@ class RedisDatabase():
 
   def assignUserFacebookID(self, id, facebookID):
     self.redisDB.set("User:"+id+":FacebookID", facebookID)
-    self.redisDB.set("FacebookID:"+facebookID+":id", id)	
+    self.redisDB.set("FacebookID:"+facebookID+":id", id)  
 
   #Should return a new user object
   def getUserByID(self, id):
@@ -588,7 +588,7 @@ class RedisDatabase():
         return
       else:
         self.redisDB.zadd("User:"+userID+":FavoriteTags", favoriteLevel, tag)
-	  
+    
   #takes a user id and a paper id to search for in this users list of favorites
   #returns true if the paper is in the user's favorites list
   def hasFavoritePaper(self, userID, paperID):
@@ -612,7 +612,7 @@ class RedisDatabase():
     if rslt == None:
       return False
     return True
-	
+  
   #takes a user id and a paper id to delete from this users list of favorites
   def removeFavoritePaper(self, userID, paperID):
     self.redisDB.zrem("User:"+userID+":FavoritePapers", paperID)
@@ -624,7 +624,7 @@ class RedisDatabase():
   #takes a user id and a Tag name to delete from this users list of favorites
   def removeFavoriteTag(self, userID, tag):
     self.redisDB.zrem("User:"+userID+":FavoriteTags", tag)
-	
+  
   def addStalker(self, stalkerID, userIDToStalk):
     if stalkerID == userIDToStalk:
       return
@@ -640,26 +640,21 @@ class RedisDatabase():
   def isStalking(self, stalkerID, userIDToCheck):
     return self.redisDB.sismember("User:"+stalkerID+":FollowingUserIDs", userIDToCheck)
 
+  def markPaperUploaded(self, paperToMarkID):
+    #TODO double check.  This is probably broken.
+    self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)
+  
+  def isPaperUploaded(self, paperToCheckID):
+    return self.redisDB.get("Paper:"+paperToCheckID+":IsUploaded")
+  
   def addReference(self, paperCitingID, paperCitedID):
     self.redisDB.sadd("Paper:"+paperCitingID+":References", paperCitedID)
     self.redisDB.sadd("Paper:"+paperCitedID+":CitedBys", paperCitingID)
 
-  def setReferences(self, paperCitingID, papersCitedIDs):
-    # TODO: this function should remove any existing references (if any) from paperCitingID (paperCitingID may not even exist as a key yet)
-    # then call addReference(paperCitingID, paperCitedID) for all paperCitedID in papersCitedIDs
-    pass
-    
-  def markPaperUploaded(self, paperToMarkID):
-    #TODO double check.  This is probably broken.
-    self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)
-	
-  def isPaperUploaded(self, paperToCheckID):
-    return self.redisDB.get("Paper:"+paperToCheckID+":IsUploaded")
-	
   def removeReference(self, paperCitingID, paperCitedID):
     self.redisDB.srem("Paper:"+paperCitingID+":References", paperCitedID)
     self.redisDB.srem("Paper:"+paperCitedID+":CitedBys", paperCitingID)
-	
+  
   def setReferences(self, paperCitingID, papersCitedIDs):
     members = self.redisDB.smembers("Paper:"+paperCitingID+":References")
     for referenceToRemove in members:
