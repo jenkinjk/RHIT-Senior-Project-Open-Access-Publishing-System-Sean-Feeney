@@ -77,62 +77,71 @@ def home_page():
     print 'user ' + get_user_id() + ' is viewing the home page'
     return render_template('home.html')
 
+def parse_paper_post_data():
+    title = request.form.get('title', default="")
+    # TODO: add author names as a field here that could be ignored on the outside, since sometimes 'authors' is used as names and sometimes as ids
+    authorIDs = [] if request.form.get('authors', default="") == "" else request.form.get('authors', default="").split(',')
+    authorIDs = [authorID.strip() for authorID in authorIDs]
+
+    tags = [] if request.form.get('tags', default="") == "" else request.form.get('tags', default="").split(',')
+    tags = [tag.strip() for tag in tags]
+
+    abstract = request.form.get('abstract', default="")
+
+    datePublished = request.form.get('date', default="")
+    datePublished = parse_date(datePublished)
+
+    references = [] if request.form.get('references', default="") == "" else request.form['references'].split(",")
+    references = [reference.strip() for reference in references]
+    # if an ID is already assigned to this paper somehow, such as when filling a stub or updating an existing paper
+    paperID = request.form.get('paperID', default="")
+
+    print "parsed incoming paper post data:"
+    print "title:", title, "authorIDs", authorIDs, "tags:", tags, "abstract:", abstract, "datePublished:", datePublished, "references:", references, "paperID:", paperID
+    return title, authorIDs, tags, abstract, datePublished, references, paperID
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
     print 'user ' + get_user_id() + ' is uploading'
     if request.method == 'POST':
-        upload_file = request.files['file']
+        title, authorIDs, tags, abstract, datePublished, references, paperID = parse_paper_post_data()
+        print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
+        if get_user_id() == "":
+            return "Sorry, you must be logged in to upload a paper"
+        upload_file = request.files.get('file', default=None)
         if upload_file and allowed_file(upload_file.filename):
-            # TODO: we might should check our database to see if the file already exists 
-            
-            # Parse out the entered information
-            title = request.form['title']
-
-            authorIDs = request.form['authors'].split(',')
-            print("raw authors:", authorIDs)
-            authorIDs = [authorID.strip() for authorID in authorIDs]
-
-            tags = request.form['tags'].split(',')
-            print("raw tags:", tags)
-            tags = [tag.strip() for tag in tags]
-
-            abstract = request.form['abstract']
-
-            datePublished = request.form['date']
-            if datePublished == "":
-                print "missing datepublished field, using default value"
-                datePublished = parse_date(datePublished)
+            # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
+            if paperID == "":
+                # this is a new paper
+                paperID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                db.setReferences(uniqueID, references)
             else:
-                datePublished = parse_date(datePublished)
+                # this paper already exists
+                print "Updating paper with id:", paperID
+                posted_by = db.getPaper(paperID).postedByUserID
+                if posted_by != str(get_user_id()):
+                    # they are not allowed to update/overwrite it
+                    return "Permission denied, your used id did not upload this paper so you cannot modify it"
+                db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                db.setReferences(uniqueID, references)
+            # in either case, store the document
+            if docStore.documentExists(paperID):
+                docStore.removeDocument(paperID)
+            docStore.storeDocument(upload_file, paperID)
 
-            # references = request.form['references']
-            references = [] if request.form['references'] == "" else request.form['references'].split(",")
-            print("raw references:", references)
-            references = [reference.strip() for reference in references]
-
-            # authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
-            stubID = request.form['stubID']
-            
-            print 'title:',title,'authorIDs:',authorIDs,'tags:',tags,'abstract:', abstract,'submittedBy:',get_user_id(),'datePublished:',datePublished,'references:',references
-            if stubID == "":
-                # putPaper(title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded)
-                uniqueID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-            else:
-                print "Filling stub paper with id:", stubID
-                # updatePaper(id, title, authors, tags, abstract, postedByUserID, datePublished, publisherID, isUploaded):
-                db.updatePaper(stubID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-                uniqueID = stubID
-
-            # add references
-            for reference in references:
-                db.addReference(uniqueID, reference)
-        
+        else:
+            # We are not uploading a physical paper, so either we are updating a paper's metadata without changing the pdf, or it is an invalid request
+            print "Updating paper with id:", paperID
+            posted_by = db.getPaper(paperID).postedByUserID
+            if posted_by != str(get_user_id()):
+                # they are not allowed to update/overwrite it
+                return "Permission denied, your used id did not upload this paper so you cannot modify it"
+            db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+            db.setReferences(uniqueID, references)
             # png:
             # thumbnail = png_converter.convert(upload_file)
             # print "uploading thumbnail: ", thumbnail.make_blob(format='png')
 
-            docStore.storeDocument(upload_file, uniqueID)
-            
             # png:
             # docStore.storeThumbnail(thumbnail, uniqueID)
 
@@ -140,37 +149,29 @@ def upload_page():
         # return render_template('upload.html')
     # else it is a GET request
     else:
+        # TODO: what about prepopulating the file input?
+        # how about add the following text to file input in this case: "(optional) replace uploaded file with new one"
+        stubID = "stubID" if request.args.get("editPaperID") is None else request.args.get("editPaperID")
         title = "" if request.args.get("title") is None else request.args.get("title")
-        # authors = "" if request.args.get("authors") is None else request.args.get("authors")
-        tags = "" if request.args.get("tags") is None else request.args.get("tags")
         authorNames = "" if request.args.get("authorNames") is None else request.args.get("authorNames")
         authorIDs = "" if request.args.get("authorIDs") is None else request.args.get("authorIDs")
         datePublished = "" if request.args.get("datePublished") is None else request.args.get("datePublished").split(" ")[0]
-        return render_template('upload.html', title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs, datePublished=datePublished)
+        abstract = "" if request.args.get("abstract") is None else request.args.get("abstract")
+        tags = "" if request.args.get("tags") is None else request.args.get("tags")
+        referenceNames = "" if request.args.get("referenceNames") is None else request.args.get("referenceNames")
+        referenceIDs = "" if request.args.get("referenceIDs") is None else request.args.get("referenceIDs")
+        print "stubID:", stubID, "title:", title, "authorNames:", authorNames, "authorIDs:", authorIDs, "datePublished:", datePublished, "abstract:", abstract, "tags:", tags, "referenceNames:", referenceNames, "referenceIDs:", referenceIDs
+        return render_template('upload.html', stubID=stubID, title=title, tags=tags, authorNames=authorNames, authorIDs=authorIDs, datePublished=datePublished, abstract=abstract, referenceNames=referenceNames, referenceIDs=referenceIDs)
 
 
 @app.route('/uploadFakePaper', methods=['POST'])
 def upload_fake_paper_endpoint():
-    # title, at least one author, publication date
-
-    title = request.form['title']
-
-    authorIDs = request.form['authors'].split(',')
-    print("raw authors:", authorIDs)
-    authorIDs = [authorID.strip() for authorID in authorIDs]
-    authorIDs = [get_id_for_author_name(authorID) for authorID in authorIDs]
-    # TODO: get this the right way ^
-
-    datePublished = request.form['date']
-    datePublished = date()
-    # if datePublished == "":
-    #     print "missing datepublished field, using default value"
-    #     datePublished = datetime(1,1,1)
-    # else:
-    #     datePublished = date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
-    # put fake paper
-    uniqueID = db.putPaper(title, authorIDs, [], "", get_user_id(), datePublished, None, False)
-
+    # title, authorIDs, tags, abstract, datePublished, references, paperID
+    title, authorNames, _, _, datePublished, _, _ = parse_paper_post_data()
+    # what is posted to the uploadFakePaper endpoint is currently author names, not ids, so let's naively resolve them
+    authorIDs = [get_id_for_author_name(authorName) for authorName in authorNames]
+    # we put the empty string in instead of get_user_id().  hopefully it doesn't break stuff
+    uniqueID = db.putPaper(title, authorIDs, [], "", "", datePublished, None, False)
     return uniqueID
 
 @app.route('/addNewAuthor', methods=['POST'])
@@ -202,8 +203,9 @@ def view_file(uniqueID):
         else:
             favoritedTags.append(False)
     references = [db.getPaper(reference) for reference in references]
+    referenceTitles = [reference.title for reference in references]
     citedBys = [db.getPaper(citedBy) for citedBy in citedBys]
-    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys, userID=userID)
+    return render_template('view_pdf.html', paper=viewingPaper, favorited=favorited, favoritedAuthors=favoritedAuthors, favoritedTags=favoritedTags, references=references, citedBys=citedBys, userID=userID, referenceTitles=referenceTitles)
 
 
 @app.route('/uploads/<uniqueID>')
@@ -289,7 +291,7 @@ def profile_page():
 
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
     user_id = get_user_id()
-    if(user_id is "Anonymous"):
+    if(user_id is ""):
         #   def __init__(id, username, followingIDs, followingNames, papers, authors, tags, followerCount, facebookID = None):
         user = User.User(0,"Anonymous User", [],[],[],[],[],0)
     else:
@@ -308,57 +310,15 @@ def profile_page():
 @app.route('/search', methods=['GET'])
 def search_page():
     print 'user ' + get_user_id() + ' is searching'
-    return render_template('search.html')
-
-# TODO: Unused, delete this
-@app.route('/search-<byWhat>', methods=['GET', 'POST'])
-def search_endpoint(byWhat):
-    print 'user ' + get_user_id() + ' is searching'
-    results = []
-    
-    # print 'request form:', request.form['tags']
-    # print request.form['authors']
-    # print request.form['tags']    
-
-    if(byWhat == 'byTitle'):
-        # TODO: remove this for production, or expand to allow regular expressions.  this is just for testing purposes
-        if(request.form['title'] == '*'):
-            print "hey"
-            results = db.getTopPapers(BIG_NUMBER)
-            print results
-        else:
-            results = db.getPapersMatchingTitle(request.form['title'])
-    elif(byWhat == 'byAuthors'):
-        authorNames = request.form['authors'].split(',')
-        authorNames = [authorName.strip() for authorName in authorNames]
-        results = db.getPapersMatchingAuthorNames(authorNames)
-    elif(byWhat == 'byTags'):
-        tags = request.form['tags'].split(',')
-        tags = [tag.strip() for tag in tags]
-        results = db.getPapersMatchingTags(tags)
-    return render_template('search.html', results=results)
-
-
+    return render_template('advanced_search.html')
 
 
 @app.route('/asyncPaperSearch', methods=['POST'])
 def async_paper_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
-    print 'user ' + get_user_id() + ' posted to asynchronous paper search'
-    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
-    
-    title = request.form['title']
-
-    authorNames = request.form['authors'].split(',')
-    authorNames = [authorName.strip() for authorName in authorNames]
-
-    date = request.form['date']
-
-    tags = request.form['tags'].split(',')
-    tags = [tag.strip() for tag in tags]
-
-    start = int(request.form['start'])
-    end = int(request.form['end'])
+    title, authorNames, tags, _, datePublished, _, _ = parse_paper_post_data()
+    start = int(request.form.get('start', default='0'))
+    end = int(request.form.get('end', default='5'))
 
     results = db.getPapersAdvancedSearchRealOnly([title], tags, authorNames) # date)
     return render_template('paperSearch.html', results=results[start:end])
@@ -367,21 +327,10 @@ def async_paper_search_endpoint():
 @app.route('/asyncReferenceSearch', methods=['POST'])
 def async_reference_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
-    print 'user ' + get_user_id() + ' posted to asynchronous reference search'
-    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Tags:", request.form['tags'], "Start:", request.values['start'], "End:", request.values['end']
-    
-    title = request.form['title']
-
-    authorNames = request.form['authors'].split(',')
-    authorNames = [authorName.strip() for authorName in authorNames]
-
-    date = request.form['date']
-
-    tags = request.form['tags'].split(',')
-    tags = [tag.strip() for tag in tags]
-
-    start = int(request.form['start'])
-    end = int(request.form['end'])
+    # title, authorIDs, tags, abstract, datePublished, references, paperID
+    title, authorNames, tags, _, datePublished, _, _ = parse_paper_post_data()
+    start = int(request.form.get('start', default='0'))
+    end = int(request.form.get('end', default='5'))
 
     results = db.getPapersAdvancedSearch([title], tags, authorNames) # date)
     return render_template('referenceSearch.html', results=results[start:end])
@@ -389,18 +338,10 @@ def async_reference_search_endpoint():
 @app.route('/asyncStubSearch', methods=['POST'])
 def async_stub_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
-    print 'user ' + get_user_id() + ' posted to asynchronous stub search'
-    print "Title:", request.form['title'], "Authors:", request.form['authors'], "Date published:", request.form['date'], "Start:", request.values['start'], "End:", request.values['end']
-    
-    title = request.form['title']
-
-    authorNames = request.form['authors'].split(',')
-    authorNames = [authorName.strip() for authorName in authorNames]
-
-    date = request.form['date']
-
-    start = int(request.form['start'])
-    end = int(request.form['end'])
+    # title, authorIDs, tags, abstract, datePublished, references, paperID
+    title, authorNames, _, _, datePublished, _, _ = parse_paper_post_data()
+    start = int(request.form.get('start', default='0'))
+    end = int(request.form.get('end', default='5'))
 
     results = db.getPapersAdvancedSearchFakeOnly([title], [], authorNames) # date)
     return render_template('stubSearch.html', results=results[start:end])
@@ -411,38 +352,14 @@ def async_author_search_endpoint():
     # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     print 'user ' + get_user_id() + ' posted to asynchronous search'
     
-    name = request.form['name']
+    name = request.form.get('name', default="")
 
-    start = int(request.form['start'])
-    end = int(request.form['end'])
+    start = int(request.form.get('start', default='0'))
+    end = int(request.form.get('end', default='5'))
 
     results = db.getAuthorsMatchingAuthorNames([name])
 
     return render_template('authorSearch.html', results=results[start:end])
-
-
-
-# TODO: Unused, delete this as a post method
-@app.route('/advancedSearch', methods=['GET', 'POST'])
-def advanced_search_page():
-    print 'user ' + get_user_id() + ' is searching'
-    if(request.method == 'GET'):
-        results = []
-    else:
-        title = request.form['title']
-        authorNames = request.form['authors'].split(',')
-        authorNames = [authorName.strip() for authorName in authorNames]
-        tags = request.form['tags'].split(',')
-        tags = [tag.strip() for tag in tags]
-
-        print "Title:", title
-        print "AuthorNames:", authorNames
-        print "Tags:", tags
-
-        # getPapersAdvancedSearch(self, titles, tags, authorNamesToSearch):
-        results = db.getPapersAdvancedSearch([title], tags, authorNames)
-
-    return render_template('advanced_search.html', results=results)
 
 
 @app.route('/addFavorite', methods=['POST'])
@@ -479,13 +396,6 @@ def rmFavoriteTag():
 def rmFavoriteAuthor():
     db.removeFavoriteAuthor(get_user_id(), request.values['author'])
     print(request.values['author'])
-    return "Added! :)"
-
-@app.route('/resolveAuthorName', methods=['POST'])
-def resolveAuthorName():
-    
-
-    print(request.values['paperID'])
     return "Added! :)"
         
 # REMOVE FOR PRODUCTION
@@ -544,11 +454,15 @@ def get_user_id():
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
         return db.facebookToRegularID(str(json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))['user_id']))
     else:
-        return "Anonymous"
+        return ""
 
 def parse_date(datestring):
     # TODO: beef this up
-    return date(int(datestring[0:4]), int(datestring[5:7]), int(datestring[8:10]))
+    print "parsing datestring:", datestring
+    if len(datestring) >= 10:
+        return date(int(datestring[0:4]), int(datestring[5:7]), int(datestring[8:10]))
+    else:
+        return ""
 
 if __name__ == '__main__':
 	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):

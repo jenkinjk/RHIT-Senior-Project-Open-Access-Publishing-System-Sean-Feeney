@@ -219,7 +219,7 @@ class RedisDatabase():
     datePosted = datetime.strptime(self.redisDB.get("Paper:"+paperID+":DatePosted"), "%Y-%m-%d %H:%M:%S.%f")
     # TODO: fix this later
     datePublished = self.redisDB.get("Paper:"+paperID+":DatePublished")
-    print "datePublished for paper ", paperID, title, ":", datePublished
+    print "datePublished for paper", paperID, title, ":", datePublished
     datePublished = date(int(datePublished[0:4]), int(datePublished[5:7]), int(datePublished[8:10]))
     postedByUserID = self.redisDB.get("Paper:"+paperID+":PostedByUserID")
     references = list(self.redisDB.smembers("Paper:"+paperID+":References"))
@@ -644,6 +644,11 @@ class RedisDatabase():
     self.redisDB.sadd("Paper:"+paperCitingID+":References", paperCitedID)
     self.redisDB.sadd("Paper:"+paperCitedID+":CitedBys", paperCitingID)
 
+  def setReferences(self, paperCitingID, papersCitedIDs):
+    # TODO: this function should remove any existing references (if any) from paperCitingID (paperCitingID may not even exist as a key yet)
+    # then call addReference(paperCitingID, paperCitedID) for all paperCitedID in papersCitedIDs
+    pass
+    
   def markPaperUploaded(self, paperToMarkID):
     #TODO double check.  This is probably broken.
     self.redisDB.set("Paper:"+paperToMarkID+":IsUploaded", True)
