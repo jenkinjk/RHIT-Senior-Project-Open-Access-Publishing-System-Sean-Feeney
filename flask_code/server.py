@@ -112,6 +112,11 @@ def upload_page():
         if upload_file and allowed_file(upload_file.filename):
 
 
+
+
+
+
+
             try:
                 # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
                 if paperID == "":
