@@ -110,23 +110,28 @@ def upload_page():
             return "Sorry, you must be logged in to upload a paper"
         upload_file = request.files.get('file', default=None)
         if upload_file and allowed_file(upload_file.filename):
-            # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
-            if paperID == "":
-                # this is a new paper
-                paperID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-                db.setReferences(uniqueID, references)
-            else:
-                # this paper already exists
-                print "Updating paper with id:", paperID
-                posted_by = db.getPaper(paperID).postedByUserID
-                if posted_by != str(get_user_id()):
-                    # they are not allowed to update/overwrite it
-                    return "Permission denied, your used id did not upload this paper so you cannot modify it"
-                db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-                db.setReferences(uniqueID, references)
-            # in either case, store the document
-            if docStore.documentExists(paperID):
-                docStore.removeDocument(paperID)
+
+
+            try:
+                # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
+                if paperID == "":
+                    # this is a new paper
+                    paperID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                    db.setReferences(paperID, references)
+                else:
+                    # this paper already exists
+                    print "Updating paper with id:", paperID
+                    posted_by = db.getPaper(paperID).postedByUserID
+                    if posted_by != str(get_user_id()):
+                        # they are not allowed to update/overwrite it
+                        return "Permission denied, your used id did not upload this paper so you cannot modify it"
+                    db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
+                    db.setReferences(paperID, references)
+                # in either case, store the document
+                if docStore.documentExists(paperID):
+                    docStore.removeDocument(paperID)
+            except:
+                pass
             docStore.storeDocument(upload_file, paperID)
 
         else:
@@ -137,7 +142,7 @@ def upload_page():
                 # they are not allowed to update/overwrite it
                 return "Permission denied, your used id did not upload this paper so you cannot modify it"
             db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
-            db.setReferences(uniqueID, references)
+            db.setReferences(paperID, references)
             # png:
             # thumbnail = png_converter.convert(upload_file)
             # print "uploading thumbnail: ", thumbnail.make_blob(format='png')

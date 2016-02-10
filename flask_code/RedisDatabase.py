@@ -659,7 +659,7 @@ class RedisDatabase():
     members = self.redisDB.smembers("Paper:"+paperCitingID+":References")
     for referenceToRemove in members:
       self.removeReference(paperCitingID, referenceToRemove)
-    for referenceToAdd in paperCitedIDs:
+    for referenceToAdd in papersCitedIDs:
       self.addReference(paperCitingID, referenceToAdd)
 
 
