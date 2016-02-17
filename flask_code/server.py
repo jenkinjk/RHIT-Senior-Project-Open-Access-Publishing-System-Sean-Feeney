@@ -153,31 +153,34 @@ def upload_page():
                 # We will be replacing some file in S3, so it is either uploading a new paper or updating a paper/stub and replacing the upload file
                 if paperID == "":
                     # this is a new paper
+                    print "Putting paper"
                     paperID = db.putPaper(title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
                     db.setReferences(paperID, references)
                 else:
                     # this paper already exists
-                    print "Updating paper with id:", paperID
                     posted_by = db.getPaper(paperID).postedByUserID
-                    if posted_by != str(get_user_id()):
+                    if posted_by != "" and posted_by != str(get_user_id()):
                         # they are not allowed to update/overwrite it
-                        return "Permission denied, your used id did not upload this paper so you cannot modify it"
+                        print "posted by:", posted_by, "user id:", str(get_user_id())
+                        print "Permission denied, your user id did not upload this paper so you cannot modify it"
+                        return "Permission denied, your user id did not upload this paper so you cannot modify it"
+                    print "Updating paper and pdf with id:", paperID
                     db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
                     db.setReferences(paperID, references)
                 # in either case, store the document
                 if docStore.documentExists(paperID):
                     docStore.removeDocument(paperID)
-            except:
-                pass
+            except Exception as e:
+                print "ERROR:",e
             docStore.storeDocument(upload_file, paperID)
 
         else:
             # We are not uploading a physical paper, so either we are updating a paper's metadata without changing the pdf, or it is an invalid request
-            print "Updating paper with id:", paperID
             posted_by = db.getPaper(paperID).postedByUserID
             if posted_by != str(get_user_id()):
                 # they are not allowed to update/overwrite it
                 return "Permission denied, your used id did not upload this paper so you cannot modify it"
+            print "Updating paper with id:", paperID
             db.updatePaper(paperID, title, authorIDs, tags, abstract, get_user_id(), datePublished, None, True)
             db.setReferences(paperID, references)
             # png:
@@ -282,6 +285,7 @@ def uploaded_file(uniqueID):
 def get_thumbnail(uniqueID):
     print 'user ' + get_user_id() + ' is retrieving a thumbnail'
     print 'for file', uniqueID 
+    return "no thumb"
     # png:
     # viewing_file = docStore.retrieveThumbnail(uniqueID)
     # print 'content length:', viewing_file['Body']._content_length
@@ -494,9 +498,9 @@ def get_user_id():
     # we also should query facebook to make sure the person is legit
     if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
-        print "cookie0:", auth_cookie[0]
+        # print "cookie0:", auth_cookie[0]
         cookie_dict = json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))
-        print "cookie dict:", str(cookie_dict)
+        # print "cookie dict:", str(cookie_dict)
         facebookID = str(cookie_dict['user_id'])
         regularID = db.facebookToRegularID(facebookID)
         return regularID
