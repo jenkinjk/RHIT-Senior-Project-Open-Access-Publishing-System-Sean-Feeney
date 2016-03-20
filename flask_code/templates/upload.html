@@ -6,7 +6,10 @@
 <!-- grab tokenfield functionality and styling (tags input)-->
 <link rel="stylesheet" href="{{ url_for('static', filename='dist/bootstrap-tokenfield.css') }}">
 <script src="{{ url_for('static', filename='dist/bootstrap-tokenfield.js') }}"></script>
-
+<!-- try to grab our pdf text extracting stuff -->
+<script src="{{ url_for('static', filename='assets/PdfToText.js') }}"></script>
+<!-- try to grab the pdf.js library, required for the pdf extraction -->
+<script src="{{ url_for('static', filename='dist/build/pdf.js') }}"></script>
 
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css"> -->
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/app.css') }}"> -->
@@ -37,7 +40,7 @@
         </div>
         <div class="form-group">
           <label for="fileInput">File input</label>
-          <input class="full-width" type="file" name="file" id="fileInput">
+          <input class="full-width" type="file" name="file" onchange="preprocessFile(this.files);"id="fileInput">
           <!-- helper text if user needs extra explanation within form -->
           <!-- <p class="help-block">Example block-level help text here.</p> -->
         </div>
@@ -252,6 +255,33 @@ function searchForAuthor() {
     }
   });
 }
+
+function preprocessFile(files) {
+  // create a file reader
+  reader = new FileReader();
+  //attach an onload function
+  reader.onload = function(evt) {
+    console.log("Done reading in PDF data")
+    console.log("Converting PDF to text...")
+    pdfToText(evt.target.result,
+      function(numDone, numTotal) {
+        console.log(numDone + " out of " + numTotal + " pages converted")
+      }, 
+      function(result) {
+        console.log("Done converting PDF")
+        // TODO: all kinds of nice autofill things with this text
+        console.log(result.substring(0,200) + " [rest of text omitted for brevity]...")
+      })
+  }
+  // we can hook into the onprogress event to update a progress bar
+  reader.onprogress = function(prog) {
+    console.log(100.0 * prog.loaded / prog.total + " percent read")
+  }
+  // start the asynchronous reading
+  console.log("Reading in PDF data...")
+  reader.readAsArrayBuffer(files[0])
+}
+
 
 function preUploadCheck() {
 
