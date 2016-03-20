@@ -104,6 +104,14 @@
             <p class="form-group" id="failedUpload" style="display: none; color: red;">Paper Not Uploaded</p>
             <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
           </div>
+          <!-- progress bar stuffs -->
+          <div id="myProgress" style="display: none;">
+            <div id="myBar" ></div>
+          </div>
+
+          <br>
+          <button onclick="moveProgBar()">Submit</button>
+          <!-- end of progress stuffs here -->
   <!--     </form> -->
       </div>
   </div>
@@ -327,7 +335,24 @@ function submitForm(stubID) {
       contentType: false,
       processData: false,
       success: resetInputPrintSuccess,
-      error: printFail});
+      error: printFail
+      xhr: function() {
+        var myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload) {
+            myXhr.upload.addEventListener('progress',function(ev) {
+                if (ev.lengthComputable) {
+                    var percentUploaded = Math.floor(ev.loaded * 100 / ev.total);
+                    console.info('Uploaded '+percentUploaded+'%');
+                    // update UI to reflect percentUploaded
+                } else {
+                    console.info('Uploaded '+ev.loaded+' bytes');
+                    // update UI to reflect bytes uploaded
+                }
+           }, false);
+        }
+        return myXhr;
+    }
+    });
 
   // $.ajax({
   //   type : "POST",
@@ -463,6 +488,21 @@ $('#currentRefs').on('tokenfield:createtoken', function (event) {
             event.preventDefault();
     });
 });
+
+function moveProgBar() {
+  var elem = document.getElementById("myBar");
+  document.getElementById("myProgress").style.display = 'block';
+  var width = 1;
+  var id = setInterval(frame, 10);
+  function frame() {
+    if (width >= 100) {
+      clearInterval(id);
+    } else {
+      width++; 
+      elem.style.width = width + '%'; 
+    }
+  }
+}
 
 </script>
 {% endblock %}
