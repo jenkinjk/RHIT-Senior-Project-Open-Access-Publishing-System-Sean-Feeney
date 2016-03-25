@@ -113,7 +113,6 @@
           </div>
 
           <br>
-          <button onclick="moveProgBar();">Submit</button>
           <!-- end of progress stuffs here -->
   <!--     </form> -->
       </div>
@@ -322,8 +321,6 @@ function preUploadCheck() {
 
 function submitForm(stubID) {
   console.log("Submitting form...");
-  document.getElementById("myProgress").style.display = "";
-  moveProgBar();
   document.getElementById("uploadLoading").style.display = "";
   document.getElementById("failedUpload").style.display = "none";
   document.getElementById("successfulUpload").style.display = "none";
@@ -415,6 +412,8 @@ function addAuthor(authorID, authorName) {
 }
 
 function resetInputPrintSuccess() {
+  document.getElementById("myProgress").style.display = "";
+  moveProgBar();
   $("#fileInput").val("");
   $("#titleInput").val("");
   $("#currentAuthors").tokenfield('setTokens', []);
@@ -431,7 +430,7 @@ function resetInputPrintSuccess() {
   $("#referenceDateInput").val("");
   document.getElementById("uploadLoading").style.display = "none";
   document.getElementById("failedUpload").style.display = "none";
-  document.getElementById("successfulUpload").style.display = "";
+  // document.getElementById("successfulUpload").style.display = "";
   document.getElementById("uploadPaperButton").style.display = "none";
 
 }
@@ -529,12 +528,13 @@ function moveProgBar() {
   function frame() {
     if (width >= 100) {
       clearInterval(id);
+      document.getElementById("successfulUpload").style.display = "";
+      $("#stubSearchContainer").remove();
     } else {
       width++; 
       elem.style.width = width + '%'; 
     }
   }
 }
-
 </script>
 {% endblock %}
