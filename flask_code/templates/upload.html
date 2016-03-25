@@ -108,7 +108,7 @@
             <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
           </div>
           <!-- progress bar stuffs -->
-          <div id="myProgress">
+          <div id="myProgress" style="display: none;">
             <div id="myBar" ></div>
           </div>
 
@@ -218,6 +218,7 @@ function addNewAuthor() {
     data: formData,
     contentType: false,
     processData: false,
+    error: printFail,
     success: function(result) {
         // hide the "loading..." widget
         document.getElementById("authorSearchLoading").style.display = "none";
@@ -321,6 +322,8 @@ function preUploadCheck() {
 
 function submitForm(stubID) {
   console.log("Submitting form...");
+  document.getElementById("myProgress").style.display = "";
+  moveProgBar();
   document.getElementById("uploadLoading").style.display = "";
   document.getElementById("failedUpload").style.display = "none";
   document.getElementById("successfulUpload").style.display = "none";
