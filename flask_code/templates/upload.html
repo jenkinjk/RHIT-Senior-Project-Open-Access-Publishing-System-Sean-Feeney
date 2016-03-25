@@ -108,12 +108,12 @@
             <p class="form-group" id="successfulUpload" style="display: none; color: green;">Paper Successfully Uploaded</p>
           </div>
           <!-- progress bar stuffs -->
-          <div id="myProgress" style="display: none;">
+          <div id="myProgress">
             <div id="myBar" ></div>
           </div>
 
           <br>
-          <button onclick="moveProgBar()">Submit</button>
+          <button onclick="moveProgBar();">Submit</button>
           <!-- end of progress stuffs here -->
   <!--     </form> -->
       </div>
@@ -133,9 +133,9 @@ function searchForReference() {
   // document.getElementById("referenceDateInput").style.display = "none";
   // document.getElementById("referenceSearchButton").style.display = "none";
 
-  var title = document.getElementById("referenceTitleInput").value
-  var authors = document.getElementById("referenceAuthorsInput").value
-  var date = document.getElementById("referenceDateInput").value
+  var title = document.getElementById("referenceTitleInput").value;
+  var authors = document.getElementById("referenceAuthorsInput").value;
+  var date = document.getElementById("referenceDateInput").value;
   console.log(title);
   console.log(authors);
   console.log(date);
@@ -174,9 +174,9 @@ function addFakePaper() {
   // document.getElementById("referenceDateInput").style.display = "none";
   // document.getElementById("referenceSearchButton").style.display = "none";
 
-  var title = document.getElementById("referenceTitleInput").value
-  var authors = document.getElementById("referenceAuthorsInput").value
-  var date = document.getElementById("referenceDateInput").value
+  var title = document.getElementById("referenceTitleInput").value;
+  var authors = document.getElementById("referenceAuthorsInput").value;
+  var date = document.getElementById("referenceDateInput").value;
   console.log(title);
   console.log(authors);
   console.log(date);
@@ -206,7 +206,7 @@ function addNewAuthor() {
   // make the text boxes dissapear and the "loading.." widget appear
   document.getElementById("authorSearchLoading").style.display = "";
 
-  var name = document.getElementById("authorInput").value
+  var name = document.getElementById("authorInput").value;
   console.log(name);
 
   var formData = new FormData();
@@ -233,7 +233,7 @@ function searchForAuthor() {
   // make the "loading.." widget appear
   document.getElementById("authorSearchLoading").style.display = "";
 
-  var name = document.getElementById("authorInput").value
+  var name = document.getElementById("authorInput").value;
   console.log(name);
 
   var formData = new FormData();
@@ -261,33 +261,33 @@ function preprocessFile(files) {
   reader = new FileReader();
   //attach an onload function
   reader.onload = function(evt) {
-    console.log("Done reading in PDF data")
-    console.log("Converting PDF to text...")
+    console.log("Done reading in PDF data");
+    console.log("Converting PDF to text...");
     pdfToText(evt.target.result,
       function(numDone, numTotal) {
-        console.log(numDone + " out of " + numTotal + " pages converted")
+        console.log(numDone + " out of " + numTotal + " pages converted");
       }, 
       function(result) {
-        console.log("Done converting PDF")
+        console.log("Done converting PDF");
         // TODO: all kinds of nice autofill things with this text
-        console.log(result.substring(0,200) + " [rest of text omitted for brevity]...")
+        console.log(result.substring(0,200) + " [rest of text omitted for brevity]...");
       })
   }
   // we can hook into the onprogress event to update a progress bar
   reader.onprogress = function(prog) {
-    console.log(100.0 * prog.loaded / prog.total + " percent read")
+    console.log(100.0 * prog.loaded / prog.total + " percent read");
   }
   // start the asynchronous reading
-  console.log("Reading in PDF data...")
-  reader.readAsArrayBuffer(files[0])
+  console.log("Reading in PDF data...");
+  reader.readAsArrayBuffer(files[0]);
 }
 
 
 function preUploadCheck() {
 
-  var title = document.getElementById("titleInput").value
+  var title = document.getElementById("titleInput").value;
   var authors = $("#currentAuthors").tokenfield('getTokensList', ',', false, false);
-  var date = document.getElementById("dateInput").value
+  var date = document.getElementById("dateInput").value;
 
   console.log(title);
   console.log(authors);
@@ -328,12 +328,12 @@ function submitForm(stubID) {
   $("#authorContainer").remove();
   $("#referenceContainer").remove();
 
-  var file = document.getElementById("fileInput").files[0]
-  var title = document.getElementById("titleInput").value
+  var file = document.getElementById("fileInput").files[0];
+  var title = document.getElementById("titleInput").value;
   //var authors = document.getElementById("authorInput").value
   var authors = $("#currentAuthors").tokenfield('getTokensList', ',', false, false);
-  var date = document.getElementById("dateInput").value
-  var abstract = document.getElementById("abstractInput").value
+  var date = document.getElementById("dateInput").value;
+  var abstract = document.getElementById("abstractInput").value;
   // var tags = document.getElementById("tagsInput").value
   var tags = $("#tagsInput").tokenfield('getTokensList', ',', false, false);
   var references = $("#currentRefs").tokenfield('getTokensList', ',', false, false);
@@ -365,7 +365,7 @@ function submitForm(stubID) {
       contentType: false,
       processData: false,
       success: resetInputPrintSuccess,
-      error: printFail
+      error: printFail,
       xhr: function() {
         var myXhr = $.ajaxSettings.xhr();
         if (myXhr.upload) {
@@ -521,7 +521,6 @@ $('#currentRefs').on('tokenfield:createtoken', function (event) {
 
 function moveProgBar() {
   var elem = document.getElementById("myBar");
-  document.getElementById("myProgress").style.display = 'block';
   var width = 1;
   var id = setInterval(frame, 10);
   function frame() {
