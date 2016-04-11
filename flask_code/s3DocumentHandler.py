@@ -25,11 +25,11 @@ class S3DocumentHandler(documentHandler.DocumentHandler):
         self.s3 = session.resource('s3')
         s3_client = session.client('s3')
         if mode == "Test":
-            self.BUCKET_NAME = 'openaccesstest'
+            self.BUCKET_NAME = 'openaccesspub-test'
         elif mode == "Development":
-            self.BUCKET_NAME = 'openaccessdev'
+            self.BUCKET_NAME = 'openaccesspub-dev'
         elif mode == "Production":
-            self.BUCKET_NAME = 'openaccesstemp'
+            self.BUCKET_NAME = 'openaccesspub-prod'
             
         #bucket = self.s3.Bucket(self.BUCKET_NAME)
         exists = True
@@ -75,6 +75,8 @@ class S3DocumentHandler(documentHandler.DocumentHandler):
         return True
 
     def retrieveDocument(self, uniqueID):
+        print self.s3
+        print self.s3.Object
         return self.s3.Object(self.BUCKET_NAME, DOC_FOLDER + uniqueID).get()
 
     def retrieveThumbnail(self, uniqueID):
