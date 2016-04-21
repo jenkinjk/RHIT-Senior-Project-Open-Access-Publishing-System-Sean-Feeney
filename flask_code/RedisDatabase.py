@@ -16,7 +16,8 @@ class RedisDatabase():
 
   def __init__(self, mode):
     #This is currently set to testing.
-    self.redisDB = redis.StrictRedis(host='aws-my-1ia5rpw98zzpk.cgwbae.0001.usw2.cache.amazonaws.com', port=6379)
+    #self.redisDB = redis.StrictRedis(host='aws-my-1ia5rpw98zzpk.cgwbae.0001.usw2.cache.amazonaws.com', port=6379)
+    self.redisDB = redis.StrictRedis(host='openscholar.csse.rose-hulman.edu', port=6379)
     self.wordsToFilter = set(["the","a","an","the","with","of","for","to","from","on","my","his","her","our","is", "your","in","that","have","has", "be", "it", "not","he","she","you","me","them","us","and","do","at","this","but","by","they","if","we","say", "or","will","one","can","like","no","when"])  
     
   def clearDatabase(self):

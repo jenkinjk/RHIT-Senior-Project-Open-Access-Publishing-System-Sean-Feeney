@@ -437,6 +437,17 @@ def rmFavoriteAuthor():
     db.removeFavoriteAuthor(get_user_id(), request.values['author'])
     print(request.values['author'])
     return "Added! :)"
+
+@app.route('/addUser', methods=['POST'])
+def addUser():
+    print request.values
+    regularID = db.facebookToRegularID(request.values['id'])
+    if(regularID is None):
+        db.putUser(request.values['name'], request.values['id'])
+    userName = db.getUserByID(regularID)
+    if(userName is None):
+        db.putUser(request.values['name'], request.values['id'])
+    return "Added! :)"
         
 # REMOVE FOR PRODUCTION
 @app.route('/shutdown', methods=['GET', 'POST'])
@@ -497,6 +508,8 @@ def get_user_id():
         # print "cookie dict:", str(cookie_dict)
         facebookID = str(cookie_dict['user_id'])
         regularID = db.facebookToRegularID(facebookID)
+        if regularID is None:
+            return "Anonymous user"
         return regularID
     else:
         return ""

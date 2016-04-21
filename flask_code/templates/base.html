@@ -35,9 +35,9 @@
   window.fbAsyncInit = function() {
   FB.init({
     // for localhost:
-    //appId      : '777787275685840',
+    appId      : '777787275685840',
     // for AWS:
-     appId      : '736094593188442',
+    // appId      : '736094593188442',
     cookie     : true,  // enable cookies to allow the server to access 
                         // the session
     status     : true,  // Check Facebook Login status
@@ -97,8 +97,10 @@
           </nav>
         </div>
         <div class="col-lg-2 ">
-          <fb:login-button id="fb-login-button123" class="" onlogin="checkLoginState();"></fb:login-button>
-          <fb:login-button id="fb-logout-button123" class="" onlogin="logMeOut();">Log Out</fb:login-button>
+          <!-- <fb:login-button id="fb-login-button123" class="" onlogin="checkLoginState();"></fb:login-button>
+          <fb:login-button id="fb-logout-button123" class="" onlogin="logMeOut();">Log Out</fb:login-button> -->
+
+          <div class="fb-login-button" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="true" onlogin="freshLogin();"></div>
         </div>
       </div>
       {% endblock %}
@@ -130,6 +132,26 @@
 
   <script>
 
+  function freshLogin() {
+    console.log(FB.getAuthResponse())
+    console.log("adding user!")
+    // FB.api('/me', function(response) {
+    //   console.log(JSON.stringify(response));
+    //   var formData = new FormData();
+    //   formData.append("name", response.name);
+    //   formData.append("id", response.id);
+    //   $.ajax({
+    //     type : "POST",
+    //     url : "/addUser",
+    //     data: formData,
+    //     contentType: false,
+    //     processData: false,
+    //     success: function(result) {
+    //     }
+    //   });
+    // });
+  };
+
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
@@ -146,6 +168,18 @@
       // document.getElementById('fb-logout-button123').className = "";
         FB.api('/me', function(response) {
           console.log(JSON.stringify(response));
+          var formData = new FormData();
+          formData.append("name", response.name);
+          formData.append("id", response.id);
+          $.ajax({
+            type : "POST",
+            url : "/addUser",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(result) {
+            }
+          });
         });
 
     } else if (response.status === 'not_authorized') {
@@ -173,7 +207,7 @@
       window.location.reload();
     });
     
-    
+    // console.log(FB.getAuthResponse());
     // redirects to the profile page
     //window.location.replace('/profile')
   }
@@ -185,8 +219,6 @@
       window.location.reload();
     });
   }
-
-
 
 
   // Here we run a very simple test of the Graph API after login is

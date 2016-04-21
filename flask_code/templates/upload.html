@@ -263,7 +263,7 @@ function preprocessFile(files) {
   reader.onload = function(evt) {
     console.log("Done reading in PDF data");
     console.log("Converting PDF to text...");
-    pdfToText(evt.target.result,
+    pdfToTextRaw(evt.target.result,
       function(numDone, numTotal) {
         console.log(numDone + " out of " + numTotal + " pages converted");
       }, 
