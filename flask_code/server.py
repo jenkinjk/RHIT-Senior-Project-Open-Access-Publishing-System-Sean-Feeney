@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response, make_response, session
+from flask import Flask, request, redirect, render_template, url_for, send_file, send_from_directory, Response, make_response, session, jsonify
 import documentHandler
 import s3DocumentHandler
 import os
@@ -11,6 +11,8 @@ from datetime import datetime, date
 import base64
 import json
 import logging, logging.handlers
+import rake
+import numpy as np
 
 # to help with some weird encoding errors we were getting from python, related to copying and pasting
 # abstracts with weird characters from pdf files.
@@ -448,7 +450,33 @@ def addUser():
     if(userName is None):
         db.putUser(request.values['name'], request.values['id'])
     return "Added! :)"
-        
+
+@app.route('/autoTag', methods=['POST'])
+def autoTag():
+    abstract = request.values['abstract']
+    rake_object = rake.Rake("SmartStoplist.txt")
+    keywords = rake_object.run(abstract)
+    shortenedPhrasesList = shortPhrases(keywords, 2)
+    
+    scores = [float(arr[1]) for arr in shortenedPhrasesList]
+    upperPercentile = np.percentile(scores, 90)
+    print ("UP: ", upperPercentile)
+    justWords = []
+    for key in shortenedPhrasesList:
+        # only use the keywords with scores
+        # above the 90th percentile
+        if key[1] >= upperPercentile:
+            justWords.append(key[0])
+    return jsonify(keywords=justWords)
+
+def shortPhrases(arr, max):
+    retArr = []
+    for elem in arr:
+        listGuy = elem[0].split(' ')
+        if len(listGuy) <= max:
+            retArr.append(elem)
+    return retArr
+
 # REMOVE FOR PRODUCTION
 @app.route('/shutdown', methods=['GET', 'POST'])
 def shutdown():
