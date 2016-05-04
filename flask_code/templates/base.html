@@ -162,6 +162,7 @@
     // Full docs on the response object can be found in the documentation
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
+      console.log('status = connected')
       // Logged into your app and Facebook.  goood goooood
       //testAPI();
       // document.getElementById('fb-login-button123').className = "hidden";
@@ -183,12 +184,14 @@
         });
 
     } else if (response.status === 'not_authorized') {
+      console.log('status = not_authorized')
       // The person is logged into Facebook, but not your app.
       //document.getElementById('status').innerHTML = 'Please log ' +
         //'into this app.';
       // document.getElementById('fb-login-button123').className = "";
       // document.getElementById('fb-logout-button123').className = "hidden";
     } else {
+      console.log('status = not logged into facebook')
       // The person is not logged into Facebook, so we're not sure if
       // they are logged into this app or not.
       // document.getElementById('fb-login-button123').className = "";

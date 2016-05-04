@@ -25,8 +25,8 @@ sys.setdefaultencoding("utf-8")
 
 # if this is true, we use the testing S3 bucket, and the testing redis database, which is cleared out at the beginning of each run
 # MODE = "Test" 
-MODE = "Development" 
-# MODE = "Production"
+# MODE = "Development" 
+MODE = "Production"
 
 
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
@@ -34,36 +34,42 @@ BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
+
+# UNCOMMENT FOR PRODUCTION
+# setupFileLogging()
+
 # set printing to be to file
-SYSTEM_LOG_FILENAME = "server_log.txt"
-old_f = sys.stdout
-class F:
-    def write(self, x):
-        outfile = open(SYSTEM_LOG_FILENAME, "a")
-        # old_f.write("[" + str(datetime.now()) + "] " + x)
-        outfile.write(x)
-        outfile.close()
-sys.stdout = F()
-# sys.stdout = open("server_log.txt", "a")
-# set werkzeug logging to be to a file
-# sys.stdout = open(SYSTEM_LOG_FILENAME, "a")
-app.logger.setLevel(logging.INFO) # use native flask logger
-app.logger.disabled = False
-handler = logging.handlers.RotatingFileHandler(
-        SYSTEM_LOG_FILENAME,
-        "a",
-        maxBytes=1024 * 1024 * 100,
-        backupCount=0
-        )
+def setupFileLogging():
+    SYSTEM_LOG_FILENAME = "server_log.txt"
+    old_f = sys.stdout
+    class F:
+        def write(self, x):
+            outfile = open(SYSTEM_LOG_FILENAME, "a")
+            # old_f.write("[" + str(datetime.now()) + "] " + x)
+            outfile.write(x)
+            outfile.close()
+    sys.stdout = F()
+    # sys.stdout = open("server_log.txt", "a")
+    # set werkzeug logging to be to a file
+    # sys.stdout = open(SYSTEM_LOG_FILENAME, "a")
+    app.logger.setLevel(logging.INFO) # use native flask logger
+    app.logger.disabled = False
+    handler = logging.handlers.RotatingFileHandler(
+            SYSTEM_LOG_FILENAME,
+            "a",
+            maxBytes=1024 * 1024 * 100,
+            backupCount=0
+            )
 
-# formatter = logging.Formatter("%(message)s")
-# handler.setFormatter(formatter)
+    # formatter = logging.Formatter("%(message)s")
+    # handler.setFormatter(formatter)
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.INFO)
-log.addHandler(handler)
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.INFO)
+    log.addHandler(handler)
 
-app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
+    app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
+
 
 # png:
 # png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
@@ -446,6 +452,7 @@ def addUser():
     regularID = db.facebookToRegularID(request.values['id'])
     if(regularID is None):
         db.putUser(request.values['name'], request.values['id'])
+        regularID = db.facebookToRegularID(request.values['id'])
     userName = db.getUserByID(regularID)
     if(userName is None):
         db.putUser(request.values['name'], request.values['id'])
@@ -493,7 +500,7 @@ def cleanoutS3():
 @app.route('/cleanoutDB', methods=['GET', 'POST'])
 def cleanoutDB():
     db.clearDatabase()
-    db.putUser("Asher Morgan", "1162476383780112")
+    # db.putUser("Asher Morgan", "1162476383780112")
     db.putUser("Jonathan Jenkins", "986584014732857")
     db.putUser("Tyler Duffy", "10153554827465751")
     return 'reinitilizing database'
@@ -531,9 +538,9 @@ def get_user_id():
     # we also should query facebook to make sure the person is legit
     if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
         auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
-        # print "cookie0:", auth_cookie[0]
+        print "cookie0:", auth_cookie[0]
         cookie_dict = json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))
-        # print "cookie dict:", str(cookie_dict)
+        print "cookie dict:", str(cookie_dict)
         facebookID = str(cookie_dict['user_id'])
         regularID = db.facebookToRegularID(facebookID)
         if regularID is None:
