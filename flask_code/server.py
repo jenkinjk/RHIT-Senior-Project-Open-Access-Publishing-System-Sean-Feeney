@@ -33,35 +33,35 @@ BIG_NUMBER = 99999
 app = Flask(__name__)
 
 # set printing to be to file
-# SYSTEM_LOG_FILENAME = "server_log.txt"
-# old_f = sys.stdout
-# class F:
-#     def write(self, x):
-#         outfile = open(SYSTEM_LOG_FILENAME, "a")
-#         # old_f.write("[" + str(datetime.now()) + "] " + x)
-#         outfile.write(x)
-#         outfile.close()
-# sys.stdout = F()
-# # sys.stdout = open("server_log.txt", "a")
-# # set werkzeug logging to be to a file
-# # sys.stdout = open(SYSTEM_LOG_FILENAME, "a")
-# app.logger.setLevel(logging.INFO) # use native flask logger
-# app.logger.disabled = False
-# handler = logging.handlers.RotatingFileHandler(
-#         SYSTEM_LOG_FILENAME,
-#         "a",
-#         maxBytes=1024 * 1024 * 100,
-#         backupCount=0
-#         )
+SYSTEM_LOG_FILENAME = "server_log.txt"
+old_f = sys.stdout
+class F:
+    def write(self, x):
+        outfile = open(SYSTEM_LOG_FILENAME, "a")
+        # old_f.write("[" + str(datetime.now()) + "] " + x)
+        outfile.write(x)
+        outfile.close()
+sys.stdout = F()
+# sys.stdout = open("server_log.txt", "a")
+# set werkzeug logging to be to a file
+# sys.stdout = open(SYSTEM_LOG_FILENAME, "a")
+app.logger.setLevel(logging.INFO) # use native flask logger
+app.logger.disabled = False
+handler = logging.handlers.RotatingFileHandler(
+        SYSTEM_LOG_FILENAME,
+        "a",
+        maxBytes=1024 * 1024 * 100,
+        backupCount=0
+        )
 
-# # formatter = logging.Formatter("%(message)s")
-# # handler.setFormatter(formatter)
+# formatter = logging.Formatter("%(message)s")
+# handler.setFormatter(formatter)
 
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.INFO)
-# log.addHandler(handler)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.INFO)
+log.addHandler(handler)
 
-# app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
+app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
 
 # png:
 # png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
