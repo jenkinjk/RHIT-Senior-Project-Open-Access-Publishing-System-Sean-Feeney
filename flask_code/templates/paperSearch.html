@@ -5,30 +5,30 @@
 		<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
 	</li> -->
 	<div class="paperBlock">
-      <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-      <div class="col-md-3">
+      <img class="pdf_thumbnail col-lg-1 col-md-1 col-sm-3 col-xs-3" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+      <div class="col-lg-3 col-md-3 col-sm-4 col-xs-4">
         <strong>Paper Title:</strong> {{ result.title }}</br>
         <a href={{"/viewer/" + result.id}}>View Paper</a>
       </div>
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-3 col-sm-4 col-xs-4">
         <strong>Paper Author(s):</strong> {% for author in result.authorNames %} {{author}}, {% endfor %}
       </div>
-      <div class="col-md-2">
+      <div class="col-lg-2 col-md-2 col-sm-5 col-xs-5">
         <strong>Published:</strong> {{result.datePublished}}
       </div>
-      <div class="col-md-2">
+      <div class="col-lg-2 col-md-2 col-sm-5 col-xs-5">
         <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
       </div>
     </div> <!-- end of paper block -->
 
-    <hr class="col-md-11"> <!-- divider line -->
+    <hr class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1"> <!-- divider line -->
 {% endfor %}
 
 	<div class="paperBlock">
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-3 col-sm-4 col-xs-4 col-lg-offset-3 col-md-offset-3 col-sm-offset-4 col-xs-offset-4">
         <strong>Load more results</strong></br>
       </div>
     </div> <!-- end of paper block -->
 
-    <hr class="col-md-11"> <!-- divider line -->
+    <hr class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1"> <!-- divider line -->
 </div>

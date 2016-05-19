@@ -112,20 +112,20 @@
 						<p>Tags: {% for tag in result.tags %} {{tag}} {% endfor %}</p>
 					</li> -->
 					<div class="paperBlock">
-		              <img class="pdf_thumbnail col-md-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
-		              <div class="col-md-3">
+		              <img class="pdf_thumbnail col-lg-1 col-md-1 col-sm-1 col-xs-1" src="{{ url_for('static', filename='img/pdf_preview.jpg') }}" alt="No Thumb">
+		              <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 		                <strong>Paper Title:</strong> {{ result.title }}</br>
 		                <a href={{"/viewer/" + result.id}}>View Paper</a>
 		              </div>
-		              <div class="col-md-3">
+		              <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 		                <strong>Paper Author(s):</strong> {% for author in result.authorNames %} {{author}}, {% endfor %}
 		              </div>
-		              <div class="col-md-3">
+		              <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 		                <strong>Tag(s):</strong> {% for tag in result.tags %} {{tag}}, {% endfor %}
 		              </div>
 		            </div> <!-- end of paper block -->
 
-		            <hr class="col-md-11"> <!-- divider line -->
+		            <hr class="col-lg-11 col-md-11 col-sm-11 col-xs-11"> <!-- divider line -->
 				{% endfor %}
 
             </div> <!-- end of search results panel body -->
