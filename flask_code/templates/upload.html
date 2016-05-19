@@ -34,14 +34,13 @@
 
 <div class="container"> <!-- whole page container -->
   <div class="row">
-    <div class="col-lg-4 col-lg-offset-4 form-container">
+    <div class="col-lg-8 col-lg-offset-2 form-container">
         <div class="form-group">
-            <p>Input paper information below, then press upload.  If your paper is already in our system as a stub, you will be asked to confirm and then your input will replace th)
-at stub.</p>
+            <p>Input paper information below, then press upload.  If your paper is already in our system as a stub, you will be asked to confirm and then your input will replace that stub.</p>
         </div>
         <div class="form-group">
           <label for="fileInput">File input</label>
-          <input class="full-width" type="file" name="file" onchange="preprocessFile(this.files);"id="fileInput">
+          <input class="full-width" type="file" name="file" onchange="preprocessFile(this.files);" id="fileInput">
           <!-- helper text if user needs extra explanation within form -->
           <!-- <p class="help-block">Example block-level help text here.</p> -->
         </div>
@@ -73,14 +72,14 @@ at stub.</p>
         </div>
         <div class="form-group">
           <label for="abstractInput">Abstract</label>
-          <textarea class="form-control" rows="4" id="abstractInput" placeholder="Abstract" name="abstract">{{ abstract }}</textarea>
+          <textarea class="form-control" rows="4" onchange="autoTag();" id="abstractInput" placeholder="Abstract" name="abstract">{{ abstract }}</textarea>
           <!-- <input type="text" class="form-control" id="exampleAbstract" placeholder="Abstract" name="abstract"> -->
         </div>
 
         <div class="form-group full-width">
           <label for="tagsInput">Tags</label>
           <input type="text" class="form-control full-width" id="tagsInput" value="{{ tags }}" name="tags">
-          <button onclick="autoTag();" id="autoTagButton">Guess!</button>
+          <!-- <button onclick="autoTag();" id="autoTagButton">Guess!</button> -->
         </div>
 
         <div class="form-group">

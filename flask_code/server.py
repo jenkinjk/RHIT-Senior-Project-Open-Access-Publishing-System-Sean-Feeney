@@ -34,7 +34,6 @@ BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
-
 # UNCOMMENT FOR PRODUCTION
 # setupFileLogging()
 
@@ -69,6 +68,7 @@ def setupFileLogging():
     log.addHandler(handler)
 
     app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
+
 
 
 # png:
@@ -462,19 +462,12 @@ def addUser():
 def autoTag():
     abstract = request.values['abstract']
     rake_object = rake.Rake("SmartStoplist.txt")
+    print rake_object
     keywords = rake_object.run(abstract)
     shortenedPhrasesList = shortPhrases(keywords, 2)
-    
-    scores = [float(arr[1]) for arr in shortenedPhrasesList]
-    upperPercentile = np.percentile(scores, 90)
-    print ("UP: ", upperPercentile)
-    justWords = []
-    for key in shortenedPhrasesList:
-        # only use the keywords with scores
-        # above the 90th percentile
-        if key[1] >= upperPercentile:
-            justWords.append(key[0])
-    return jsonify(keywords=justWords)
+
+    shortenedPhrasesList = zip(*sorted(shortenedPhrasesList, key=lambda arr: arr[1]))[0]
+    return jsonify(keywords=shortenedPhrasesList[-min(len(shortenedPhrasesList),10):])
 
 def shortPhrases(arr, max):
     retArr = []
