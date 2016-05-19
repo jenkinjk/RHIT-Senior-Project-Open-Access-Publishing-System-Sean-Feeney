@@ -28,82 +28,13 @@ sys.setdefaultencoding("utf-8")
 # MODE = "Development" 
 MODE = "Production"
 
-
 ALLOWED_EXTENSIONS = set(['pdf', 'txt'])
 BIG_NUMBER = 99999
 
 app = Flask(__name__)
 
-# UNCOMMENT FOR PRODUCTION
-# setupFileLogging()
-
-# set printing to be to file
-def setupFileLogging():
-    SYSTEM_LOG_FILENAME = "server_log.txt"
-    old_f = sys.stdout
-    class F:
-        def write(self, x):
-            outfile = open(SYSTEM_LOG_FILENAME, "a")
-            # old_f.write("[" + str(datetime.now()) + "] " + x)
-            outfile.write(x)
-            outfile.close()
-    sys.stdout = F()
-    # sys.stdout = open("server_log.txt", "a")
-    # set werkzeug logging to be to a file
-    # sys.stdout = open(SYSTEM_LOG_FILENAME, "a")
-    app.logger.setLevel(logging.INFO) # use native flask logger
-    app.logger.disabled = False
-    handler = logging.handlers.RotatingFileHandler(
-            SYSTEM_LOG_FILENAME,
-            "a",
-            maxBytes=1024 * 1024 * 100,
-            backupCount=0
-            )
-
-    # formatter = logging.Formatter("%(message)s")
-    # handler.setFormatter(formatter)
-
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.INFO)
-    log.addHandler(handler)
-
-    app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
-
-
-
 # png:
 # png_converter = PDF_To_PNG_Converter.PDF_To_PNG()
-
-# get the facebook credentials
-credential_file = open('facebookCredentials.txt', 'r')
-credential_file.readline()
-credentials = credential_file.readline().split(',')
-FACEBOOK_APP_ID = credentials[0]
-FACEBOOK_API_VERSION = credentials[1]
-FACEBOOK_APP_SECRET = credentials[2]
-
-if MODE == "Test":
-    print "Running in", MODE, "mode with self-clearing Test DB and test bucket of S3DocumentHandler"
-    db = RedisDatabase(MODE)
-    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
-    # to save on S3 queries while testing, we could use this:
-    # print "Running in", MODE, "mode with self-clearing Test DB and SimpleDocHandler.  Note: Must have local filesystem write permissions (sudo?)"
-    # docStore = documentHandler.SimpleDocHandler()
-    # import addDummyUsers
-    db.putUser("Asher Morgan", "1162476383780112")
-    db.putUser("Jonathan Jenkins", "986584014732857")
-    db.putUser("Tyler Duffy", "10153554827465751")
-
-elif MODE == "Development":
-    print "Running in", MODE, "mode with regular DB and dev bucket of S3DocumentHandler"
-    db = RedisDatabase(MODE)
-    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
-
-elif MODE == "Production":
-    print "Running in", MODE, "mode with production DB and real bucket of S3DocumentHandler.  Realistic data only please."
-    db = RedisDatabase(MODE)
-    docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
-
 
 @app.route('/', methods=['GET'])
 def welcome_page():
@@ -116,29 +47,6 @@ def welcome_page():
 def home_page():
     print('user ' + get_user_id() + ' is viewing the home page')
     return render_template('home.html')
-
-def parse_paper_post_data():
-    title = request.form.get('title', default="")
-    # TODO: add author names as a field here that could be ignored on the outside, since sometimes 'authors' is used as names and sometimes as ids
-    authorIDs = [] if request.form.get('authors', default="") == "" else request.form.get('authors', default="").split(',')
-    authorIDs = [authorID.strip() for authorID in authorIDs]
-
-    tags = [] if request.form.get('tags', default="") == "" else request.form.get('tags', default="").split(',')
-    tags = [tag.strip() for tag in tags]
-
-    abstract = request.form.get('abstract', default="")
-
-    datePublished = request.form.get('date', default="")
-    datePublished = parse_date(datePublished)
-
-    references = [] if request.form.get('references', default="") == "" else request.form['references'].split(",")
-    references = [reference.strip() for reference in references]
-    # if an ID is already assigned to this paper somehow, such as when filling a stub or updating an existing paper
-    paperID = request.form.get('paperID', default="")
-
-    print "parsed incoming paper post data:"
-    print "title:", title, "authorIDs", authorIDs, "tags:", tags, "abstract:", abstract, "datePublished:", datePublished, "references:", references, "paperID:", paperID
-    return title, authorIDs, tags, abstract, datePublished, references, paperID
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_page():
@@ -270,19 +178,6 @@ def uploaded_file(uniqueID):
     return response
 
 
-    # this part worked fine, but it is simpler to use the make_reponse function.  We may need to do things this way for streaming large files, however, so let's keep it around
-    #def generate_file():
-        #yield viewing_file['Body'].read()
-        ######### TODO: this was experimental, more like actual streaming instead of giving it all in one glob, but had some issues with it.  should revisit at some point
-        #amt_read = 0
-        
-        #while(amt_read < viewing_file['Body']._content_length):
-        #    yield viewing_file['Body'].read(10)
-        #    amt_read = amt_read + 10
-        #########
-    #return Response(generate_file(), mimetype='application/pdf')
-
-
 @app.route('/thumbnails/<uniqueID>')
 def get_thumbnail(uniqueID):
     print 'user ' + get_user_id() + ' is retrieving a thumbnail'
@@ -291,7 +186,6 @@ def get_thumbnail(uniqueID):
     # png:
     # viewing_file = docStore.retrieveThumbnail(uniqueID)
     # print 'content length:', viewing_file['Body']._content_length
-
     # response = make_response(viewing_file['Body'].read())
     # response.headers['Content-Type'] = 'image/png'
     
@@ -299,13 +193,6 @@ def get_thumbnail(uniqueID):
     #response.headers['Content-Disposition'] = 'attachment; filename=' + uniqueID + '.pdf'
     # return response
     
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-	
-########################################
-
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -321,22 +208,7 @@ def login_page():
 @app.route('/profile', methods=['GET'])
 def profile_page():
     print 'user ' + get_user_id() + ' is on the profile page'
-    # print 'request:', request
-    # print 'cookies:', request.cookies
-    # print 'session:', session
-    # if ('fbsr_' + FACEBOOK_APP_ID) in request.cookies:
-    #     # print request.cookies['fbsr_' + FACEBOOK_APP_ID]
-    #     auth_cookie = request.cookies['fbsr_' + FACEBOOK_APP_ID].split('.')
-    #     signature = base64.urlsafe_b64decode(str(auth_cookie[0]) + ((4 - len(auth_cookie[0]) % 4) * '='))
-    #     payload = json.loads(base64.urlsafe_b64decode(str(auth_cookie[1]) + ((4 - len(auth_cookie[1]) % 4) * '=')))
-    #     # print 'signature:', signature
-    #     # print 'payload:', payload
-    #     # # we should probably check with facebook to make sure this is legit, and check the signature and all that.  but really what we care about for now is the user_ID
-    #     # print 'user_ID:', payload['user_id']
-    # else:
-    #     print 'user unknown (no facebook authentication cookie is set)'
-
-
+    
     # User(username, followingIDs, followingNames, papers, authors, tags, followerCount):
     user_id = get_user_id()
     if(user_id is ""):
@@ -363,7 +235,7 @@ def search_page():
 
 @app.route('/asyncPaperSearch', methods=['POST'])
 def async_paper_search_endpoint():
-    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    # an endpoint that performs paper searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     title, authorNames, tags, _, datePublished, _, _ = parse_paper_post_data()
     start = int(request.form.get('start', default='0'))
     end = int(request.form.get('end', default='5'))
@@ -374,7 +246,7 @@ def async_paper_search_endpoint():
 
 @app.route('/asyncReferenceSearch', methods=['POST'])
 def async_reference_search_endpoint():
-    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    # an endpoint that performs reference paper searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     # title, authorIDs, tags, abstract, datePublished, references, paperID
     title, authorNames, tags, _, datePublished, _, _ = parse_paper_post_data()
     start = int(request.form.get('start', default='0'))
@@ -385,7 +257,7 @@ def async_reference_search_endpoint():
 
 @app.route('/asyncStubSearch', methods=['POST'])
 def async_stub_search_endpoint():
-    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    # an endpoint that performs stub paper searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     # title, authorIDs, tags, abstract, datePublished, references, paperID
     title, authorNames, _, _, datePublished, _, _ = parse_paper_post_data()
     start = int(request.form.get('start', default='0'))
@@ -397,16 +269,12 @@ def async_stub_search_endpoint():
 
 @app.route('/asyncAuthorSearch', methods=['POST'])
 def async_author_search_endpoint():
-    # an endpoint that performs searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
+    # an endpoint that performs author searches.  returns results from start to end excluding end, 0 being the first result, 1 being the second, etc.
     print 'user ' + get_user_id() + ' posted to asynchronous search'
-    
     name = request.form.get('name', default="")
-
     start = int(request.form.get('start', default='0'))
     end = int(request.form.get('end', default='5'))
-
     results = db.getAuthorsMatchingAuthorNames([name])
-
     return render_template('authorSearch.html', results=results[start:end])
 
 
@@ -493,9 +361,6 @@ def cleanoutS3():
 @app.route('/cleanoutDB', methods=['GET', 'POST'])
 def cleanoutDB():
     db.clearDatabase()
-    # db.putUser("Asher Morgan", "1162476383780112")
-    db.putUser("Jonathan Jenkins", "986584014732857")
-    db.putUser("Tyler Duffy", "10153554827465751")
     return 'reinitilizing database'
         
 def shutdown_server():
@@ -503,6 +368,9 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 def get_id_for_author_name(author_name):
@@ -550,7 +418,96 @@ def parse_date(datestring):
     else:
         return ""
 
+def parse_paper_post_data():
+    title = request.form.get('title', default="")
+    # TODO: add author names as a field here that could be ignored on the outside, since sometimes 'authors' is used as names and sometimes as ids
+    authorIDs = [] if request.form.get('authors', default="") == "" else request.form.get('authors', default="").split(',')
+    authorIDs = [authorID.strip() for authorID in authorIDs]
+
+    tags = [] if request.form.get('tags', default="") == "" else request.form.get('tags', default="").split(',')
+    tags = [tag.strip() for tag in tags]
+
+    abstract = request.form.get('abstract', default="")
+
+    datePublished = request.form.get('date', default="")
+    datePublished = parse_date(datePublished)
+
+    references = [] if request.form.get('references', default="") == "" else request.form['references'].split(",")
+    references = [reference.strip() for reference in references]
+    # if an ID is already assigned to this paper somehow, such as when filling a stub or updating an existing paper
+    paperID = request.form.get('paperID', default="")
+
+    print "parsed incoming paper post data:"
+    print "title:", title, "authorIDs", authorIDs, "tags:", tags, "abstract:", abstract, "datePublished:", datePublished, "references:", references, "paperID:", paperID
+    return title, authorIDs, tags, abstract, datePublished, references, paperID
+
+
+# set printing to be to file
+def setupFileLogging():
+    SYSTEM_LOG_FILENAME = "server_log.txt"
+    old_f = sys.stdout
+    class F:
+        def write(self, x):
+            outfile = open(SYSTEM_LOG_FILENAME, "a")
+            # old_f.write("[" + str(datetime.now()) + "] " + x)
+            outfile.write(x)
+            outfile.close()
+    sys.stdout = F()
+    # sys.stdout = open("server_log.txt", "a")
+    # set werkzeug logging to be to a file
+    # sys.stdout = open(SYSTEM_LOG_FILENAME, "a")
+    app.logger.setLevel(logging.INFO) # use native flask logger
+    app.logger.disabled = False
+    handler = logging.handlers.RotatingFileHandler(
+            SYSTEM_LOG_FILENAME,
+            "a",
+            maxBytes=1024 * 1024 * 100,
+            backupCount=0
+            )
+
+    # formatter = logging.Formatter("%(message)s")
+    # handler.setFormatter(formatter)
+
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.INFO)
+    log.addHandler(handler)
+
+    app.logger.addHandler(handler) # maybe not needed since we realy use werkzeug's logger
+
+
+
 if __name__ == '__main__':
-	# REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
+
+    # get the facebook credentials
+    credential_file = open('facebookCredentials.txt', 'r')
+    credential_file.readline()
+    credentials = credential_file.readline().split(',')
+    FACEBOOK_APP_ID = credentials[0]
+    FACEBOOK_API_VERSION = credentials[1]
+    FACEBOOK_APP_SECRET = credentials[2]
+
+    if MODE == "Test":
+        print "Running in", MODE, "mode with self-clearing Test DB and test bucket of S3DocumentHandler"
+        db = RedisDatabase(MODE)
+        docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+        # to save on S3 queries while testing, we could use this:
+        # print "Running in", MODE, "mode with self-clearing Test DB and SimpleDocHandler.  Note: Must have local filesystem write permissions (sudo?)"
+        # docStore = documentHandler.SimpleDocHandler()
+        # import addDummyUsers
+
+    elif MODE == "Development":
+        print "Running in", MODE, "mode with regular DB and dev bucket of S3DocumentHandler"
+        db = RedisDatabase(MODE)
+        docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+
+    elif MODE == "Production":
+        print "Running in", MODE, "mode with production DB and real bucket of S3DocumentHandler.  Realistic data only please."
+        db = RedisDatabase(MODE)
+        docStore = s3DocumentHandler.S3DocumentHandler(mode=MODE)
+
+    # UNCOMMENT FOR PRODUCTION
+    # setupFileLogging()
+
+    # REMOVE FOR PRODUCTION, and get a real WSGI server instead of the flask server (so turn threaded=True off):
     app.debug = True
     app.run(host='0.0.0.0', threaded=True)
