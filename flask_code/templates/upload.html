@@ -46,7 +46,7 @@
         </div>
         <div class="form-group">
           <label for="titleInput">Title</label>
-          <input type="text" class="form-control" id="titleInput" placeholder="Title" value="{{ title }}" name="title">
+          <input type="text" class="form-control" id="titleInput" placeholder="Title" value="{{ title }}" name="title" onchange="filterChars('titleInput')">
         </div>
         <div class="form-group">
           <label for="authorInput">Author Names</label>
@@ -60,7 +60,7 @@
           <p class="form-group" id="authorSearchLoading" style="display: none;">Loading...</p>
 
           <!-- text area to enter author names to search for -->
-          <input type="text" id="authorInput" placeholder="Author Name" name="authors">
+          <input type="text" id="authorInput" placeholder="Author Name" name="authors" onchange="filterChars('authorInput')">
           <button onclick="searchForAuthor();" id="authorSearchButton">Search for Author</button>
 
         </div>
@@ -68,7 +68,7 @@
 
         <div class="form-group">
           <label for="dateInput">Date Published (ex: YYYY-MM-DD)</label>
-          <input type="date" class="form-control" id="dateInput" placeholder="Date Published" value="{{ datePublished }}" name="date">
+          <input type="date" class="form-control" id="dateInput" placeholder="Date Published" value="{{ datePublished }}" name="date" onchange="filterChars('dateInput')">
         </div>
         <div class="form-group">
           <label for="abstractInput">Abstract</label>
@@ -78,7 +78,7 @@
 
         <div class="form-group full-width">
           <label for="tagsInput">Tags</label>
-          <input type="text" class="form-control full-width" id="tagsInput" value="{{ tags }}" name="tags">
+          <input type="text" class="form-control full-width" id="tagsInput" value="{{ tags }}" name="tags" onchange="filterChars('tagsInput')">
           <!-- <button onclick="autoTag();" id="autoTagButton">Guess!</button> -->
         </div>
 
@@ -89,9 +89,9 @@
           </div>
 
           <p class="form-group" id="referenceSearchLoading" style="display: none;">Loading...</p>
-          <input type="text" id="referenceTitleInput" placeholder="Title">
-          <input type="text" id="referenceAuthorsInput" placeholder="Authors">
-          <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)">
+          <input type="text" id="referenceTitleInput" placeholder="Title" onchange="filterChars('referenceTitleInput')">
+          <input type="text" id="referenceAuthorsInput" placeholder="Authors"onchange="filterChars('referenceAuthorsInput')">
+          <input type="date" id="referenceDateInput" placeholder="Date (YYYY-MM-DD)"onchange="filterChars('referenceDateInput')">
           <button onclick="searchForReference();" id="referenceSearchButton">Search for Reference</button>
           
           
@@ -122,6 +122,16 @@
 <script>
 // should make jQuery more compatible with other libraries by removing $ alias for jQuery variable
 // jQuery.noConflict();
+
+function filterChars(id) {
+
+  var stringToReplace = document.getElementById(id).value
+  console.log('filtering chars')
+  console.log(stringToReplace)
+  // replace newlines with a space, then replace non-readable ascii with an empty string, then replace multiple adjacent spaces with a single space
+  var desired = stringToReplace.replace(/\n/gi,' ').replace(/[^\x20-\x7e]/gi,'').replace(/\s+/g,' ')
+  document.getElementById(id).value = desired
+}
 
 function searchForReference() {
   console.log("Searching for reference...");
@@ -164,6 +174,7 @@ function searchForReference() {
 }
 
 function autoTag() {
+  filterChars('abstractInput');
   console.log("Auto-filling tags from abstract...");
   var abstract = document.getElementById("abstractInput").value;
   console.log(abstract);
