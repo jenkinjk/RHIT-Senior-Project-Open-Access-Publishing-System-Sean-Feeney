@@ -442,7 +442,7 @@ def parse_paper_post_data():
     return title, authorIDs, tags, abstract, datePublished, references, paperID
 
 
-# set printing to be to file
+# set printing to be to file rather than to the console
 def setupFileLogging():
     SYSTEM_LOG_FILENAME = "server_log.txt"
     old_f = sys.stdout
